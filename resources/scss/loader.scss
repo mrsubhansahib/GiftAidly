@@ -1,0 +1,63 @@
+:root { --c:#1c3676; --t:2s; --__loader_neg_delay: 0ms; }
+
+#global-loader{
+  position:fixed; inset:0; z-index:99999; background:#fff;
+  display:grid; place-items:center;
+  opacity:1; visibility:visible;
+  transition:opacity .25s ease, visibility .25s ease;
+}
+#global-loader.is-hidden{ opacity:0; visibility:hidden; }
+
+#global-loader .loader-canvas{ display:grid; place-items:center; width:100vw; height:100vh; margin:0; background:transparent; }
+#global-loader .loader-svg{ width:220px; height:220px; }
+#global-loader .icon{ stroke:var(--c); stroke-width:3; fill:none; }
+/* keyframes */
+@keyframes paperBefore { 0%{transform:translateY(0);opacity:0} 5%{opacity:1} 20%{transform:translateY(110px)} 25%,100%{opacity:0} }
+@keyframes paperIn     { 0%{transform:translateY(-80px);opacity:0} 15%{opacity:1} 25%{transform:translateY(40px)} 35%{transform:translateY(80px)} 40%,100%{opacity:0} }
+@keyframes shredder    { 0%,5%{opacity:0} 10%,30%{opacity:1} 40%,100%{opacity:0} }
+@keyframes strips      { 0%,30%{opacity:0;transform:translateY(0)} 35%{opacity:1} 50%{transform:translateY(40px)} 55%,100%{opacity:0} }
+@keyframes particles   { 0%,50%{opacity:0} 55%{opacity:1;transform:translateY(0)} 70%{transform:translateY(-60px)} 75%,100%{opacity:0} }
+@keyframes laptop      { 0%,70%{opacity:0} 80%,95%{opacity:1} 100%{opacity:0} }
+/* base invisible before .play */
+#global-loader #paperBefore,#global-loader #paperGroup,#global-loader #shredder,
+#global-loader .strip,#global-loader .particle,#global-loader #laptop{ opacity:0; }
+#global-loader #paperBefore{ transform:translateY(0) }
+#global-loader #paperGroup{  transform:translateY(-80px) }
+#global-loader .strip{       transform:translateY(0) }
+#global-loader .particle{    transform:translateY(0) }
+/* perf hints */
+#global-loader #paperBefore,#global-loader #paperGroup{ transform-box:fill-box; transform-origin:center; }
+#global-loader #paperBefore,#global-loader #paperGroup,#global-loader #shredder,
+#global-loader .strip,#global-loader .particle,#global-loader #laptop{ will-change:transform,opacity; }
+
+/* animations OFF unless .play present */
+#global-loader:not(.play) *{ animation:none !important; }
+
+/* NEW: pause state to avoid any “snap” when CSS attaches */
+#global-loader.paused * { animation-play-state: paused !important; }
+
+/* play hooks — start at 0% */
+#global-loader.play #paperBefore{
+  animation: paperBefore var(--t) infinite ease-in-out; animation-fill-mode: both; opacity:1;
+}
+#global-loader.play #paperGroup{
+  animation: paperIn var(--t) infinite ease-in-out;  animation-fill-mode: both; opacity:1;
+}
+#global-loader.play #shredder{
+  animation: shredder var(--t) infinite ease-in-out; animation-fill-mode: both; opacity:1;
+}
+#global-loader.play .strip{
+  animation: strips var(--t) infinite ease-in-out;   animation-fill-mode: both;
+}
+#global-loader.play .particle{
+  fill: var(--c); stroke:none; animation: particles var(--t) infinite ease-in-out; animation-fill-mode: both;
+}
+#global-loader.play #laptop{
+  animation: laptop var(--t) infinite linear;       animation-fill-mode: both;
+}
+#global-loader.play .delay-0{ animation-delay: 0s }
+#global-loader.play .delay-1{ animation-delay: .1s }
+#global-loader.play .delay-2{ animation-delay: .2s }
+#global-loader.play .delay-3{ animation-delay: .3s }
+
+@media (prefers-reduced-motion:reduce){ #global-loader.play *{ animation:none !important; } }
