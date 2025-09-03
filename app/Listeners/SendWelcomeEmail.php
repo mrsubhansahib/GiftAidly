@@ -4,6 +4,7 @@ namespace App\Listeners;
 
 use App\Mail\WelcomeUserMail;
 use Illuminate\Auth\Events\Registered;
+use Illuminate\Auth\Events\Verified;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Facades\Log;
@@ -22,16 +23,9 @@ class SendWelcomeEmail
     /**
      * Handle the event.
      */
-    public function handle(Registered $event): void
+    public function handle(Verified $event): void
     {
-            // Log::info('SendWelcomeEmail fired for: '.$event->user->email);
-
-        try {
-            Mail::to($event->user->email)->queue(new WelcomeUserMail($event->user));
-        } catch (\Exception $e) {
-            report($e); // log for you
-            // Optional: put a soft warning in session for the next request
-            session()->flash('mail_warning', 'We could not send your welcome email. Please check your address.');
-        }
+        // $event->user is the now-verified user
+        Mail::to($event->user->email)->queue(new WelcomeUserMail($event->user));
     }
 }

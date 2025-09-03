@@ -1,19 +1,20 @@
-@component('mail::message')
-{{-- <div style="text-align:center;margin-bottom:16px;">
-  <img src="{{ url('/images/logo-dark.png') }}" alt="GiftAidly" height="32">
-</div> --}}
-
-# Reset your password
+<x-mail::message>
+# Reset your password 🔐
 
 Hi {{ $user->name ?? 'there' }},  
-We received a request to reset your password.
+We received a request to reset your password for **{{ config('app.name') }}**.
 
-@component('mail::button', ['url' => $url])
+<x-mail::button :url="$url">
 Reset Password
-@endcomponent
+</x-mail::button>
 
-This link expires in 60 minutes. If you didn’t request a reset, no action is required.
+This link expires in **60 minutes**. If you didn’t request a reset, no action is required and you can ignore this email.
 
-Stay secure,<br>
+Stay secure,  
 **The {{ config('app.name') }} Team**
-@endcomponent
+
+<x-mail::subcopy>
+If the button above doesn’t work, copy and paste this URL into your browser:  
+{{ $url }}
+</x-mail::subcopy>
+</x-mail::message>

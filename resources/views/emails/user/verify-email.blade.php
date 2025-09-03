@@ -1,20 +1,22 @@
-@component('mail::message')
-{{-- Logo / Header --}}
-{{-- <div style="text-align:center;margin-bottom:16px;">
-  <img src="{{ url('/images/logo-dark.png') }}" alt="GiftAidly" height="32">
-</div> --}}
+<x-mail::message>
+# Verify your email, {{ $user->name ?? 'there' }} ✅
 
-# Verify your email
+Thanks for signing up to **{{ config('app.name') }}**.  
+Please confirm your email to activate your account and start using the platform.
 
-Hi {{ $user->name ?? 'there' }},  
-Thanks for signing up. Please confirm your email to activate your account.
-
-@component('mail::button', ['url' => $url])
+<x-mail::button :url="$url">
 Verify Email
-@endcomponent
+</x-mail::button>
 
-This link will expire in 60 minutes. If you didn’t create an account, you can safely ignore this email.
+This link will expire in **60 minutes** for security.
+
+If you didn’t create this account, you can safely ignore this email.
 
 Warm regards,  
 **The {{ config('app.name') }} Team**
-@endcomponent
+
+<x-mail::subcopy>
+If the button above doesn’t work, copy and paste this URL into your browser:  
+{{ $url }}
+</x-mail::subcopy>
+</x-mail::message>

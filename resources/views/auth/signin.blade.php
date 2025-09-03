@@ -46,7 +46,7 @@ class="authentication-bg"
                                     placeholder="Enter your password">
                             </div>
                             <div class="form-check mb-3">
-                                <input type="checkbox" required class="form-check-input" id="remember-me">
+                                <input type="checkbox" class="form-check-input" id="remember-me">
                                 <label class="form-check-label" for="remember-me">Remember me</label>
                             </div>
                             <div class="d-grid">
