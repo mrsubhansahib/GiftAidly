@@ -3,12 +3,12 @@
      <div class="logo-box">
           <a href="{{ route('any', 'index') }}" class="logo-dark">
                <img src="/images/logo-sm.png" class="logo-sm" alt="logo sm">
-               <img src="/images/logo-dark.png" style="width: 135px; height: 40px;" class="logo-lg" alt="logo dark">
+               <img src="/images/logo-dark.png" style="width: 140px; height: 40px;" class="logo-lg" alt="logo dark">
           </a>
 
           <a href="{{ route('any', 'index') }}" class="logo-light">
                <img src="/images/logo-sm.png" class="logo-sm" alt="logo sm">
-               <img src="/images/logo-light.png" class="logo-lg" alt="logo light">
+               <img src="/images/logo-light.png"  style="width: 135px; height: 40px;" class="logo-lg" alt="logo light">
           </a>
      </div>
 
