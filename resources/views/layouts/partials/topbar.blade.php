@@ -20,6 +20,30 @@
             </div>
 
             <div class="d-flex align-items-center gap-2">
+                <div class="topbar-item">
+                    <a type="button" href="{{ route('second', ['donation', 'index']) }}"
+                        style="background: linear-gradient(45deg, #1d43ab, #f9c001); 
+                        background-size: 200% 200%;
+                        background-position: left center;
+                        border: none; 
+                        color: white;
+                        font-weight: 600; 
+                        padding: 6px 18px; 
+                        border-radius: 25px; 
+                        display: flex; 
+                        align-items: center; 
+                        cursor: pointer;
+                        transition: background-position 0.5s ease-in-out, transform 0.3s ease;
+                        "
+                        onmouseover="this.style.backgroundPosition='right center'; this.style.transform='scale(1.05)';"
+                        onmouseout="this.style.backgroundPosition='left center'; this.style.transform='scale(1)';">
+
+                        <iconify-icon icon="ph:hand-heart" class="fs-20 align-middle" style="margin-right: 6px;"></iconify-icon>
+                        Donate Now
+                    </a>
+                </div>
+
+
                 <!-- Theme Color (Light/Dark) -->
                 <div class="topbar-item">
                     <button type="button" class="topbar-button" id="light-dark-mode">
