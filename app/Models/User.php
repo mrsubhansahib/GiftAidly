@@ -23,6 +23,13 @@ class User extends Authenticatable implements MustVerifyEmail
         'name',
         'email',
         'password',
+        'role',
+        'title',
+        'city',
+        'country',
+        'address',
+        'zip_code',
+        'stripe_customer_id',
     ];
 
     /**
@@ -46,5 +53,9 @@ class User extends Authenticatable implements MustVerifyEmail
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+    public function subscriptions()
+    {
+        return $this->hasMany(Subscription::class);
     }
 }
