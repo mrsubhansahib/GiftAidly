@@ -14,50 +14,82 @@ class GridDatatable {
      GridjsTableInit() {
 
           // Basic Table
-          if (document.getElementById("table-gridjs"))
-               new gridjs.Grid({
-                    columns: [{
-                         name: 'ID',
-                         formatter: (function (cell) {
-                              return gridjs.html('<span class="fw-semibold">' + cell + '</span>');
-                         })
-                    },
-                         "Name",
-                    {
-                         name: 'Email',
-                         formatter: (function (cell) {
-                              return gridjs.html('<a href="">' + cell + '</a>');
-                         })
-                    },
-                         "Position", "Company", "Country",
-                    {
-                         name: 'Actions',
-                         width: '120px',
-                         formatter: (function (cell) {
-                              return gridjs.html("<a href='#' class='text-reset text-decoration-underline'>" + "Details" + "</a>");
-                         })
-                    },
-                    ],
-                    pagination: {
-                         limit: 5
-                    },
-                    sort: true,
-                    search: true,
-                    data: [
-                         ["11", "Alice", "alice@example.com", "Software Engineer", "ABC Company", "United States"],
-                         ["12", "Bob", "bob@example.com", "Product Manager", "XYZ Inc", "Canada"],
-                         ["13", "Charlie", "charlie@example.com", "Data Analyst", "123 Corp", "Australia"],
-                         ["14", "David", "david@example.com", "UI/UX Designer", "456 Ltd", "United Kingdom"],
-                         ["15", "Eve", "eve@example.com", "Marketing Specialist", "789 Enterprises", "France"],
-                         ["16", "Frank", "frank@example.com", "HR Manager", "ABC Company", "Germany"],
-                         ["17", "Grace", "grace@example.com", "Financial Analyst", "XYZ Inc", "Japan"],
-                         ["18", "Hannah", "hannah@example.com", "Sales Representative", "123 Corp", "Brazil"],
-                         ["19", "Ian", "ian@example.com", "Software Developer", "456 Ltd", "India"],
-                         ["20", "Jane", "jane@example.com", "Operations Manager", "789 Enterprises", "China"]
-                    ]
-               }).render(document.getElementById("table-gridjs"));
-
-
+          const el = document.getElementById("table-gridjs");
+          if (!el) return;
+          // parse safely
+          let rows, cols;
+          try { rows = JSON.parse(el.dataset.rows || "[]"); } catch { rows = []; }
+          try { cols = JSON.parse(el.dataset.columns || "[]"); } catch { cols = []; }
+          const limit = Number.parseInt(el.dataset.limit || "10", 10) || 10;
+          // rows must be an array
+          if (!Array.isArray(rows)) rows = [];
+          // infer columns & normalize data
+          let columns = [];
+          let data = rows;
+          if (Array.isArray(cols) && cols.length) {
+          columns = cols;
+          if (rows.length && !Array.isArray(rows[0]) && typeof rows[0] === "object") {
+          data = rows.map(r => cols.map(k => r?.[k]));
+          }
+          } else if (rows.length) {
+          if (Array.isArray(rows[0])) {
+          const maxLen = rows.reduce((m, r) => Math.max(m, Array.isArray(r) ? r.length : 0), 0);
+          columns = Array.from({ length: maxLen }, (_, i) => `Col ${i + 1}`);
+          } else if (typeof rows[0] === "object") {
+          const keys = Object.keys(rows[0]);
+          columns = keys;
+          data = rows.map(r => keys.map(k => r?.[k]));
+          } else {
+          columns = [];
+          data = [];
+          }
+          }
+          // clear host
+          el.innerHTML = "";
+          // configure Grid.js columns with safe formatter
+          const gridColumns = (columns || []).map((c) => {
+          const name = typeof c === "string" ? c : (c?.name ?? "");
+          // Special handling for "Detail" column
+          if (name === "Detail") {
+          return {
+               name,
+               formatter: (cell, row) => {
+               // ✅ If backend sends object → { text, url, color }
+               if (cell && typeof cell === "object") {
+                    const text = cell.text || "Detail";
+                    const url = cell.url || "#";
+                    const color = cell.color || "primary";
+                    return gridjs.html(
+                    `<a href="${url}" class="btn btn-sm btn-${color}">${text}</a>`
+                    );
+               }
+               // ✅ Fallback → use row ID for default URL
+               const id = row?.cells?.[0]?.data ?? "";
+               return gridjs.html(
+                    `<a href="/detail/${id}" class="btn btn-sm btn-primary">Detail</a>`
+               );
+               },
+          };
+          }
+          // Default → show normal cell, render HTML if string starts with "<"
+          return {
+          name,
+          formatter: (cell) => {
+               if (typeof cell === "string" && cell.trim().startsWith("<")) {
+               return gridjs.html(cell);
+               }
+               return cell ?? "";
+          },
+          };
+          });
+          // render Grid
+          new gridjs.Grid({
+          columns: gridColumns,
+          data,
+          search: true,
+          sort: true,
+          pagination: { limit },
+          }).render(el);
 
           // pagination Table
           if (document.getElementById("table-pagination"))
@@ -220,12 +252,16 @@ class GridDatatable {
                          ["Jane", "jane@example.com", "Operations Manager", "789 Enterprises", "China"]
                     ]
                }).render(document.getElementById("table-hidden-column"));
-
-
      }
 
 }
 
 document.addEventListener('DOMContentLoaded', function (e) {
      new GridDatatable().init();
+});
+
+document.addEventListener("livewire:load", () => {
+  Livewire.hook("message.processed", () => {
+    new GridDatatable().init();
+  });
 });

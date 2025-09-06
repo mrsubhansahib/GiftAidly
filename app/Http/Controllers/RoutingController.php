@@ -31,4 +31,12 @@ class RoutingController extends Controller
     public function livewireView($first) {
         return view($first);
     }
+
+    /**
+     * third level route
+     */
+    public function thirdLevel(Request $request, $first, $second, $third)
+    {
+        return view($first . '.' . $second . '.' . $third); 
+    }    
 }
