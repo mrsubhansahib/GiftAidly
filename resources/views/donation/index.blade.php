@@ -4,7 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <script src="https://code.iconify.design/3/3.1.0/iconify.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/iconify-icon@2/dist/iconify-icon.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/style.css">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Donation Hub - Make a Difference</title>
     <style>
@@ -193,7 +195,7 @@
 
         .tab-btn:not(.active):hover {
             color: #667eea;
-            transform: translateY(-2px);
+            transform: translateY(-1px);
         }
 
         .tab-content {
@@ -538,7 +540,7 @@
             }
 
             50% {
-                transform: translateY(-20px)
+                transform: translateY(-10px)
             }
         }
     </style>
@@ -550,6 +552,28 @@
 
     <!-- Banner Section -->
     <section class="banner">
+        <div style="display: flex; justify-content: end; margin-bottom: 20px;">
+            <a type="button" href="{{ route('any', ['index']) }}"
+                style="background: linear-gradient(45deg, #1d43ab, #94740dff); 
+                        background-size: 200% 200%;
+                        background-position: left center;
+                        text-decoration: none;
+                        border: none; 
+                        color: white;
+                        font-weight: 600; 
+                        padding: 6px 18px; 
+                        border-radius: 25px;  
+                        cursor: pointer;
+                        transition: background-position 0.5s ease-in-out, transform 0.3s ease;
+                        "
+                onmouseover="this.style.backgroundPosition='right center'; this.style.transform='scale(1.05)';"
+                onmouseout="this.style.backgroundPosition='left center'; this.style.transform='scale(1)';">
+                <!-- Classic dashboard (Material Design Icons) -->
+                <iconify-icon icon="mdi:view-dashboard" class="fs-20 align-middle" style="margin-right: 6px;"></iconify-icon>
+
+                Dashboard
+            </a>
+        </div>
         <div class="floating-elements"></div>
         <div class="banner-content">
             <h1>Make a Difference Today</h1>
@@ -602,7 +626,7 @@
                             </div>
 
                             <!-- Single Range Picker -->
-                            <div class="form-group" style="grid-column: 1 / -2;">
+                            <div class="form-group" style="grid-column: 1 / -1;">
                                 <label for="date-range-daily">Select Date Range</label>
                                 <input type="text" id="date-range-daily" class="text-input" placeholder="Pick start and end dates" />
                                 <input type="hidden" name="start_date" id="start_date-daily" />
@@ -646,11 +670,11 @@
 
                             <div class="form-group">
                                 <label for="type-friday">Type</label>
-                                <input type="text" name="type" id="type-friday" value="Friday" class="text-input" min="1" dissabled/>
+                                <input type="text" name="type" id="type-friday" value="Friday" class="text-input" min="1" dissabled />
                             </div>
 
                             <!-- Single Range Picker -->
-                            <div class="form-group" style="grid-column: 1 / -2;">
+                            <div class="form-group" style="grid-column: 1 / -1;">
                                 <label for="date-range-friday">Select Date Range</label>
                                 <input type="text" id="date-range-friday" class="text-input" placeholder="Pick start and end dates" />
                                 <input type="hidden" name="start_date" id="start_date-friday" />
@@ -694,13 +718,11 @@
 
                             <div class="form-group">
                                 <label for="type-monthly">Type</label>
-                                <select name="type" id="type-monthly" class="select-input">
-                                    <option value="month">Monthly</option>
-                                </select>
+                                <input type="text" id="type-monthly" value="Monthly" name="type" class="text-input" readonly />
                             </div>
 
                             <!-- Single Range Picker -->
-                            <div class="form-group" style="grid-column: 1 / -2;">
+                            <div class="form-group" style="grid-column: 1 / -1;">
                                 <label for="date-range-monthly">Select Date Range</label>
                                 <input type="text" id="date-range-monthly" class="text-input" placeholder="Pick start and end dates" />
                                 <input type="hidden" name="start_date" id="start_date-monthly" />
@@ -717,6 +739,7 @@
 
 
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/index.js"></script>
     <script>
         function openTab(evt, tabName) {
             var i, tabPanels, tabBtns;
@@ -728,8 +751,7 @@
             evt.currentTarget.classList.add("active");
         }
 
-
-        // Add some interactive animations
+        // Card hover animations (unchanged)
         document.querySelectorAll('.donation-card').forEach(card => {
             card.addEventListener('mouseenter', function() {
                 this.style.transform = 'translateY(-10px) scale(1.02)';
@@ -739,17 +761,17 @@
             });
         });
 
+        // Date -> YYYY-MM-DD (single definition)
         function fmt(d) {
             const pad = n => String(n).padStart(2, '0');
             return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
         }
 
-        // Date -> YYYY-MM-DD
-        function fmt(d) {
-            const pad = n => String(n).padStart(2, '0');
-            return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
-        }
+        // Helpers for monthly picker
+        const firstOfMonth = (y, m) => new Date(y, m, 1); // m = 0-based
+        const lastOfMonth = (y, m) => new Date(y, m + 1, 0);
 
+        // Generic daily/weekly day-range
         function attachRangePicker(rangeId, startHiddenId, endHiddenId, formId) {
             const rangeEl = document.getElementById(rangeId);
             const startEl = document.getElementById(startHiddenId);
@@ -761,13 +783,12 @@
                 altFormat: "F j, Y",
                 dateFormat: "Y-m-d",
                 minDate: "today",
-                onChange: function(selectedDates) {
+                onChange(selectedDates) {
                     startEl.value = selectedDates[0] ? fmt(selectedDates[0]) : "";
                     endEl.value = selectedDates[1] ? fmt(selectedDates[1]) : "";
                 }
             });
 
-            // Optional: ensure both dates selected before submit
             const form = document.getElementById(formId);
             form.addEventListener('submit', function(e) {
                 if (!startEl.value || !endEl.value) {
@@ -777,13 +798,122 @@
             });
         }
 
-        // Initialize all three
+        // Friday-only day-range
+        // Friday: multiple selectable Fridays (today se aage)
+        function attachRangePickerFridays(rangeId, startHiddenId, endHiddenId, formId) {
+            const rangeEl = document.getElementById(rangeId);
+            const startEl = document.getElementById(startHiddenId);
+            const endEl = document.getElementById(endHiddenId);
+            const form = document.getElementById(formId);
+            if (!rangeEl || !startEl || !endEl || !form) return;
+
+            // helper: ensure a single hidden <input name="fridays"> exists
+            function ensureFridaysHidden() {
+                let h = form.querySelector('input[name="fridays"]');
+                if (!h) {
+                    h = document.createElement('input');
+                    h.type = 'hidden';
+                    h.name = 'fridays'; // CSV of all selected Fridays
+                    h.id = rangeId + '-fridays';
+                    form.appendChild(h);
+                }
+                return h;
+            }
+
+            const fridaysHidden = ensureFridaysHidden();
+
+            flatpickr(rangeEl, {
+                mode: "multiple", // <-- multiple dates
+                altInput: true,
+                altFormat: "F j, Y",
+                dateFormat: "Y-m-d",
+                minDate: "today",
+                // Sirf Friday clickable (0=Sun ... 5=Fri)
+                enable: [date => date.getDay() === 5],
+                onChange(selectedDates) {
+                    // sort just in case
+                    selectedDates.sort((a, b) => a - b);
+
+                    // first/last -> start/end hidden
+                    startEl.value = selectedDates[0] ? fmt(selectedDates[0]) : "";
+                    endEl.value = selectedDates.length ? fmt(selectedDates[selectedDates.length - 1]) : "";
+
+                    // CSV of all selected Fridays for backend
+                    fridaysHidden.value = selectedDates.map(d => fmt(d)).join(',');
+                }
+            });
+
+            // Validation: at least 1 Friday required
+            form.addEventListener('submit', function(e) {
+                if (!fridaysHidden.value) {
+                    e.preventDefault();
+                    alert('Please select at least one Friday.');
+                }
+            });
+        }
+
+        // INIT calls (unchanged except Friday uses updated function)
         document.addEventListener('DOMContentLoaded', function() {
             attachRangePicker('date-range-daily', 'start_date-daily', 'cancellation-daily', 'form-daily');
-            attachRangePicker('date-range-friday', 'start_date-friday', 'cancellation-friday', 'form-friday');
-            attachRangePicker('date-range-monthly', 'start_date-monthly', 'cancellation-monthly', 'form-monthly');
+            attachRangePickerFridays('date-range-friday', 'start_date-friday', 'cancellation-friday', 'form-friday');
+            attachRangePickerMonths('date-range-monthly', 'start_date-monthly', 'cancellation-monthly', 'form-monthly');
+        });
+
+        // Month range picker (maps to first/last day in hidden fields)
+        function attachRangePickerMonths(rangeId, startHiddenId, endHiddenId, formId) {
+            const rangeEl = document.getElementById(rangeId);
+            const startEl = document.getElementById(startHiddenId);
+            const endEl = document.getElementById(endHiddenId);
+
+            flatpickr(rangeEl, {
+                mode: "range",
+                dateFormat: "Y-m",
+                altInput: true,
+                altFormat: "F Y",
+                minDate: "today",
+                plugins: [new monthSelectPlugin({
+                    shorthand: true,
+                    dateFormat: "Y-m",
+                    altFormat: "F Y"
+                })],
+                onChange(selectedDates) {
+                    if (selectedDates[0]) {
+                        const s = firstOfMonth(selectedDates[0].getFullYear(), selectedDates[0].getMonth());
+                        startEl.value = fmt(s); // e.g. 2025-09-01
+                    } else {
+                        startEl.value = "";
+                    }
+                    if (selectedDates[1]) {
+                        const e = lastOfMonth(selectedDates[1].getFullYear(), selectedDates[1].getMonth());
+                        endEl.value = fmt(e); // e.g. 2025-12-31
+                    } else {
+                        endEl.value = "";
+                    }
+                }
+            });
+
+            const form = document.getElementById(formId);
+            form.addEventListener('submit', function(e) {
+                if (!startEl.value || !endEl.value) {
+                    e.preventDefault();
+                    alert('Please select a start and end month.');
+                }
+            });
+        }
+
+        // Initialize all three
+        document.addEventListener('DOMContentLoaded', function() {
+            // Daily/Weekly: normal day range
+            attachRangePicker('date-range-daily', 'start_date-daily', 'cancellation-daily', 'form-daily');
+
+            // Friday: only Fridays selectable
+            attachRangePickerFridays('date-range-friday', 'start_date-friday', 'cancellation-friday', 'form-friday');
+
+            // Monthly: month range (maps to first/last day)
+            attachRangePickerMonths('date-range-monthly', 'start_date-monthly', 'cancellation-monthly', 'form-monthly');
         });
     </script>
+
 </body>
 
 </html>
