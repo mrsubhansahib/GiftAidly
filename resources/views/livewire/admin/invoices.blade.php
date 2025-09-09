@@ -1,55 +1,106 @@
 <?php
 
-use function Livewire\Volt\{state, mount};
+use function Livewire\Volt\{state};
 
-state([
-    'rows' => [],
-    'columns' => [],
-]);
+//
 
-$load = function () {
-    // Columns reflect your model fields + a Detail action
-    $this->columns = [
-        "ID",
-        "Subscription ID",
-        "Stripe Invoice ID",
-        "Amount Due",
-        "Currency",
-        "Invoice Date",
-        "Paid At",
-        "Detail",
-    ];
-
-    // Static sample rows (Detail as object with text/url/color)
-    $this->rows = [
-        [1001, 'sub_9A12XY', 'in_0001A', 129.99, 'GBP', '2025-08-01', '2025-08-01 10:12',
-            ['text' => 'Detail', 'url' => '/admin/invoices/1001', 'color' => 'primary']
-        ],
-        [1002, 'sub_9A12XY', 'in_0001B',  75.50, 'GBP', '2025-08-05', null,
-            ['text' => 'Detail', 'url' => '/admin/invoices/1002/retry', 'color' => 'primary']
-        ],
-        [1003, 'sub_7K45PQ', 'in_0001C', 260.00, 'GBP', '2025-07-28', null,
-            ['text' => 'Detail', 'url' => '/admin/invoices/1003', 'color' => 'primary']
-        ],
-        [1004, 'sub_2M89RS', 'in_0001D',  49.00, 'GBP', '2025-08-02', '2025-08-02 08:45',
-            ['text' => 'Detail', 'url' => '/admin/invoices/1004', 'color' => 'primary']
-        ],
-        [1005, 'sub_2M89RS', 'in_0001E', 310.75, 'GBP', '2025-08-10', null,
-            ['text' => 'Detail', 'url' => '/admin/invoices/1005', 'color' => 'primary']
-        ],
-    ];
-};
-
-mount($load);
 ?>
-
-<div>
-    <div class="card">
-        <div class="card-body">
-            <div wire:ignore>
-                <div id="table-gridjs"
-                     data-columns='@json($columns)'
-                     data-rows='@json($rows)'></div>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table id="datatable" class="table table-striped table-bordered align-middle">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Subscription ID</th>
+                                    <th>Stripe Invoice ID</th>
+                                    <th>Amount Due</th>
+                                    <th>Currency</th>
+                                    <th>Invoice Date</th>
+                                    <th>Paid At</th>
+                                    <th class="text-center">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>1</td>
+                                    <td>Wasi Butt</td>
+                                    <td>wasi@example.com</td>
+                                    <td>SUBS_001</td>
+                                    <td>INV_1001</td>
+                                    <td>5000</td>
+                                    <td>PKR</td>
+                                    <td>2025-09-01</td>
+                                    <td>2025-09-02</td>
+                                    <td class="text-center">
+                                        <a href="#" class="btn btn-sm btn-primary">View</a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>2</td>
+                                    <td>Ali Khan</td>
+                                    <td>ali@example.com</td>
+                                    <td>SUBS_002</td>
+                                    <td>INV_1002</td>
+                                    <td>4500</td>
+                                    <td>PKR</td>
+                                    <td>2025-09-03</td>
+                                    <td>2025-09-04</td>
+                                    <td class="text-center">
+                                        <a href="#" class="btn btn-sm btn-primary">View</a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>3</td>
+                                    <td>Ahmed Raza</td>
+                                    <td>ahmed@example.com</td>
+                                    <td>SUBS_003</td>
+                                    <td>INV_1003</td>
+                                    <td>7000</td>
+                                    <td>PKR</td>
+                                    <td>2025-09-05</td>
+                                    <td>2025-09-06</td>
+                                    <td class="text-center">
+                                        <a href="#" class="btn btn-sm btn-primary">View</a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>4</td>
+                                    <td>Hassan Ali</td>
+                                    <td>hassan@example.com</td>
+                                    <td>SUBS_004</td>
+                                    <td>INV_1004</td>
+                                    <td>6000</td>
+                                    <td>PKR</td>
+                                    <td>2025-09-07</td>
+                                    <td>2025-09-08</td>
+                                    <td class="text-center">
+                                        <a href="#" class="btn btn-sm btn-primary">View</a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>5</td>
+                                    <td>Muhammad Usman</td>
+                                    <td>usman@example.com</td>
+                                    <td>SUBS_005</td>
+                                    <td>INV_1005</td>
+                                    <td>8000</td>
+                                    <td>PKR</td>
+                                    <td>2025-09-09</td>
+                                    <td>2025-09-10</td>
+                                    <td class="text-center">
+                                        <a href="#" class="btn btn-sm btn-primary">View</a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
