@@ -21,6 +21,7 @@ class DatabaseSeeder extends Seeder
             'name' => 'GiftAidly Admin',
             'email' => 'admin@gmail.com',
             'email_verified_at' => now(),
+            'role' => 'admin',
             'password' => Hash::make('password'),
             'remember_token' => Str::random(10),
         ]);
