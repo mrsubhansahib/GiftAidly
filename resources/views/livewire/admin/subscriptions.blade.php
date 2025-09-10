@@ -1,8 +1,12 @@
 <?php
 
+use App\Models\Subscription;
 use function Livewire\Volt\{state};
 
-//
+// Fetch all subscriptions with user details
+state([
+    'subscriptions' => fn() => Subscription::with('user')->get(),
+]);
 
 ?>
 <div class="container-fluid">
@@ -14,95 +18,88 @@ use function Livewire\Volt\{state};
                         <table id="datatable" class="table table-striped table-bordered align-middle">
                             <thead>
                                 <tr>
-                                    <th>User ID</th>
-                                    <th>Stripe Subscription ID</th>
-                                    <th>Stripe Price ID</th>
+                                    <th>Name</th>
+                                    <th>Email</th>
                                     <th>Status</th>
                                     <th>Price</th>
                                     <th>Currency</th>
                                     <th>Type</th>
-                                    <th>Start Date</th>
-                                    <th>End Date</th>
-                                    <th>Canceled At</th>
                                     <th class="text-center">Action</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
-                                    <td>1</td>
-                                    <td>SUBS_001</td>
-                                    <td>PRICE_001</td>
-                                    <td><span class="badge bg-success">Active</span></td>
-                                    <td>5000</td>
-                                    <td>PKR</td>
-                                    <td>Monthly</td>
-                                    <td>2025-09-01</td>
-                                    <td>2025-10-01</td>
-                                    <td>-</td>
-                                    <td class="text-center">
-                                        <a href="#" class="btn btn-sm btn-primary">View</a>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>2</td>
-                                    <td>SUBS_002</td>
-                                    <td>PRICE_002</td>
-                                    <td><span class="badge bg-danger">Canceled</span></td>
-                                    <td>4500</td>
-                                    <td>PKR</td>
-                                    <td>Monthly</td>
-                                    <td>2025-08-15</td>
-                                    <td>2025-09-15</td>
-                                    <td>2025-09-10</td>
-                                    <td class="text-center">
-                                        <a href="#" class="btn btn-sm btn-primary">View</a>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>3</td>
-                                    <td>SUBS_003</td>
-                                    <td>PRICE_003</td>
-                                    <td><span class="badge bg-success">Active</span></td>
-                                    <td>7000</td>
-                                    <td>PKR</td>
-                                    <td>Yearly</td>
-                                    <td>2025-01-01</td>
-                                    <td>2026-01-01</td>
-                                    <td>-</td>
-                                    <td class="text-center">
-                                        <a href="#" class="btn btn-sm btn-primary">View</a>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>4</td>
-                                    <td>SUBS_004</td>
-                                    <td>PRICE_004</td>
-                                    <td><span class="badge bg-warning">Pending</span></td>
-                                    <td>6000</td>
-                                    <td>PKR</td>
-                                    <td>Monthly</td>
-                                    <td>2025-09-07</td>
-                                    <td>2025-10-07</td>
-                                    <td>-</td>
-                                    <td class="text-center">
-                                        <a href="#" class="btn btn-sm btn-primary">View</a>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>5</td>
-                                    <td>SUBS_005</td>
-                                    <td>PRICE_005</td>
-                                    <td><span class="badge bg-success">Active</span></td>
-                                    <td>8000</td>
-                                    <td>PKR</td>
-                                    <td>Monthly</td>
-                                    <td>2025-09-09</td>
-                                    <td>2025-10-09</td>
-                                    <td>-</td>
-                                    <td class="text-center">
-                                        <a href="#" class="btn btn-sm btn-primary">View</a>
-                                    </td>
-                                </tr>
+                                @foreach($subscriptions as $subscription)
+                                    <tr>
+                                        <td>{{ $subscription->user->name ?? '-' }}</td>
+                                        <td>{{ $subscription->user->email ?? '-' }}</td>
+                                        <td>
+                                            @if($subscription->status === 'active')
+                                                <span class="badge bg-success">Active</span>
+                                            @elseif($subscription->status === 'canceled')
+                                                <span class="badge bg-danger">Canceled</span>
+                                            @elseif($subscription->status === 'pending')
+                                                <span class="badge bg-warning">Pending</span>
+                                            @else
+                                                <span class="badge bg-secondary">{{ ucfirst($subscription->status ?? 'N/A') }}</span>
+                                            @endif
+                                        </td>
+                                        <td>{{ number_format($subscription->price ?? 0) }}</td>
+                                        <td>{{ strtoupper($subscription->currency ?? 'PKR') }}</td>
+                                        <td>{{ ucfirst($subscription->type ?? '-') }}</td>
+                                        <td class="text-center">
+                                            <button class="btn btn-sm btn-primary"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#subscriptionModal{{ $subscription->id }}">
+                                                View
+                                            </button>
+                                        </td>
+                                    </tr>
+
+                                    <!-- Bootstrap Modal -->
+                                    <div class="modal fade" id="subscriptionModal{{ $subscription->id }}" tabindex="-1"
+                                        aria-labelledby="subscriptionModalLabel{{ $subscription->id }}" aria-hidden="true">
+                                        <div class="modal-dialog modal-lg modal-dialog-centered">
+                                            <div class="modal-content">
+                                                <div class="modal-header text-white">
+                                                    <h5 class="modal-title" id="subscriptionModalLabel{{ $subscription->id }}">
+                                                        Subscription Details - {{ $subscription->user->name ?? 'N/A' }}
+                                                    </h5>
+                                                    <button type="button" class="btn-close btn-close-black" data-bs-dismiss="modal"
+                                                        aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <div class="row">
+                                                        <div class="col-md-6">
+                                                            <p><strong>Name:</strong> {{ $subscription->user->name ?? '-' }}</p>
+                                                            <p><strong>Email:</strong> {{ $subscription->user->email ?? '-' }}</p>
+                                                            <p><strong>Stripe Subscription ID:</strong> {{ $subscription->stripe_subscription_id ?? '-' }}</p>
+                                                            <p><strong>Stripe Price ID:</strong> {{ $subscription->stripe_price_id ?? '-' }}</p>
+                                                            <p><strong>Status:</strong>
+                                                                @if($subscription->status === 'active')
+                                                                    <span class="badge bg-success">Active</span>
+                                                                @elseif($subscription->status === 'canceled')
+                                                                    <span class="badge bg-danger">Canceled</span>
+                                                                @elseif($subscription->status === 'pending')
+                                                                    <span class="badge bg-warning">Pending</span>
+                                                                @else
+                                                                    <span class="badge bg-secondary">{{ ucfirst($subscription->status ?? 'N/A') }}</span>
+                                                                @endif
+                                                            </p>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <p><strong>Price:</strong> {{ number_format($subscription->price ?? 0) }}</p>
+                                                            <p><strong>Currency:</strong> {{ strtoupper($subscription->currency ?? 'PKR') }}</p>
+                                                            <p><strong>Type:</strong> {{ ucfirst($subscription->type ?? '-') }}</p>
+                                                            <p><strong>Start Date:</strong> {{ $subscription->start_date ? \Carbon\Carbon::parse($subscription->start_date)->format('Y-m-d') : '-' }}</p>
+                                                            <p><strong>End Date:</strong> {{ $subscription->end_date ? \Carbon\Carbon::parse($subscription->end_date)->format('Y-m-d') : '-' }}</p>
+                                                            <p><strong>Canceled At:</strong> {{ $subscription->canceled_at ? \Carbon\Carbon::parse($subscription->canceled_at)->format('Y-m-d') : '-' }}</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endforeach
                             </tbody>
                         </table>
                     </div>

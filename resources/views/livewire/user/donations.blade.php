@@ -3,17 +3,17 @@
 use function Livewire\Volt\state;
 
 state([
-    'invoices' => [
+    'donations' => [
         [
             'id' => 1,
             'name' => 'Muhammad Wasi',
             'email' => 'mwasi5276@gmail.com',
-            'subscription_id' => 'SUB12345',
-            'stripe_invoice_id' => 'INV98765',
-            'currency' => 'PKR',
-            'amount_due' => '3000',
-            'invoice_date' => '2025-09-04',
-            'paid_at' => '2025-09-05',
+            'type' => 'Daily',
+            'amount' => '$ 30.00',
+            'status' => 'Active',
+            'start_date' => '2025-09-04',
+            'end_date' => '2025-09-11',
+            'cancel_date' => '2025-09-11',
         ],
     ],
 ]);
@@ -29,33 +29,38 @@ state([
                             <thead>
                                 <tr>
                                     <th>Name</th>
-                                    <th>Email</th>
-                                    <th>Currency</th>
+                                    <th>User Email</th>
+                                    <th>Donation Type</th>
+                                    <th>Amount</th>
+                                    <th>Status</th>
                                     <th class="text-center">Action</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach ($invoices as $invoice)
+                                @foreach ($donations as $donation)
                                     <tr>
-                                        <td>{{ $invoice['name'] }}</td>
-                                        <td>{{ $invoice['email'] }}</td>
-                                        <td>{{ $invoice['currency'] }}</td>
+                                        <td>{{ $donation['name'] }}</td>
+                                        <td>{{ $donation['email'] }}</td>
+                                        <td>{{ $donation['type'] }}</td>
+                                        <td>{{ $donation['amount'] }}</td>
+                                        <td>{{ $donation['status'] }}</td>
                                         <td class="text-center">
                                             <button class="btn btn-sm btn-primary" data-bs-toggle="modal"
-                                                data-bs-target="#invoiceModal{{ $invoice['id'] }}">
+                                                data-bs-target="#donationModal{{ $donation['id'] }}">
                                                 View
                                             </button>
                                         </td>
                                     </tr>
 
                                     <!-- Bootstrap Modal -->
-                                    <div class="modal fade" id="invoiceModal{{ $invoice['id'] }}" tabindex="-1"
-                                        aria-labelledby="invoiceModalLabel{{ $invoice['id'] }}" aria-hidden="true">
+                                    <div class="modal fade" id="donationModal{{ $donation['id'] }}" tabindex="-1"
+                                        aria-labelledby="donationModalLabel{{ $donation['id'] }}" aria-hidden="true">
                                         <div class="modal-dialog modal-lg modal-dialog-centered">
                                             <div class="modal-content">
                                                 <div class="modal-header text-white">
-                                                    <h5 class="modal-title" id="invoiceModalLabel{{ $invoice['id'] }}">
-                                                        Invoice Details - {{ $invoice['name'] }}
+                                                    <h5 class="modal-title"
+                                                        id="donationModalLabel{{ $donation['id'] }}">
+                                                        Donation Details - {{ $donation['name'] }}
                                                     </h5>
                                                     <button type="button" class="btn-close btn-close-black"
                                                         data-bs-dismiss="modal" aria-label="Close"></button>
@@ -63,21 +68,20 @@ state([
                                                 <div class="modal-body">
                                                     <div class="row">
                                                         <div class="col-md-6">
-                                                            <p><strong>Name:</strong> {{ $invoice['name'] }}</p>
-                                                            <p><strong>Email:</strong> {{ $invoice['email'] }}</p>
-                                                            <p><strong>Subscription ID:</strong>
-                                                                {{ $invoice['subscription_id'] }}</p>
-                                                            <p><strong>Stripe Invoice ID:</strong>
-                                                                {{ $invoice['stripe_invoice_id'] }}</p>
-                                                            <p><strong>Currency:</strong> {{ $invoice['currency'] }}
+                                                            <p><strong>Name:</strong>{{ $donation['name'] }}</p>
+                                                            <p><strong>Email:</strong> {{ $donation['email'] }}</p>
+                                                            <p><strong>Donation Type:</strong> {{ $donation['type'] }}
                                                             </p>
+                                                            <p><strong>Amount:</strong> {{ $donation['amount'] }}</p>
                                                         </div>
                                                         <div class="col-md-6">
-                                                            <p><strong>Amount Due:</strong>
-                                                                {{ $invoice['amount_due'] }}</p>
-                                                            <p><strong>Invoice Date:</strong>
-                                                                {{ $invoice['invoice_date'] }}</p>
-                                                            <p><strong>Paid At:</strong> {{ $invoice['paid_at'] }}</p>
+                                                            <p><strong>Status:</strong> {{ $donation['status'] }}</p>
+                                                            <p><strong>Start Date:</strong>
+                                                                {{ $donation['start_date'] }}</p>
+                                                            <p><strong>End Date:</strong> {{ $donation['end_date'] }}
+                                                            </p>
+                                                            <p><strong>Cancel Date:</strong>
+                                                                {{ $donation['cancel_date'] }}</p>
                                                         </div>
                                                     </div>
                                                 </div>

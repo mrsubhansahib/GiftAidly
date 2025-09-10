@@ -1,12 +1,16 @@
 <?php
 
+use App\Models\Transaction;
 use function Livewire\Volt\{state};
 
-//
+// Fetch all transactions dynamically
+state([
+    'transactions' => fn() => Transaction::with('user')->get(),
+]);
 
 ?>
 <div class="container-fluid">
-    <div class="row ">
+    <div class="row">
         <div class="col-12">
             <div class="card shadow-sm">
                 <div class="card-body">
@@ -22,51 +26,73 @@ use function Livewire\Volt\{state};
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
-                                    <td>INV_1001</td>
-                                    <td>TRX_ABC123</td>
-                                    <td>2025-09-01</td>
-                                    <td><span class="badge bg-success">Paid</span></td>
-                                    <td class="text-center">
-                                        <a href="#" class="btn btn-sm btn-primary">View</a>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>INV_1002</td>
-                                    <td>TRX_DEF456</td>
-                                    <td>2025-09-02</td>
-                                    <td><span class="badge bg-danger">Failed</span></td>
-                                    <td class="text-center">
-                                        <a href="#" class="btn btn-sm btn-primary">View</a>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>INV_1003</td>
-                                    <td>TRX_GHI789</td>
-                                    <td>2025-09-03</td>
-                                    <td><span class="badge bg-warning">Pending</span></td>
-                                    <td class="text-center">
-                                        <a href="#" class="btn btn-sm btn-primary">View</a>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>INV_1004</td>
-                                    <td>TRX_JKL012</td>
-                                    <td>2025-09-04</td>
-                                    <td><span class="badge bg-success">Paid</span></td>
-                                    <td class="text-center">
-                                        <a href="#" class="btn btn-sm btn-primary">View</a>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>INV_1005</td>
-                                    <td>TRX_MNO345</td>
-                                    <td>2025-09-05</td>
-                                    <td><span class="badge bg-danger">Failed</span></td>
-                                    <td class="text-center">
-                                        <a href="#" class="btn btn-sm btn-primary">View</a>
-                                    </td>
-                                </tr>
+                                @foreach($transactions as $transaction)
+                                    <tr>
+                                        <td>{{ $transaction->invoice_id ?? '-' }}</td>
+                                        <td>{{ $transaction->stripe_transaction_id ?? '-' }}</td>
+                                        <td>{{ $transaction->paid_at ? \Carbon\Carbon::parse($transaction->paid_at)->format('Y-m-d') : '-' }}</td>
+                                        <td>
+                                            @if($transaction->status === 'paid')
+                                                <span class="badge bg-success">Paid</span>
+                                            @elseif($transaction->status === 'failed')
+                                                <span class="badge bg-danger">Failed</span>
+                                            @elseif($transaction->status === 'pending')
+                                                <span class="badge bg-warning">Pending</span>
+                                            @else
+                                                <span class="badge bg-secondary">{{ ucfirst($transaction->status ?? 'N/A') }}</span>
+                                            @endif
+                                        </td>
+                                        <td class="text-center">
+                                            <button class="btn btn-sm btn-primary"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#transactionModal{{ $transaction->id }}">
+                                                View
+                                            </button>
+                                        </td>
+                                    </tr>
+
+                                    <!-- Bootstrap Modal -->
+                                    <div class="modal fade" id="transactionModal{{ $transaction->id }}" tabindex="-1"
+                                        aria-labelledby="transactionModalLabel{{ $transaction->id }}" aria-hidden="true">
+                                        <div class="modal-dialog modal-lg modal-dialog-centered">
+                                            <div class="modal-content">
+                                                <div class="modal-header text-white">
+                                                    <h5 class="modal-title" id="transactionModalLabel{{ $transaction->id }}">
+                                                        Transaction Details - {{ $transaction->invoice_id ?? 'N/A' }}
+                                                    </h5>
+                                                    <button type="button" class="btn-close btn-close-black" data-bs-dismiss="modal"
+                                                        aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <div class="row">
+                                                        <div class="col-md-6">
+                                                            <p><strong>User Name:</strong> {{ $transaction->user->name ?? '-' }}</p>
+                                                            <p><strong>User Email:</strong> {{ $transaction->user->email ?? '-' }}</p>
+                                                            <p><strong>Invoice ID:</strong> {{ $transaction->invoice_id ?? '-' }}</p>
+                                                            <p><strong>Stripe Transaction ID:</strong> {{ $transaction->stripe_transaction_id ?? '-' }}</p>
+                                                            <p><strong>Status:</strong>
+                                                                @if($transaction->status === 'paid')
+                                                                    <span class="badge bg-success">Paid</span>
+                                                                @elseif($transaction->status === 'failed')
+                                                                    <span class="badge bg-danger">Failed</span>
+                                                                @elseif($transaction->status === 'pending')
+                                                                    <span class="badge bg-warning">Pending</span>
+                                                                @else
+                                                                    <span class="badge bg-secondary">{{ ucfirst($transaction->status ?? 'N/A') }}</span>
+                                                                @endif
+                                                            </p>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <p><strong>Paid At:</strong> {{ $transaction->paid_at ? \Carbon\Carbon::parse($transaction->paid_at)->format('Y-m-d') : '-' }}</p>
+                                                            <p><strong>Amount:</strong> {{ number_format($transaction->amount ?? 0) }}</p>
+                                                            <p><strong>Currency:</strong> {{ strtoupper($transaction->currency ?? 'PKR') }}</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endforeach
                             </tbody>
                         </table>
                     </div>
