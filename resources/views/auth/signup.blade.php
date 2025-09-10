@@ -64,7 +64,7 @@
                                 </div>
                                 <div class="mb-3">
                                     <div class="form-check">
-                                        <input type="checkbox" class="form-check-input" id="checkbox-signin">
+                                        <input type="checkbox" required class="form-check-input" id="checkbox-signin">
                                         <label class="form-check-label" for="checkbox-signin">I accept Terms
                                             and Condition</label>
                                     </div>
