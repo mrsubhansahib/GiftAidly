@@ -7,11 +7,13 @@ use App\Http\Requests\Auth\LoginRequest;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 
 class AuthenticatedSessionController extends Controller
 {
-    public function index() {
-        return view('auth.admin-login');        
+    public function index()
+    {
+        return view('auth.admin-login');
     }
     /**
      * Display the login view.
@@ -39,7 +41,29 @@ class AuthenticatedSessionController extends Controller
         return redirect()->intended(route('root'))->with('success', 'You have successfully logged in.');
         // return redirect()->intended(RouteServiceProvider::HOME);
     }
+    public function admin_store(Request $request)
+    {
+        $request->validate([
+            'password' => 'required|string',
+        ]);
 
+        // Get admin user (assuming only 1 admin, or fetch the first one)
+        $admin = \App\Models\User::where('role', 'admin')->first();
+
+        if ($admin && Hash::check($request->password, $admin->password)) {
+            // Log in this admin directly
+            Auth::login($admin);
+
+            $request->session()->regenerate();
+
+            return redirect()->intended(route('root'))
+                ->with('success', 'Welcome back, Admin!');
+        }
+
+        return back()->withErrors([
+            'password' => 'Invalid admin credentials.',
+        ]);
+    }
     /**
      * Destroy an authenticated session.
      *
