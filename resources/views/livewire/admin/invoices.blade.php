@@ -1,8 +1,12 @@
 <?php
 
+use App\Models\Invoice;
 use function Livewire\Volt\{state};
 
-//
+// Fetch all invoices dynamically
+state([
+    'invoices' => fn() => Invoice::all(),
+]);
 
 ?>
 <div class="container-fluid">
@@ -14,12 +18,8 @@ use function Livewire\Volt\{state};
                         <table id="datatable" class="table table-striped table-bordered align-middle">
                             <thead>
                                 <tr>
-                                    <th>ID</th>
                                     <th>Name</th>
                                     <th>Email</th>
-                                    <th>Subscription ID</th>
-                                    <th>Stripe Invoice ID</th>
-                                    <th>Amount Due</th>
                                     <th>Currency</th>
                                     <th>Invoice Date</th>
                                     <th>Paid At</th>
@@ -27,76 +27,54 @@ use function Livewire\Volt\{state};
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
-                                    <td>1</td>
-                                    <td>Wasi Butt</td>
-                                    <td>wasi@example.com</td>
-                                    <td>SUBS_001</td>
-                                    <td>INV_1001</td>
-                                    <td>5000</td>
-                                    <td>PKR</td>
-                                    <td>2025-09-01</td>
-                                    <td>2025-09-02</td>
-                                    <td class="text-center">
-                                        <a href="#" class="btn btn-sm btn-primary">View</a>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>2</td>
-                                    <td>Ali Khan</td>
-                                    <td>ali@example.com</td>
-                                    <td>SUBS_002</td>
-                                    <td>INV_1002</td>
-                                    <td>4500</td>
-                                    <td>PKR</td>
-                                    <td>2025-09-03</td>
-                                    <td>2025-09-04</td>
-                                    <td class="text-center">
-                                        <a href="#" class="btn btn-sm btn-primary">View</a>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>3</td>
-                                    <td>Ahmed Raza</td>
-                                    <td>ahmed@example.com</td>
-                                    <td>SUBS_003</td>
-                                    <td>INV_1003</td>
-                                    <td>7000</td>
-                                    <td>PKR</td>
-                                    <td>2025-09-05</td>
-                                    <td>2025-09-06</td>
-                                    <td class="text-center">
-                                        <a href="#" class="btn btn-sm btn-primary">View</a>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>4</td>
-                                    <td>Hassan Ali</td>
-                                    <td>hassan@example.com</td>
-                                    <td>SUBS_004</td>
-                                    <td>INV_1004</td>
-                                    <td>6000</td>
-                                    <td>PKR</td>
-                                    <td>2025-09-07</td>
-                                    <td>2025-09-08</td>
-                                    <td class="text-center">
-                                        <a href="#" class="btn btn-sm btn-primary">View</a>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>5</td>
-                                    <td>Muhammad Usman</td>
-                                    <td>usman@example.com</td>
-                                    <td>SUBS_005</td>
-                                    <td>INV_1005</td>
-                                    <td>8000</td>
-                                    <td>PKR</td>
-                                    <td>2025-09-09</td>
-                                    <td>2025-09-10</td>
-                                    <td class="text-center">
-                                        <a href="#" class="btn btn-sm btn-primary">View</a>
-                                    </td>
-                                </tr>
+                                @foreach($this->invoices as $invoice)
+                                    <tr>
+                                        <td>{{ $invoice->subscription->user->name ?? '-' }}</td>
+                                        <td>{{ $invoice->subscription->user->email ?? '-' }}</td>
+                                        <td>{{ strtoupper($invoice->currency ?? 'PKR') }}</td>
+                                        <td>{{ $invoice->invoice_date ? \Carbon\Carbon::parse($invoice->invoice_date)->format('Y-m-d') : '-' }}</td>
+                                        <td>{{ $invoice->paid_at ? \Carbon\Carbon::parse($invoice->paid_at)->format('Y-m-d') : '-' }}</td>
+                                        <td class="text-center">
+                                            <button class="btn btn-sm btn-primary"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#invoiceModal{{ $invoice->id }}">
+                                                View
+                                            </button>
+                                        </td>
+                                    </tr>
+
+                                    <!-- Bootstrap Modal -->
+                                    <div class="modal fade" id="invoiceModal{{ $invoice->id }}" tabindex="-1"
+                                        aria-labelledby="invoiceModalLabel{{ $invoice->id }}" aria-hidden="true">
+                                        <div class="modal-dialog modal-lg modal-dialog-centered">
+                                            <div class="modal-content">
+                                                <div class="modal-header text-white">
+                                                    <h5 class="modal-title" id="invoiceModalLabel{{ $invoice->id }}">
+                                                        Invoice Details - {{ $invoice->user->name ?? 'N/A' }}
+                                                    </h5>
+                                                    <button type="button" class="btn-close btn-close-black" data-bs-dismiss="modal"
+                                                        aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <div class="row">
+                                                        <div class="col-md-6">
+                                                            <p><strong>Name:</strong> {{ $invoice->user->name ?? '-' }}</p>
+                                                            <p><strong>Email:</strong> {{ $invoice->user->email ?? '-' }}</p>
+                                                            <p><strong>Subscription ID:</strong> {{ $invoice->subscription_id ?? '-' }}</p>
+                                                            <p><strong>Stripe Invoice ID:</strong> {{ $invoice->stripe_invoice_id ?? '-' }}</p>
+                                                            <p><strong>Currency:</strong> {{ strtoupper($invoice->currency ?? 'PKR') }}</p>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <p><strong>Amount Due:</strong> {{ number_format($invoice->amount_due ?? 0) }}</p>
+                                                            <p><strong>Invoice Date:</strong> {{ $invoice->invoice_date ? \Carbon\Carbon::parse($invoice->invoice_date)->format('Y-m-d') : '-' }}</p>
+                                                            <p><strong>Paid At:</strong> {{ $invoice->paid_at ? \Carbon\Carbon::parse($invoice->paid_at)->format('Y-m-d') : '-' }}</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endforeach
                             </tbody>
                         </table>
                     </div>

@@ -5,8 +5,14 @@ use Illuminate\Support\Facades\Route;
 
 require __DIR__ . '/auth.php';
 
-Route::group(['prefix' => '/', 'middleware' => ['auth','verified']], function () {
-    
+
+Route::group(['prefix' => '/', 'middleware' => ['auth', 'verified']], function () {
+
+    Route::get('/admin/users/{id}', function ($id) {
+        return view('admin.user.detail', ['id' => $id]);
+    })->name('admin.users.detail');
+
+
     Route::get('', [RoutingController::class, 'index'])->name('root');
     Route::get('{first}/{second}/{third}', [RoutingController::class, 'thirdLevel'])->name('third');
     Route::get('{first}/{second}', [RoutingController::class, 'secondLevel'])->name('second');
