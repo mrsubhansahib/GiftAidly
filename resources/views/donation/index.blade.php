@@ -430,7 +430,7 @@
         /* ------- minimal form grid to match existing look ------- */
         .form-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
             gap: 16px;
             margin: 20px 0 10px;
         }
@@ -442,15 +442,33 @@
             font-weight: 600;
         }
 
-        .text-input,
+        .text-input {
+        width: 100%;
+        padding: 18px 20px;
+        border: 2px solid #e0e0e0;
+        border-radius: 15px;
+        font-size: 1.05rem;
+        background: white;
+        transition: all 0.3s ease;
+        }
         .select-input {
-            width: 100%;
-            padding: 18px 20px;
-            border: 2px solid #e0e0e0;
-            border-radius: 15px;
-            font-size: 1.05rem;
-            background: white;
-            transition: all 0.3s ease;
+        width: 100%;
+        padding: 18px 40px 18px 20px; 
+        border: 2px solid #e0e0e0;
+        border-radius: 15px;
+        font-size: 1.05rem;
+        background: white;
+        transition: all 0.3s ease;
+
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+
+        /* custom arrow */
+        background-image: url("data:image/svg+xml;utf8,<svg fill='black' height='20' viewBox='0 0 24 24' width='20' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
+        background-repeat: no-repeat;
+        background-position: right 15px center;
+        background-size: 18px;
         }
 
         .text-input:focus,
@@ -632,6 +650,12 @@
                                 <input type="hidden" name="start_date" id="start_date-daily" />
                                 <input type="hidden" name="cancellation" id="cancellation-daily" />
                             </div>
+
+                            <div class="form-group" style="grid-column: 1 / -1;">
+                                <label for="card-element">Card Details</label>
+                                <div id="card-element" class="text-input"></div>
+                                <div id="card-errors" role="alert" style="color: red; margin-top: 5px;"></div>
+                            </div>
                         </div>
 
                         <button type="submit" class="donate-btn">Donate Now</button>
@@ -670,7 +694,7 @@
 
                             <div class="form-group">
                                 <label for="type-friday">Type</label>
-                                <input type="text" name="type" id="type-friday" value="Friday" class="text-input" min="1" dissabled />
+                                <input type="text" name="type" id="type-friday" value="Friday" class="text-input" min="1" readonly />
                             </div>
 
                             <!-- Single Range Picker -->
@@ -680,6 +704,14 @@
                                 <input type="hidden" name="start_date" id="start_date-friday" />
                                 <input type="hidden" name="cancellation" id="cancellation-friday" />
                             </div>
+
+                            <!-- Stripe Card Element -->
+                            <div class="form-group" style="grid-column: 1 / -1;">
+                                <label for="card-element-friday">Card Details</label>
+                                <div id="card-element-friday" class="text-input"></div>
+                                <div id="card-errors-friday" role="alert" style="color: red; margin-top: 5px;"></div>
+                            </div>
+
                         </div>
 
                         <button type="submit" class="donate-btn">Friday Donation</button>
@@ -727,6 +759,13 @@
                                 <input type="text" id="date-range-monthly" class="text-input" placeholder="Pick start and end dates" />
                                 <input type="hidden" name="start_date" id="start_date-monthly" />
                                 <input type="hidden" name="cancellation" id="cancellation-monthly" />
+                            </div>
+
+                            <!-- Stripe Card Element -->
+                            <div class="form-group" style="grid-column: 1 / -1;">
+                                <label for="card-element-monthly">Card Details</label>
+                                <div id="card-element-monthly" class="text-input"></div>
+                                <div id="card-errors-monthly" role="alert" style="color: red; margin-top: 5px;"></div>
                             </div>
                         </div>
 
@@ -913,6 +952,60 @@
             attachRangePickerMonths('date-range-monthly', 'start_date-monthly', 'cancellation-monthly', 'form-monthly');
         });
     </script>
+
+    {{-- Stripe script --}}
+    <script src="https://js.stripe.com/v3/"></script>
+    <script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const stripe = Stripe("{{ config('services.stripe.key') }}");
+
+        function setupStripeCard(formId, elementId, errorId) {
+            const elements = stripe.elements();
+            const card = elements.create("card", {
+                hidePostalCode: true, 
+                style: {
+                    base: {
+                        fontSize: "16px",
+                        color: "#000",
+                        fontFamily: "inherit",
+                        "::placeholder": { color: "#999" }
+                    },
+                    invalid: {
+                        color: "#e3342f"
+                    }
+                }
+            });
+            card.mount(`#${elementId}`);
+
+            const form = document.getElementById(formId);
+            form.addEventListener("submit", async (event) => {
+                event.preventDefault();
+                const { paymentMethod, error } = await stripe.createPaymentMethod({
+                    type: "card",
+                    card: card,
+                    billing_details: { name: "Anonymous Donor" },
+                });
+
+                if (error) {
+                    document.getElementById(errorId).textContent = error.message;
+                    return;
+                }
+
+                const hiddenInput = document.createElement("input");
+                hiddenInput.type = "hidden";
+                hiddenInput.name = "payment_method_id";
+                hiddenInput.value = paymentMethod.id;
+                form.appendChild(hiddenInput);
+                form.submit();
+            });
+        }
+
+        setupStripeCard("form-daily", "card-element", "card-errors");
+        setupStripeCard("form-friday", "card-element-friday", "card-errors-friday");
+        setupStripeCard("form-monthly", "card-element-monthly", "card-errors-monthly");
+    });
+    </script>
+
 
 </body>
 
