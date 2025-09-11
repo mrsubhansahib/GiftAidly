@@ -18,22 +18,22 @@ state([
                         <table id="datatable" class="table table-striped table-bordered align-middle">
                             <thead>
                                 <tr>
-                                    <th>Name</th>
                                     <th>Email</th>
-                                    <th>Currency</th>
+                                    <th>Donation Type</th>
+                                    <th>Amount</th>
+                                    {{-- <th>Status</th> --}}
                                     <th>Invoice Date</th>
-                                    <th>Paid At</th>
                                     <th class="text-center">Action</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @foreach($this->invoices as $invoice)
                                     <tr>
-                                        <td>{{ $invoice->subscription->user->name ?? '-' }}</td>
                                         <td>{{ $invoice->subscription->user->email ?? '-' }}</td>
-                                        <td>{{ strtoupper($invoice->currency ?? 'PKR') }}</td>
+                                        <td>{{ ucfirst($invoice->subscription->type) }}</td>
+                                        <td>{{ $invoice->subscription->price . ' ' . ucfirst($invoice->currency)}}</td>
+                                        {{-- <td>{{ $invoice->paid_at ? \Carbon\Carbon::parse($invoice->paid_at)->format('Y-m-d') : '-' }}</td> --}}
                                         <td>{{ $invoice->invoice_date ? \Carbon\Carbon::parse($invoice->invoice_date)->format('Y-m-d') : '-' }}</td>
-                                        <td>{{ $invoice->paid_at ? \Carbon\Carbon::parse($invoice->paid_at)->format('Y-m-d') : '-' }}</td>
                                         <td class="text-center">
                                             <button class="btn btn-sm btn-primary"
                                                 data-bs-toggle="modal"
@@ -50,7 +50,7 @@ state([
                                             <div class="modal-content">
                                                 <div class="modal-header text-white">
                                                     <h5 class="modal-title" id="invoiceModalLabel{{ $invoice->id }}">
-                                                        Invoice Details - {{ $invoice->user->name ?? 'N/A' }}
+                                                        Invoice Details - {{ $invoice->subscription->user->name ?? 'N/A' }}
                                                     </h5>
                                                     <button type="button" class="btn-close btn-close-black" data-bs-dismiss="modal"
                                                         aria-label="Close"></button>
@@ -58,8 +58,7 @@ state([
                                                 <div class="modal-body">
                                                     <div class="row">
                                                         <div class="col-md-6">
-                                                            <p><strong>Name:</strong> {{ $invoice->user->name ?? '-' }}</p>
-                                                            <p><strong>Email:</strong> {{ $invoice->user->email ?? '-' }}</p>
+                                                            <p><strong>Email:</strong> {{ $invoice->subscription->user->email ?? '-' }}</p>
                                                             <p><strong>Subscription ID:</strong> {{ $invoice->subscription_id ?? '-' }}</p>
                                                             <p><strong>Stripe Invoice ID:</strong> {{ $invoice->stripe_invoice_id ?? '-' }}</p>
                                                             <p><strong>Currency:</strong> {{ strtoupper($invoice->currency ?? 'PKR') }}</p>

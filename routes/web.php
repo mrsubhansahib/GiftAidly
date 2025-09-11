@@ -8,10 +8,20 @@ require __DIR__ . '/auth.php';
 
 Route::group(['prefix' => '/', 'middleware' => ['auth', 'verified']], function () {
 
-    Route::get('/admin/users/{id}', function ($id) {
-        return view('admin.user.detail', ['id' => $id]);
-    })->name('admin.users.detail');
+    // User detail only for admin
+    Route::get('/admin/donor/{id}', function ($id) {
+        return view('admin.donors.detail', ['id' => $id]);
+    })->name('admin.donor.detail');
 
+    // Admin Subscription Detail (can view any user's subscription)
+    Route::get('/admin/donation/{id}', function ($id) {
+        return view('admin.donations.detail', ['id' => $id]);
+    })->name('admin.subscriptions.detail');
+
+    // User subscription detail
+    Route::get('/user/donation/{id}', function ($id) {
+        return view('user.donations.detail', ['id' => $id]);
+    })->name('user.subscriptions.detail');
 
     Route::get('', [RoutingController::class, 'index'])->name('root');
     Route::get('{first}/{second}/{third}', [RoutingController::class, 'thirdLevel'])->name('third');

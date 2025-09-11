@@ -28,9 +28,9 @@ state([
                                     <tr>
                                         <td>{{ $user->name }}</td>
                                         <td>{{ $user->email }}</td>
-                                        <td>5</td>
+                                        <td>{{ $user->subscriptions->where('status', 'active')->count() }}</td>
                                         <td class="text-center">
-                                        <a href="{{ route('admin.users.detail', $user->id) }}" class="btn btn-sm btn-primary">View</a>
+                                        <a href="{{ route('admin.donor.detail', $user->id) }}" class="btn btn-sm btn-primary">View</a>
                                         </td>
                                     </tr>
                                 @endforeach
