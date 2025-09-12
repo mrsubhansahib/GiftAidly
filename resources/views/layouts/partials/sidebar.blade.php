@@ -28,39 +28,39 @@
                     </a>
                </li>
 
-               {{-- @if(Auth::user()->role === 'admin') --}}
+               @if(Auth::user()->role === 'admin')
                {{-- Donors --}}
-               {{-- <li class="nav-item">
+               <li class="nav-item">
                     <a class="nav-link" href="{{ route('third', ['admin', 'donors', 'index']) }}">
                          <span class="nav-icon">
                               <iconify-icon icon="solar:user-heart-outline"></iconify-icon>
                          </span>
                          <span class="nav-text"> Donors </span>
                     </a>
-               </li> --}}
+               </li>
 
                {{-- Donations --}}
-               {{-- <li class="nav-item">
+               <li class="nav-item">
                     <a class="nav-link" href="{{ route('third', ['admin', 'donations', 'index']) }}">
                          <span class="nav-icon">
                               <iconify-icon icon="solar:hand-money-outline"></iconify-icon>
                          </span>
                          <span class="nav-text"> Donations </span>
                     </a>
-               </li> --}}
+               </li>
 
                {{-- Invoices --}}
-               {{-- <li class="nav-item">
+               <li class="nav-item">
                     <a class="nav-link" href="{{ route('third', ['admin', 'invoices', 'index']) }}">
                          <span class="nav-icon">
                               <iconify-icon icon="solar:bill-list-outline"></iconify-icon>
                          </span>
                          <span class="nav-text"> Invoices </span>
                     </a>
-               </li> --}}
+               </li>
                
                {{-- Transactions --}}
-               {{-- <li class="nav-item">
+               <li class="nav-item">
                     <a class="nav-link" href="{{ route('third', ['admin', 'transactions', 'index']) }}">
                          <span class="nav-icon">
                               <iconify-icon icon="solar:card-outline"></iconify-icon>
@@ -68,10 +68,9 @@
                          <span class="nav-text"> Transactions </span>
                     </a>
                </li>
-               @endif --}}
+               @endif
 
-               {{-- @if (Auth::user()->role === 'donor') --}}
-
+               @if (Auth::user()->role === 'donor')
                {{-- Donations --}}
                <li class="nav-item">
                     <a class="nav-link" href="{{ route('third', ['user', 'donations', 'index']) }}">
@@ -81,16 +80,6 @@
                          <span class="nav-text"> My Donations </span>
                     </a>
                </li>
-
-               {{-- Subscriptions --}}
-               {{-- <li class="nav-item">
-                    <a class="nav-link" href="{{ route('third', ['user', 'subscriptions', 'index']) }}">
-                         <span class="nav-icon">
-                              <iconify-icon icon="solar:refresh-square-outline"></iconify-icon>
-                         </span>
-                         <span class="nav-text"> Subscriptions </span>
-                    </a>
-               </li> --}}
                
                {{-- Invoices --}}
                <li class="nav-item">
@@ -101,17 +90,7 @@
                          <span class="nav-text"> My Invoices </span>
                     </a>
                </li>
-               
-               {{-- Transactions --}}
-               {{-- <li class="nav-item">
-                    <a class="nav-link" href="{{ route('third', ['user', 'transactions', 'index']) }}">
-                         <span class="nav-icon">
-                              <iconify-icon icon="solar:card-outline"></iconify-icon>
-                         </span>
-                         <span class="nav-text"> Transactions </span>
-                    </a>
-               </li> --}}
-               {{-- @endif --}}
+               @endif
 
                <li class="nav-item">
                     <a class="nav-link menu-arrow" href="#sidebarAuthentication" data-bs-toggle="collapse" role="button"
