@@ -1,21 +1,14 @@
 <?php
 
+use App\Models\Invoice;
 use function Livewire\Volt\state;
 
 state([
-    'invoices' => [
-        [
-            'id' => 1,
-            'name' => 'Muhammad Wasi',
-            'email' => 'mwasi5276@gmail.com',
-            'subscription_id' => 'SUB12345',
-            'stripe_invoice_id' => 'INV98765',
-            'currency' => 'PKR',
-            'amount_due' => '3000',
-            'invoice_date' => '2025-09-04',
-            'paid_at' => '2025-09-05',
-        ],
-    ],
+    'invoices' => fn() => Invoice::whereHas('subscription', function ($q) {
+        $q->where('user_id', Auth::id());
+    })
+        ->with('subscription.user')
+        ->get(),
 ]);
 
 ?>
