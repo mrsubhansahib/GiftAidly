@@ -40,7 +40,7 @@ state([
                                         </td>
                                         <td>{{ \Carbon\Carbon::parse($subscription['end_date'])->format('Y-m-d') }}</td>
                                         <td>
-                                            <a href="{{ route('user.subscriptions.detail', $subscription->id) }}"
+                                            <a href="{{ route('user.donations.detail', $subscription->id) }}"
                                                 class="btn btn-sm btn-primary">
                                                 View
                                             </a>

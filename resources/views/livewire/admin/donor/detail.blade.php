@@ -74,7 +74,7 @@ mount(function ($id) {
                             <td>{{ $sub->canceled_at ? \Carbon\Carbon::parse($sub->canceled_at)->format('Y-m-d') : 'N/A' }}
                             </td>
                             <td>
-                                <a href="{{ route('admin.subscriptions.detail', $sub->id) }}"
+                                <a href="{{ route('admin.donations.detail', $sub->id) }}"
                                     class="btn btn-sm btn-primary">View</a>
                             </td>
                         </tr>

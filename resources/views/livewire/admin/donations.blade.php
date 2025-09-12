@@ -48,7 +48,7 @@ state([
                                         <td>{{ strtoupper($subscription->currency ?? 'PKR') }}</td>
                                         <td>{{ ucfirst($subscription->type ?? '-') }}</td>
                                         <td>
-                                            <a href="{{ route('admin.subscriptions.detail', $subscription->id) }}"
+                                            <a href="{{ route('admin.donations.detail', $subscription->id) }}"
                                                 class="btn btn-sm btn-primary">
                                                 View
                                             </a>
