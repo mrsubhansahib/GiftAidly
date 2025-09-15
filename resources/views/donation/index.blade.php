@@ -582,6 +582,7 @@
                         padding: 6px 18px; 
                         border-radius: 25px;  
                         cursor: pointer;
+                        z-index: 10;
                         transition: background-position 0.5s ease-in-out, transform 0.3s ease;
                         "
                 onmouseover="this.style.backgroundPosition='right center'; this.style.transform='scale(1.05)';"
