@@ -71,7 +71,7 @@
                                 </div>
 
                                 <div class="mb-1 text-center d-grid">
-                                    <button class="btn btn-dark btn-lg fw-medium" type="submit">Sign
+                                    <button style="background: linear-gradient(45deg, #1d43ab, #94740dff);" class="btn btn-lg text-light fw-medium" type="submit">Sign
                                         Up</button>
                                 </div>
                             </form>

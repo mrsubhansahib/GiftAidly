@@ -50,7 +50,7 @@ class="authentication-bg"
                                 <label class="form-check-label" for="remember-me">Remember me</label>
                             </div>
                             <div class="d-grid">
-                                <button class="btn btn-dark btn-lg fw-medium" type="submit">Sign In</button>
+                                <button style="background: linear-gradient(45deg, #1d43ab, #94740dff);" class="btn btn-lg fw-medium text-light" type="submit">Sign In</button>
                             </div>
                         </form>
                     </div>
