@@ -181,6 +181,11 @@
                                 class="align-middle me-2 fs-18"></iconify-icon><span class="align-middle">My
                                 Account</span>
                         </a>
+                        <a class="dropdown-item" href="">
+                            <iconify-icon icon="mdi:form-textbox-password" class="align-middle me-2 fs-18"></iconify-icon>
+<span class="align-middle">Change Password</span>
+
+                        </a>
 
                         {{-- <a class="dropdown-item" href="#">
                             <iconify-icon icon="solar:wallet-outline"
