@@ -176,21 +176,21 @@
                         <!-- item-->
                         <h6 class="dropdown-header">Welcome!</h6>
 
-                        <a class="dropdown-item" href="#">
+                        <a class="dropdown-item" href="{{ route('third', ['shared' , 'profile' , 'show']) }}">
                             <iconify-icon icon="solar:user-outline"
                                 class="align-middle me-2 fs-18"></iconify-icon><span class="align-middle">My
                                 Account</span>
                         </a>
 
-                        <a class="dropdown-item" href="#">
+                        {{-- <a class="dropdown-item" href="#">
                             <iconify-icon icon="solar:wallet-outline"
                                 class="align-middle me-2 fs-18"></iconify-icon><span
                                 class="align-middle">Pricing</span>
-                        </a>
-                        <a class="dropdown-item" href="#">
+                        </a> --}}
+                        {{-- <a class="dropdown-item" href="#">
                             <iconify-icon icon="solar:help-outline"
                                 class="align-middle me-2 fs-18"></iconify-icon><span class="align-middle">Help</span>
-                        </a>
+                        </a> --}}
                         <a class="dropdown-item" href="{{ route('second', ['auth', 'lock-screen']) }}">
                             <iconify-icon icon="solar:lock-keyhole-outline"
                                 class="align-middle me-2 fs-18"></iconify-icon><span class="align-middle">Lock
