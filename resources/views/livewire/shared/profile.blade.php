@@ -13,6 +13,12 @@ rules([
     'user.country' => 'nullable|string|max:255',
     'user.address' => 'nullable|string|max:255',
     'user.zip_code' => 'nullable|string|max:20',
+])
+->messages([
+    'user.name.required' => 'Name is required.',
+])
+->attributes([
+    'user.name' => 'name',
 ]);
 
 $updateProfile = function () {
