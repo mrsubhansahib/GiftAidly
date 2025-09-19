@@ -14,12 +14,12 @@ rules([
     'user.address' => 'nullable|string|max:255',
     'user.zip_code' => 'nullable|string|max:20',
 ])
-->messages([
-    'user.name.required' => 'Name is required.',
-])
-->attributes([
-    'user.name' => 'name',
-]);
+    ->messages([
+        'user.name.required' => 'Name is required.',
+    ])
+    ->attributes([
+        'user.name' => 'name',
+    ]);
 
 $updateProfile = function () {
     $this->validate();
@@ -29,16 +29,16 @@ $updateProfile = function () {
 ?>
 
 <div class="card">
-    <div class="card-header d-flex justify-content-end align-items-center">
-        {{-- <h5 class="card-title mb-0">Profile</h5> --}}
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h4 class="modal-title text-dark fw-semibold">Account Information</h4>
         <a href="#" class="fs-5 btn btn-primary" data-bs-toggle="modal" data-bs-target="#editProfileModal">
             <i class="bx bx-edit"></i> Edit
         </a>
     </div>
 
     <!-- Modal  -->
-    <div class="modal fade" id="editProfileModal" tabindex="-1" aria-labelledby="editProfileModalLabel" aria-hidden="true"
-        wire:ignore.self>
+    <div class="modal fade" id="editProfileModal" tabindex="-1" aria-labelledby="editProfileModalLabel"
+        aria-hidden="true" wire:ignore.self>
         <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content border-0 rounded-4 shadow-lg">
                 <div class="modal-header border-0 pb-0">

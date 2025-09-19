@@ -38,7 +38,8 @@
                         onmouseover="this.style.backgroundPosition='right center'; this.style.transform='scale(1.05)';"
                         onmouseout="this.style.backgroundPosition='left center'; this.style.transform='scale(1)';">
 
-                        <iconify-icon icon="ph:hand-heart" class="fs-20 align-middle" style="margin-right: 6px;"></iconify-icon>
+                        <iconify-icon icon="ph:hand-heart" class="fs-20 align-middle"
+                            style="margin-right: 6px;"></iconify-icon>
                         Donate Now
                     </a>
                 </div>
@@ -176,15 +177,15 @@
                         <!-- item-->
                         <h6 class="dropdown-header">Welcome!</h6>
 
-                        <a class="dropdown-item" href="{{ route('third', ['shared' , 'profile' , 'show']) }}">
+                        <a class="dropdown-item" href="{{ route('third', ['shared', 'profile', 'show']) }}">
                             <iconify-icon icon="solar:user-outline"
                                 class="align-middle me-2 fs-18"></iconify-icon><span class="align-middle">My
                                 Account</span>
                         </a>
                         <a class="dropdown-item" href="">
-                            <iconify-icon icon="mdi:form-textbox-password" class="align-middle me-2 fs-18"></iconify-icon>
-<span class="align-middle">Change Password</span>
-
+                            <iconify-icon icon="mdi:form-textbox-password"
+                                class="align-middle me-2 fs-18"></iconify-icon>
+                            <span class="align-middle">Change Password</span>
                         </a>
 
                         {{-- <a class="dropdown-item" href="#">
@@ -196,11 +197,11 @@
                             <iconify-icon icon="solar:help-outline"
                                 class="align-middle me-2 fs-18"></iconify-icon><span class="align-middle">Help</span>
                         </a> --}}
-                        <a class="dropdown-item" href="{{ route('second', ['auth', 'lock-screen']) }}">
+                        {{-- <a class="dropdown-item" href="{{ route('second', ['auth', 'lock-screen']) }}">
                             <iconify-icon icon="solar:lock-keyhole-outline"
                                 class="align-middle me-2 fs-18"></iconify-icon><span class="align-middle">Lock
                                 screen</span>
-                        </a>
+                        </a> --}}
 
                         <div class="dropdown-divider my-1"></div>
                         <form action="{{ route('logout') }}" method="POST">
