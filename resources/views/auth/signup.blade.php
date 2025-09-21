@@ -4,6 +4,30 @@
     class="authentication-bg"
 @endsection
 
+<!-- style -->
+<style>
+.password-input-container {
+    position: relative;
+}
+.password-toggle-icon {
+    position: absolute;
+    top: 50%;
+    margin-top: -5px;
+    right: 15px;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #6c757d;
+    transition: color 0.2s ease-in-out;
+    z-index: 100;
+}
+.password-toggle-icon:hover {
+    color: #343a40;
+}
+.form-control-password {
+    padding-right: 45px !important;
+}
+</style>
+
 @section('content')
     <div class="account-pages py-5">
         <div class="container">
@@ -16,63 +40,78 @@
                                     <a href="{{ route('any', 'index') }}" class="logo-dark">
                                         <img src="/images/logo-dark.png" height="32" alt="logo dark">
                                     </a>
-
                                     <a href="{{ route('any', 'index') }}" class="logo-light">
                                         <img src="/images/logo-light.png" height="28" alt="logo light">
                                     </a>
                                 </div>
-                                <h4 class="fw-bold text-dark mb-2">Sign Up</h3>
-                                    <p class="text-muted">New to our platform? Sign up now! It only takes a
-                                        minute.
-                                    </p>
+                                <h4 class="fw-bold text-dark mb-2">Sign Up</h4>
+                                <p class="text-muted">New to our platform? Sign up now! It only takes a minute.</p>
                             </div>
 
                             <form action="{{ route('signup') }}" class="mt-4" method="POST">
                                 @csrf
                                 <div class="mb-3">
                                     <label class="form-label" for="example-name">Name</label>
-                                    <input type="name" id="example-name" name="name" class="form-control" value="{{old('name')}}"
+                                    <input type="name" id="example-name" name="name" class="form-control" value="{{ old('name') }}"
                                         placeholder="Enter your name">
                                 </div>
                                 <div class="mb-3">
                                     <label class="form-label" for="example-email">Email</label>
-                                    <input type="email" id="example-email" name="email" value="{{old('email')}}"
+                                    <input type="email" id="example-email" name="email" value="{{ old('email') }}"
                                         class="form-control @error('email') is-invalid @enderror"
                                         placeholder="Enter your email">
                                     @error('email')
                                         <div class="text-danger text-sm mt-1">{{ $message }}</div>
                                     @enderror
-
                                     @if (session('mail_warning'))
                                         <div class="text-amber-600 text-sm mt-2">
                                             {{ session('mail_warning') }}
                                         </div>
                                     @endif
                                 </div>
+
+                                <!-- Password with Eye Icon -->
                                 <div class="mb-3">
                                     <label class="form-label" for="example-password">Password</label>
-                                    <input type="password" id="example-password" name="password" class="form-control @error('password') is-invalid @enderror"
-                                        placeholder="Enter your password">
+                                    <div class="password-input-container">
+                                        <input type="password" id="example-password" name="password"
+                                            class="form-control form-control-password @error('password') is-invalid @enderror"
+                                            placeholder="Enter your password">
+                                        <span class="password-toggle-icon" onclick="togglePassword('example-password', this)">
+                                            <iconify-icon icon="mdi:eye-outline" width="24" height="24"></iconify-icon>
+                                        </span>
+                                    </div>
                                     @error('password')
                                         <div class="text-danger text-sm mt-1">{{ $message }}</div>
                                     @enderror
                                 </div>
+
+                                <!-- Confirm Password with Eye Icon -->
                                 <div class="mb-3">
                                     <label class="form-label" for="example-password-confirm">Confirm Password</label>
-                                    <input type="password" id="example-password-confirm" class="form-control"
-                                        name="password_confirmation" placeholder="Confirm your password">
+                                    <div class="password-input-container">
+                                        <input type="password" id="example-password-confirm" name="password_confirmation"
+                                            class="form-control form-control-password" placeholder="Confirm your password">
+                                        <span class="password-toggle-icon" onclick="togglePassword('example-password-confirm', this)">
+                                            <iconify-icon icon="mdi:eye-outline" width="24" height="24"></iconify-icon>
+                                        </span>
+                                    </div>
                                 </div>
+
                                 <div class="mb-3">
                                     <div class="form-check">
                                         <input type="checkbox" required class="form-check-input" id="checkbox-signin">
-                                        <label class="form-check-label" for="checkbox-signin">I accept Terms
-                                            and Condition</label>
+                                        <label class="form-check-label" for="checkbox-signin">
+                                            I accept Terms and Condition
+                                        </label>
                                     </div>
                                 </div>
 
                                 <div class="mb-1 text-center d-grid">
-                                    <button style="background: linear-gradient(45deg, #1d43ab, #94740dff);" class="btn btn-lg text-light fw-medium" type="submit">Sign
-                                        Up</button>
+                                    <button style="background: linear-gradient(45deg, #1d43ab, #94740dff);" 
+                                            class="btn btn-lg text-light fw-medium" type="submit">
+                                        Sign Up
+                                    </button>
                                 </div>
                             </form>
                         </div>
@@ -84,4 +123,20 @@
             </div>
         </div>
     </div>
+@endsection
+
+@section('scripts')
+<script>
+function togglePassword(fieldId, iconContainer) {
+    const field = document.getElementById(fieldId);
+    const icon = iconContainer.querySelector("iconify-icon");
+    if (field.type === "password") {
+        field.type = "text";
+        icon.setAttribute("icon", "mdi:eye-off-outline");
+    } else {
+        field.type = "password";
+        icon.setAttribute("icon", "mdi:eye-outline");
+    }
+}
+</script>
 @endsection
