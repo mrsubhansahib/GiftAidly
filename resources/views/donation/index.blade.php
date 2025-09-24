@@ -517,50 +517,93 @@
             }
         }
 
-        /* Special Effects */
-        .floating-elements {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
+        .donation-slider {
+            position: relative;
+            max-width: 100%;
             overflow: hidden;
+            margin: 20px auto;
         }
 
-        .floating-elements::before,
-        .floating-elements::after {
-            content: '';
+        .slider-wrapper {
+            overflow: hidden;
+            width: 100%;
+        }
+
+        .slider-track {
+            display: flex;
+            transition: transform 0.6s ease-in-out;
+            will-change: transform;
+        }
+
+        .slider-card {
+            min-width: 250px;
+            max-width: 250px;
+            margin: 0 10px;
+            background: white;
+            border-radius: 12px;
+            text-align: center;
+            padding: 15px;
+            color: black;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+        }
+
+        .slider-card h5 {
+            color: #111;
+            /* heading dark */
+        }
+
+        .slider-card p {
+            color: #555;
+            /* price grey */
+        }
+
+        .slider-card img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
+        .btn-donate {
+            background: linear-gradient(135deg, #1d43ab, #f9c001);
+            color: #fff;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-donate:hover {
+            transform: scale(1.05);
+        }
+
+        .slider-btn {
             position: absolute;
-            width: 20px;
-            height: 20px;
-            background: #ffffff1a;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(0, 0, 0, 0.4);
+            border: none;
+            color: #fff;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 6px 15px;
             border-radius: 50%;
-            animation: float 6s ease-in-out infinite;
+            transition: background 0.3s;
+            z-index: 10;
         }
 
-        .floating-elements::before {
-            top: 20%;
-            left: 10%;
-            animation-delay: 0s;
+        .slider-btn:hover {
+            background: rgba(0, 0, 0, 0.8);
         }
 
-        .floating-elements::after {
-            top: 60%;
-            right: 20%;
-            animation-delay: 3s;
+        .slider-btn.prev {
+            left: 10px;
         }
 
-        @keyframes float {
-
-            0%,
-            100% {
-                transform: translateY(0)
-            }
-
-            50% {
-                transform: translateY(-10px)
-            }
+        .slider-btn.next {
+            right: 10px;
         }
     </style>
     @livewireStyles
@@ -602,6 +645,92 @@
             <p>Join thousands of donors who are changing lives around the world. Every contribution matters, every
                 donation counts.</p>
         </div>
+        <!-- Custom Donation Slider -->
+        <div class="donation-slider mt-5">
+            <div class="slider-wrapper">
+                <div class="slider-track">
+
+                    <!-- Card 1 -->
+                    <div class="slider-card">
+                        <img src="/images/donation-food/istockphoto-1224414210-612x612.jpg" alt="Food Pack">
+                        <h5>Food Pack</h5>
+                        <p>£50</p>
+                        <button class="btn-donate">Donate Now</button>
+                    </div>
+
+                    <!-- Card 2 -->
+                    <div class="slider-card">
+                        <img src="/images/donation-food/istockphoto-1224414210-612x612.jpg" alt="Water Pump">
+                        <h5>Water Pump</h5>
+                        <p>£100</p>
+                        <button class="btn-donate">Donate Now</button>
+                    </div>
+                    
+                    <!-- Card 2 -->
+                    <div class="slider-card">
+                        <img src="/images/donation-food/istockphoto-1224414210-612x612.jpg" alt="Water Pump">
+                        <h5>Water Pump</h5>
+                        <p>£100</p>
+                        <button class="btn-donate">Donate Now</button>
+                    </div>
+                    <!-- Card 2 -->
+                    <div class="slider-card">
+                        <img src="/images/donation-food/istockphoto-1224414210-612x612.jpg" alt="Water Pump">
+                        <h5>Water Pump</h5>
+                        <p>£100</p>
+                        <button class="btn-donate">Donate Now</button>
+                    </div>
+                    <!-- Card 2 -->
+                    <div class="slider-card">
+                        <img src="/images/donation-food/istockphoto-1224414210-612x612.jpg" alt="Water Pump">
+                        <h5>Water Pump</h5>
+                        <p>£100</p>
+                        <button class="btn-donate">Donate Now</button>
+                    </div>
+                    <!-- Card 2 -->
+                    <div class="slider-card">
+                        <img src="/images/donation-food/istockphoto-1224414210-612x612.jpg" alt="Water Pump">
+                        <h5>Water Pump</h5>
+                        <p>£100</p>
+                        <button class="btn-donate">Donate Now</button>
+                    </div>
+                    <!-- Card 2 -->
+                    <div class="slider-card">
+                        <img src="/images/donation-food/istockphoto-1224414210-612x612.jpg" alt="Water Pump">
+                        <h5>Water Pump</h5>
+                        <p>£100</p>
+                        <button class="btn-donate">Donate Now</button>
+                    </div>
+                    <!-- Card 2 -->
+                    <div class="slider-card">
+                        <img src="/images/donation-food/istockphoto-1224414210-612x612.jpg" alt="Water Pump">
+                        <h5>Water Pump</h5>
+                        <p>£100</p>
+                        <button class="btn-donate">Donate Now</button>
+                    </div>
+                    <!-- Card 2 -->
+                    <div class="slider-card">
+                        <img src="/images/donation-food/istockphoto-1224414210-612x612.jpg" alt="Water Pump">
+                        <h5>Water Pump</h5>
+                        <p>£100</p>
+                        <button class="btn-donate">Donate Now</button>
+                    </div>
+                    <!-- Card 2 -->
+                    <div class="slider-card">
+                        <img src="/images/donation-food/istockphoto-1224414210-612x612.jpg" alt="Water Pump">
+                        <h5>Water Pump</h5>
+                        <p>£100</p>
+                        <button class="btn-donate">Donate Now</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Controls -->
+            <button class="slider-btn prev">❮</button>
+            <button class="slider-btn next">❯</button>
+        </div>
+
+
     </section>
 
     <div class="tab-container">
@@ -711,6 +840,120 @@
             setupStripeCard("form-monthly", "card-element-monthly", "card-errors-monthly", "donation.monthly");
         });
 
+        document.addEventListener("DOMContentLoaded", function() {
+            const track = document.querySelector(".slider-track");
+            const prevBtn = document.querySelector(".slider-btn.prev");
+            const nextBtn = document.querySelector(".slider-btn.next");
+            const originalCards = Array.from(document.querySelectorAll(".slider-card"));
+
+            let cardWidth, index, isTransitioning, totalCards, allCards;
+            let sliderEnabled = false;
+
+            function initSlider() {
+                cardWidth = originalCards[0].offsetWidth + 20;
+                const wrapperWidth = document.querySelector(".slider-wrapper").offsetWidth;
+                const trackWidth = originalCards.length * cardWidth;
+
+                // Reset track
+                track.innerHTML = "";
+                index = 0;
+                isTransitioning = false;
+
+                if (trackWidth <= wrapperWidth) {
+                    // Slider disable
+                    sliderEnabled = false;
+                    prevBtn.style.display = "none";
+                    nextBtn.style.display = "none";
+                    originalCards.forEach(card => track.appendChild(card.cloneNode(true)));
+                    track.style.transform = "translateX(0)";
+                    track.style.transition = "none";
+                } else {
+                    // Slider enable with infinite loop
+                    sliderEnabled = true;
+                    prevBtn.style.display = "block";
+                    nextBtn.style.display = "block";
+
+                    // Clone first & last few cards
+                    const visibleCards = Math.floor(wrapperWidth / cardWidth);
+                    const prepend = originalCards.slice(-visibleCards).map(c => c.cloneNode(true));
+                    const append = originalCards.slice(0, visibleCards).map(c => c.cloneNode(true));
+
+                    prepend.forEach(c => track.appendChild(c));
+                    originalCards.forEach(c => track.appendChild(c.cloneNode(true)));
+                    append.forEach(c => track.appendChild(c));
+
+                    allCards = Array.from(track.querySelectorAll(".slider-card"));
+                    totalCards = allCards.length;
+
+                    index = visibleCards; // start after prepended clones
+                    track.style.transition = "none";
+                    track.style.transform = `translateX(-${index * cardWidth}px)`;
+                }
+            }
+
+            function slideTo(newIndex) {
+                track.style.transition = "transform 0.6s ease-in-out";
+                index = newIndex;
+                track.style.transform = `translateX(-${index * cardWidth}px)`;
+            }
+
+            function jumpTo(newIndex) {
+                track.style.transition = "none";
+                index = newIndex;
+                track.style.transform = `translateX(-${index * cardWidth}px)`;
+            }
+
+            nextBtn.addEventListener("click", () => {
+                if (!sliderEnabled || isTransitioning) return;
+                isTransitioning = true;
+                index++;
+                slideTo(index);
+            });
+
+            prevBtn.addEventListener("click", () => {
+                if (!sliderEnabled || isTransitioning) return;
+                isTransitioning = true;
+                index--;
+                slideTo(index);
+            });
+
+            track.addEventListener("transitionend", () => {
+                if (!sliderEnabled) return;
+
+                const wrapperWidth = document.querySelector(".slider-wrapper").offsetWidth;
+                const visibleCards = Math.floor(wrapperWidth / cardWidth);
+
+                if (index >= totalCards - visibleCards) {
+                    jumpTo(visibleCards);
+                }
+                if (index < visibleCards) {
+                    jumpTo(totalCards - visibleCards * 2);
+                }
+                isTransitioning = false;
+            });
+
+            // Auto Slide
+            setInterval(() => {
+                if (sliderEnabled && !isTransitioning) {
+                    index++;
+                    slideTo(index);
+                }
+            }, 4000);
+
+            // Re-init on resize
+            window.addEventListener("resize", initSlider);
+
+            // Init on load
+            initSlider();
+        });
+    </script>
+
+
+
+
+
+
+    <script>
         function openTab(evt, tabName) {
             var i, tabPanels, tabBtns;
             tabPanels = document.getElementsByClassName("tab-panel");
