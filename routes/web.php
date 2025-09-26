@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\RoutingController;
+use App\Http\Controllers\SubscriptionController;
 use Illuminate\Support\Facades\Route;
 
 require __DIR__ . '/auth.php';
@@ -8,6 +9,9 @@ require __DIR__ . '/auth.php';
 
 Route::group(['prefix' => '/', 'middleware' => ['auth', 'verified']], function () {
 
+    Route::post('donate/daily-weekly',[SubscriptionController::class,'donateDailyWeekly'])->name('donation.daily_weekly');
+    Route::post('donate/friday',[SubscriptionController::class,'donateFriday'])->name('donation.friday');
+    Route::post('donate/monthly',[SubscriptionController::class,'donateMonthly'])->name('donation.monthly');
     // User detail only for admin
     Route::get('/admin/donor/{id}', function ($id) {
         return view('admin.donors.detail', ['id' => $id]);

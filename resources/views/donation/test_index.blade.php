@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/style.css">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Make a Difference | GiftAidly</title>
+    <title>Donation Hub - Make a Difference</title>
     <style>
         * {
             margin: 0;
@@ -443,33 +443,32 @@
         }
 
         .text-input {
-            width: 100%;
-            padding: 18px 20px;
-            border: 2px solid #e0e0e0;
-            border-radius: 15px;
-            font-size: 1.05rem;
-            background: white;
-            transition: all 0.3s ease;
+        width: 100%;
+        padding: 18px 20px;
+        border: 2px solid #e0e0e0;
+        border-radius: 15px;
+        font-size: 1.05rem;
+        background: white;
+        transition: all 0.3s ease;
         }
-
         .select-input {
-            width: 100%;
-            padding: 18px 40px 18px 20px;
-            border: 2px solid #e0e0e0;
-            border-radius: 15px;
-            font-size: 1.05rem;
-            background: white;
-            transition: all 0.3s ease;
+        width: 100%;
+        padding: 18px 40px 18px 20px; 
+        border: 2px solid #e0e0e0;
+        border-radius: 15px;
+        font-size: 1.05rem;
+        background: white;
+        transition: all 0.3s ease;
 
-            -webkit-appearance: none;
-            -moz-appearance: none;
-            appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
 
-            /* custom arrow */
-            background-image: url("data:image/svg+xml;utf8,<svg fill='black' height='20' viewBox='0 0 24 24' width='20' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
-            background-repeat: no-repeat;
-            background-position: right 15px center;
-            background-size: 18px;
+        /* custom arrow */
+        background-image: url("data:image/svg+xml;utf8,<svg fill='black' height='20' viewBox='0 0 24 24' width='20' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
+        background-repeat: no-repeat;
+        background-position: right 15px center;
+        background-size: 18px;
         }
 
         .text-input:focus,
@@ -517,96 +516,52 @@
             }
         }
 
-        .donation-slider {
-            position: relative;
-            max-width: 100%;
-            overflow: hidden;
-            margin: 20px auto;
-        }
-
-        .slider-wrapper {
-            overflow: hidden;
-            width: 100%;
-        }
-
-        .slider-track {
-            display: flex;
-            transition: transform 0.6s ease-in-out;
-            will-change: transform;
-        }
-
-        .slider-card {
-            min-width: 250px;
-            max-width: 250px;
-            margin: 0 10px;
-            background: white;
-            border-radius: 12px;
-            text-align: center;
-            padding: 15px;
-            color: black;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
-        }
-
-        .slider-card h5 {
-            color: #111;
-            /* heading dark */
-        }
-
-        .slider-card p {
-            color: #555;
-            /* price grey */
-        }
-
-        .slider-card img {
-            width: 100%;
-            height: 150px;
-            object-fit: cover;
-            border-radius: 8px;
-            margin-bottom: 10px;
-        }
-
-        .btn-donate {
-            background: linear-gradient(135deg, #1d43ab, #f9c001);
-            color: #fff;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .btn-donate:hover {
-            transform: scale(1.05);
-        }
-
-        .slider-btn {
+        /* Special Effects */
+        .floating-elements {
             position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            background: rgba(0, 0, 0, 0.4);
-            border: none;
-            color: #fff;
-            font-size: 24px;
-            cursor: pointer;
-            padding: 6px 15px;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .floating-elements::before,
+        .floating-elements::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: #ffffff1a;
             border-radius: 50%;
-            transition: background 0.3s;
-            z-index: 10;
+            animation: float 6s ease-in-out infinite;
         }
 
-        .slider-btn:hover {
-            background: rgba(0, 0, 0, 0.8);
+        .floating-elements::before {
+            top: 20%;
+            left: 10%;
+            animation-delay: 0s;
         }
 
-        .slider-btn.prev {
-            left: 10px;
+        .floating-elements::after {
+            top: 60%;
+            right: 20%;
+            animation-delay: 3s;
         }
 
-        .slider-btn.next {
-            right: 10px;
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0)
+            }
+
+            50% {
+                transform: translateY(-10px)
+            }
         }
     </style>
-    @livewireStyles
 </head>
 
 <body>
@@ -627,14 +582,12 @@
                         padding: 6px 18px; 
                         border-radius: 25px;  
                         cursor: pointer;
-                        z-index: 10;
                         transition: background-position 0.5s ease-in-out, transform 0.3s ease;
                         "
                 onmouseover="this.style.backgroundPosition='right center'; this.style.transform='scale(1.05)';"
                 onmouseout="this.style.backgroundPosition='left center'; this.style.transform='scale(1)';">
                 <!-- Classic dashboard (Material Design Icons) -->
-                <iconify-icon icon="mdi:view-dashboard" class="fs-20 align-middle"
-                    style="margin-right: 6px;"></iconify-icon>
+                <iconify-icon icon="mdi:view-dashboard" class="fs-20 align-middle" style="margin-right: 6px;"></iconify-icon>
 
                 Dashboard
             </a>
@@ -642,97 +595,11 @@
         <div class="floating-elements"></div>
         <div class="banner-content">
             <h1>Make a Difference Today</h1>
-            <p>Join thousands of donors who are changing lives around the world. Every contribution matters, every
-                donation counts.</p>
+            <p>Join thousands of donors who are changing lives around the world. Every contribution matters, every donation counts.</p>
         </div>
-        <!-- Custom Donation Slider -->
-        <div class="donation-slider mt-5">
-            <div class="slider-wrapper">
-                <div class="slider-track">
-
-                    <!-- Card 1 -->
-                    <div class="slider-card">
-                        <img src="/images/donation-food/istockphoto-1224414210-612x612.jpg" alt="Food Pack">
-                        <h5>Food Pack</h5>
-                        <p>£50</p>
-                        <button class="btn-donate">Donate Now</button>
-                    </div>
-
-                    <!-- Card 2 -->
-                    <div class="slider-card">
-                        <img src="/images/donation-food/istockphoto-1224414210-612x612.jpg" alt="Water Pump">
-                        <h5>Water Pump</h5>
-                        <p>£100</p>
-                        <button class="btn-donate">Donate Now</button>
-                    </div>
-
-                    <!-- Card 2 -->
-                    <div class="slider-card">
-                        <img src="/images/donation-food/istockphoto-1224414210-612x612.jpg" alt="Water Pump">
-                        <h5>Water Pump</h5>
-                        <p>£100</p>
-                        <button class="btn-donate">Donate Now</button>
-                    </div>
-                    <!-- Card 2 -->
-                    <div class="slider-card">
-                        <img src="/images/donation-food/istockphoto-1224414210-612x612.jpg" alt="Water Pump">
-                        <h5>Water Pump</h5>
-                        <p>£100</p>
-                        <button class="btn-donate">Donate Now</button>
-                    </div>
-                    <!-- Card 2 -->
-                    <div class="slider-card">
-                        <img src="/images/donation-food/istockphoto-1224414210-612x612.jpg" alt="Water Pump">
-                        <h5>Water Pump</h5>
-                        <p>£100</p>
-                        <button class="btn-donate">Donate Now</button>
-                    </div>
-                    <!-- Card 2 -->
-                    <div class="slider-card">
-                        <img src="/images/donation-food/istockphoto-1224414210-612x612.jpg" alt="Water Pump">
-                        <h5>Water Pump</h5>
-                        <p>£100</p>
-                        <button class="btn-donate">Donate Now</button>
-                    </div>
-                    <!-- Card 2 -->
-                    <div class="slider-card">
-                        <img src="/images/donation-food/istockphoto-1224414210-612x612.jpg" alt="Water Pump">
-                        <h5>Water Pump</h5>
-                        <p>£100</p>
-                        <button class="btn-donate">Donate Now</button>
-                    </div>
-                    <!-- Card 2 -->
-                    <div class="slider-card">
-                        <img src="/images/donation-food/istockphoto-1224414210-612x612.jpg" alt="Water Pump">
-                        <h5>Water Pump</h5>
-                        <p>£100</p>
-                        <button class="btn-donate">Donate Now</button>
-                    </div>
-                    <!-- Card 2 -->
-                    <div class="slider-card">
-                        <img src="/images/donation-food/istockphoto-1224414210-612x612.jpg" alt="Water Pump">
-                        <h5>Water Pump</h5>
-                        <p>£100</p>
-                        <button class="btn-donate">Donate Now</button>
-                    </div>
-                    <!-- Card 2 -->
-                    <div class="slider-card">
-                        <img src="/images/donation-food/istockphoto-1224414210-612x612.jpg" alt="Water Pump">
-                        <h5>Water Pump</h5>
-                        <p>£100</p>
-                        <button class="btn-donate">Donate Now</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Controls -->
-            <button class="slider-btn prev">❮</button>
-            <button class="slider-btn next">❯</button>
-        </div>
-
-
     </section>
 
+    <!-- Professional Tab Section -->
     <div class="tab-container">
         <div class="tab-header">
             <button class="tab-btn active" onclick="openTab(event, 'daily-weekly')">Daily/Weekly</button>
@@ -741,24 +608,22 @@
         </div>
 
         <div class="tab-content">
+            <!-- Daily/Weekly Tab -->
             <div id="daily-weekly" class="tab-panel active">
                 <div class="donation-card">
                     <div class="card-header">
                         <div class="card-icon">
-                            <span class="iconify" data-icon="mdi:calendar-clock" data-width="40"
-                                data-height="40"></span>
+                            <span class="iconify" data-icon="mdi:calendar-clock" data-width="40" data-height="40"></span>
                         </div>
                         <h2 class="card-title">Daily & Weekly Donations</h2>
-                        <p class="card-subtitle">Make consistent impact with regular contributions. Small amounts, big
-                            difference.</p>
+                        <p class="card-subtitle">Make consistent impact with regular contributions. Small amounts, big difference.</p>
                     </div>
 
-                    <form id="form-daily" action="{{ route('donation.daily_weekly') }}" method="POST">
-                        @csrf
+                    <form id="form-daily" action="#" method="POST">
                         <div class="form-grid">
                             <div class="form-group">
                                 <label for="currency-daily">Currency</label>
-                                <select name="currency" id="currency-daily" required class="select-input">
+                                <select name="currency" id="currency-daily" class="select-input">
                                     <option value="gbp">£</option>
                                     <option value="usd">$</option>
                                     <option value="eur">€</option>
@@ -767,13 +632,12 @@
 
                             <div class="form-group">
                                 <label for="amount-daily">Amount</label>
-                                <input type="number" name="amount" id="amount-daily" required class="text-input"
-                                    min="1" />
+                                <input type="number" name="amount" id="amount-daily" class="text-input" min="1" />
                             </div>
 
                             <div class="form-group">
                                 <label for="type-daily">Type</label>
-                                <select name="type" id="type-daily" required class="select-input">
+                                <select name="type" id="type-daily" class="select-input">
                                     <option value="day">Daily</option>
                                     <option value="week">Weekly</option>
                                 </select>
@@ -782,8 +646,7 @@
                             <!-- Single Range Picker -->
                             <div class="form-group" style="grid-column: 1 / -1;">
                                 <label for="date-range-daily">Select Date Range</label>
-                                <input type="text" id="date-range-daily" required class="text-input"
-                                     placeholder="Pick start and end dates" />
+                                <input type="text" id="date-range-daily" class="text-input" placeholder="Pick start and end dates" />
                                 <input type="hidden" name="start_date" id="start_date-daily" />
                                 <input type="hidden" name="cancellation" id="cancellation-daily" />
                             </div>
@@ -809,8 +672,7 @@
                             <span class="iconify" data-icon="mdi:mosque" data-width="40" data-height="40"></span>
                         </div>
                         <h2 class="card-title">Friday Special Donation</h2>
-                        <p class="card-subtitle">Make your Fridays more meaningful with special charitable
-                            contributions.</p>
+                        <p class="card-subtitle">Make your Fridays more meaningful with special charitable contributions.</p>
                     </div>
 
                     <!-- Friday -->
@@ -827,21 +689,18 @@
 
                             <div class="form-group">
                                 <label for="amount-friday">Amount</label>
-                                <input type="number" name="amount" id="amount-friday" class="text-input"
-                                    min="1" />
+                                <input type="number" name="amount" id="amount-friday" class="text-input" min="1" />
                             </div>
 
                             <div class="form-group">
                                 <label for="type-friday">Type</label>
-                                <input type="text" name="type" id="type-friday" value="Friday"
-                                    class="text-input" min="1" readonly />
+                                <input type="text" name="type" id="type-friday" value="Friday" class="text-input" min="1" readonly />
                             </div>
 
                             <!-- Single Range Picker -->
                             <div class="form-group" style="grid-column: 1 / -1;">
                                 <label for="date-range-friday">Select Date Range</label>
-                                <input type="text" id="date-range-friday" class="text-input"
-                                    placeholder="Pick start and end dates" />
+                                <input type="text" id="date-range-friday" class="text-input" placeholder="Pick start and end dates" />
                                 <input type="hidden" name="start_date" id="start_date-friday" />
                                 <input type="hidden" name="cancellation" id="cancellation-friday" />
                             </div>
@@ -850,8 +709,7 @@
                             <div class="form-group" style="grid-column: 1 / -1;">
                                 <label for="card-element-friday">Card Details</label>
                                 <div id="card-element-friday" class="text-input"></div>
-                                <div id="card-errors-friday" role="alert" style="color: red; margin-top: 5px;">
-                                </div>
+                                <div id="card-errors-friday" role="alert" style="color: red; margin-top: 5px;"></div>
                             </div>
 
                         </div>
@@ -867,12 +725,10 @@
                 <div class="donation-card">
                     <div class="card-header">
                         <div class="card-icon">
-                            <span class="iconify" data-icon="mdi:chart-line" data-width="40"
-                                data-height="40"></span>
+                            <span class="iconify" data-icon="mdi:chart-line" data-width="40" data-height="40"></span>
                         </div>
                         <h2 class="card-title">Monthly Donation Plan</h2>
-                        <p class="card-subtitle">Sustain long-term change with monthly contributions. Maximum impact,
-                            consistent support.</p>
+                        <p class="card-subtitle">Sustain long-term change with monthly contributions. Maximum impact, consistent support.</p>
                     </div>
 
                     <!-- Monthly -->
@@ -889,21 +745,18 @@
 
                             <div class="form-group">
                                 <label for="amount-monthly">Amount</label>
-                                <input type="number" name="amount" id="amount-monthly" class="text-input"
-                                    min="1" />
+                                <input type="number" name="amount" id="amount-monthly" class="text-input" min="1" />
                             </div>
 
                             <div class="form-group">
                                 <label for="type-monthly">Type</label>
-                                <input type="text" id="type-monthly" value="Monthly" name="type"
-                                    class="text-input" readonly />
+                                <input type="text" id="type-monthly" value="Monthly" name="type" class="text-input" readonly />
                             </div>
 
                             <!-- Single Range Picker -->
                             <div class="form-group" style="grid-column: 1 / -1;">
                                 <label for="date-range-monthly">Select Date Range</label>
-                                <input type="text" id="date-range-monthly" class="text-input"
-                                    placeholder="Pick start and end dates" />
+                                <input type="text" id="date-range-monthly" class="text-input" placeholder="Pick start and end dates" />
                                 <input type="hidden" name="start_date" id="start_date-monthly" />
                                 <input type="hidden" name="cancellation" id="cancellation-monthly" />
                             </div>
@@ -912,8 +765,7 @@
                             <div class="form-group" style="grid-column: 1 / -1;">
                                 <label for="card-element-monthly">Card Details</label>
                                 <div id="card-element-monthly" class="text-input"></div>
-                                <div id="card-errors-monthly" role="alert" style="color: red; margin-top: 5px;">
-                                </div>
+                                <div id="card-errors-monthly" role="alert" style="color: red; margin-top: 5px;"></div>
                             </div>
                         </div>
 
@@ -925,13 +777,8 @@
     </div>
 
 
-
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/index.js"></script>
-    @livewireScripts
-
-    {{-- Stripe script --}}
-    <script src="https://js.stripe.com/v3/"></script>
     <script>
         function openTab(evt, tabName) {
             var i, tabPanels, tabBtns;
@@ -1047,10 +894,8 @@
         // INIT calls (unchanged except Friday uses updated function)
         document.addEventListener('DOMContentLoaded', function() {
             attachRangePicker('date-range-daily', 'start_date-daily', 'cancellation-daily', 'form-daily');
-            attachRangePickerFridays('date-range-friday', 'start_date-friday', 'cancellation-friday',
-                'form-friday');
-            attachRangePickerMonths('date-range-monthly', 'start_date-monthly', 'cancellation-monthly',
-                'form-monthly');
+            attachRangePickerFridays('date-range-friday', 'start_date-friday', 'cancellation-friday', 'form-friday');
+            attachRangePickerMonths('date-range-monthly', 'start_date-monthly', 'cancellation-monthly', 'form-monthly');
         });
 
         // Month range picker (maps to first/last day in hidden fields)
@@ -1101,92 +946,65 @@
             attachRangePicker('date-range-daily', 'start_date-daily', 'cancellation-daily', 'form-daily');
 
             // Friday: only Fridays selectable
-            attachRangePickerFridays('date-range-friday', 'start_date-friday', 'cancellation-friday',
-                'form-friday');
+            attachRangePickerFridays('date-range-friday', 'start_date-friday', 'cancellation-friday', 'form-friday');
 
             // Monthly: month range (maps to first/last day)
-            attachRangePickerMonths('date-range-monthly', 'start_date-monthly', 'cancellation-monthly',
-                'form-monthly');
+            attachRangePickerMonths('date-range-monthly', 'start_date-monthly', 'cancellation-monthly', 'form-monthly');
         });
     </script>
 
     {{-- Stripe script --}}
     <script src="https://js.stripe.com/v3/"></script>
-    <script src="https://js.stripe.com/v3/"></script>
     <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            const stripe = Stripe("{{ config('services.stripe.key') }}");
+    document.addEventListener("DOMContentLoaded", function () {
+        const stripe = Stripe("{{ config('services.stripe.key') }}");
 
-            function setupStripeForm(formId, elementId, errorId) {
-                const form = document.getElementById(formId);
-                if (!form) return;
-
-                // Create card element
-                const elements = stripe.elements();
-                const card = elements.create("card", {
-                    style: {
-                        base: {
-                            color: "#32325d",
-                            fontFamily: '"Helvetica Neue", Helvetica, sans-serif',
-                            fontSmoothing: "antialiased",
-                            fontSize: "16px",
-                            "::placeholder": {
-                                color: "#aab7c4"
-                            }
-                        },
-                        invalid: {
-                            color: "#fa755a",
-                            iconColor: "#fa755a"
-                        }
+        function setupStripeCard(formId, elementId, errorId) {
+            const elements = stripe.elements();
+            const card = elements.create("card", {
+                hidePostalCode: true, 
+                style: {
+                    base: {
+                        fontSize: "16px",
+                        color: "#000",
+                        fontFamily: "inherit",
+                        "::placeholder": { color: "#999" }
                     },
-                    hidePostalCode: true
-                });
-                card.mount(`#${elementId}`);
-
-                // Handle validation errors
-                card.on("change", function(event) {
-                    const displayError = document.getElementById(errorId);
-                    if (event.error) {
-                        displayError.textContent = event.error.message;
-                    } else {
-                        displayError.textContent = "";
+                    invalid: {
+                        color: "#e3342f"
                     }
+                }
+            });
+            card.mount(`#${elementId}`);
+
+            const form = document.getElementById(formId);
+            form.addEventListener("submit", async (event) => {
+                event.preventDefault();
+                const { paymentMethod, error } = await stripe.createPaymentMethod({
+                    type: "card",
+                    card: card,
+                    billing_details: { name: "Anonymous Donor" },
                 });
 
-                // Handle form submit
-                form.addEventListener("submit", async function(event) {
-                    event.preventDefault();
+                if (error) {
+                    document.getElementById(errorId).textContent = error.message;
+                    return;
+                }
 
-                    form.querySelector("button[type=submit]").disabled = true;
+                const hiddenInput = document.createElement("input");
+                hiddenInput.type = "hidden";
+                hiddenInput.name = "payment_method_id";
+                hiddenInput.value = paymentMethod.id;
+                form.appendChild(hiddenInput);
+                form.submit();
+            });
+        }
 
-                    const {
-                        token,
-                        error
-                    } = await stripe.createToken(card);
-
-                    if (error) {
-                        document.getElementById(errorId).textContent = error.message;
-                        form.querySelector("button[type=submit]").disabled = false;
-                    } else {
-                        const hiddenInput = document.createElement("input");
-                        hiddenInput.setAttribute("type", "hidden");
-                        hiddenInput.setAttribute("name", "stripeToken");
-                        hiddenInput.setAttribute("value", token.id);
-                        form.appendChild(hiddenInput);
-
-                        form.submit();
-                    }
-                });
-            }
-
-            // ✅ Attach to all three forms
-            setupStripeForm("form-daily", "card-element", "card-errors");
-            setupStripeForm("form-friday", "card-element-friday", "card-errors-friday");
-            setupStripeForm("form-monthly", "card-element-monthly", "card-errors-monthly");
-        });
+        setupStripeCard("form-daily", "card-element", "card-errors");
+        setupStripeCard("form-friday", "card-element-friday", "card-errors-friday");
+        setupStripeCard("form-monthly", "card-element-monthly", "card-errors-monthly");
+    });
     </script>
-
-
 
 
 </body>

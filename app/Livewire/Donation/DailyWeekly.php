@@ -27,7 +27,6 @@ class DailyWeekly extends Component
 
     public function donate()
     {
-        dd($this->payment_method_id);
         $this->validate();
 
         DB::beginTransaction();
@@ -106,13 +105,15 @@ class DailyWeekly extends Component
 
             session()->flash('success', 'Daily/Weekly donation setup successfully!');
             return redirect()->route('dashboard');
-
         } catch (\Exception $e) {
             DB::rollBack();
             session()->flash('error', 'Error: ' . $e->getMessage());
         }
     }
-
+    public function setPaymentMethod($id)
+    {
+        $this->payment_method_id = $id;
+    }
     public function render()
     {
         return view('livewire.donation.daily-weekly');

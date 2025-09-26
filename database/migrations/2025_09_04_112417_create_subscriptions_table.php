@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->string('stripe_subscription_id')->unique();
             $table->string('stripe_price_id');
-            $table->enum('status', ['active', 'canceled']);
+            $table->string('status');
             $table->string('price');
             $table->string('currency');
             $table->string('type');

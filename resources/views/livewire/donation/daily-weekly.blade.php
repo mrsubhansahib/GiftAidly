@@ -1,5 +1,5 @@
 <div>
-    <form wire:submit.prevent="donate" id="form-daily">
+    <form id="form-daily">
         <div class="form-grid">
             <div class="form-group">
                 <label for="currency-daily">Currency</label>
