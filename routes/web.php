@@ -9,7 +9,7 @@ require __DIR__ . '/auth.php';
 
 Route::group(['prefix' => '/', 'middleware' => ['auth', 'verified']], function () {
 
-    Route::post('donate/daily-weekly',[SubscriptionController::class,'donateDailyWeekly'])->name('donation.daily_weekly');
+    Route::post('donate/daily-weekly-monthly',[SubscriptionController::class,'donateDailyWeeklyMonthly'])->name('donation.daily_weekly_monthly');
     Route::post('donate/friday',[SubscriptionController::class,'donateFriday'])->name('donation.friday');
     Route::post('donate/monthly',[SubscriptionController::class,'donateMonthly'])->name('donation.monthly');
     // User detail only for admin

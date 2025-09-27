@@ -16,6 +16,7 @@ class Subscription extends Model
         'status',
         'price',
         'currency',
+        'gift_aid',
         'type',
         'start_date',
         'end_date',

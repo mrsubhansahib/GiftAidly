@@ -606,19 +606,20 @@
             right: 10px;
         }
     </style>
-    @livewireStyles
+    <?php echo \Livewire\Mechanisms\FrontendAssets\FrontendAssets::styles(); ?>
+
 
 </head>
 
 <body>
-    @include('layouts.partials.alert')
+    <?php echo $__env->make('layouts.partials.alert', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
     <!-- Animated Top Bar -->
     <div class="animated-bar"></div>
 
     <!-- Banner Section -->
     <section class="banner">
         <div style="display: flex; justify-content: end; margin-bottom: 20px;">
-            <a type="button" href="{{ route('any', ['index']) }}"
+            <a type="button" href="<?php echo e(route('any', ['index'])); ?>"
                 style="background: linear-gradient(45deg, #1d43ab, #94740dff); 
                         background-size: 200% 200%;
                         background-position: left center;
@@ -755,8 +756,8 @@
                             difference.</p>
                     </div>
 
-                    <form id="form-daily" action="{{ route('donation.daily_weekly_monthly') }}" method="POST">
-                        @csrf
+                    <form id="form-daily" action="<?php echo e(route('donation.daily_weekly_monthly')); ?>" method="POST">
+                        <?php echo csrf_field(); ?>
                         <div class="form-grid">
                             <div class="form-group">
                                 <label for="currency-daily">Currency</label>
@@ -799,7 +800,7 @@
                              <div class="form-group" style="grid-column: 1 / -1;">
                                 <label for="gift-aid-daily">Gift Aid</label>
                                 <input type="checkbox" name="gift_aid" id="gift-aid-daily" value="yes" />
-                                <input type="text" name="address" id="address-daily" class="text-input" style="display: none" value="{{auth()->user()->address?auth()->user()->address:''}}" />
+                                <input type="text" name="address" id="address-daily" class="text-input" style="display: none" value="<?php echo e(auth()->user()->address?auth()->user()->address:''); ?>" />
                             </div>
                         </div>
 
@@ -936,9 +937,10 @@
 
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/index.js"></script>
-    @livewireScripts
+    <?php echo \Livewire\Mechanisms\FrontendAssets\FrontendAssets::scripts(); ?>
 
-    {{-- Stripe script --}}
+
+    
     <script src="https://js.stripe.com/v3/"></script>
     <script>
         function openTab(evt, tabName) {
@@ -1118,12 +1120,12 @@
         });
     </script>
 
-    {{-- Stripe script --}}
+    
     <script src="https://js.stripe.com/v3/"></script>
     <script src="https://js.stripe.com/v3/"></script>
     <script>
         document.addEventListener("DOMContentLoaded", function() {
-            const stripe = Stripe("{{ config('services.stripe.key') }}");
+            const stripe = Stripe("<?php echo e(config('services.stripe.key')); ?>");
 
             function setupStripeForm(formId, elementId, errorId) {
                 const form = document.getElementById(formId);
@@ -1213,3 +1215,4 @@
 </body>
 
 </html>
+<?php /**PATH D:\Laravel\Softic-Era\Current Projects\GiftAidly\resources\views/donation/index.blade.php ENDPATH**/ ?>
