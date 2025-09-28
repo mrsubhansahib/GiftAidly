@@ -737,13 +737,13 @@
 
     <div class="tab-container">
         <div class="tab-header">
-            <button class="tab-btn active" onclick="openTab(event, 'daily-weekly')">Daily / Weekly / Monthly</button>
+            <button class="tab-btn " onclick="openTab(event, 'daily-weekly-monthly')">Daily / Weekly / Monthly</button>
             <button class="tab-btn" onclick="openTab(event, 'friday')">Friday Special</button>
-            <button class="tab-btn" onclick="openTab(event, 'monthly')">Monthly</button>
+            <button class="tab-btn active" onclick="openTab(event, 'special')">Donate Special</button>
         </div>
 
         <div class="tab-content">
-            <div id="daily-weekly" class="tab-panel active">
+            <div id="daily-weekly-monthly" class="tab-panel ">
                 <div class="donation-card">
                     <div class="card-header">
                         <div class="card-icon">
@@ -796,10 +796,12 @@
                                 <div id="card-element" class="text-input"></div>
                                 <div id="card-errors" role="alert" style="color: red; margin-top: 5px;"></div>
                             </div>
-                             <div class="form-group" style="grid-column: 1 / -1;">
+                            <div class="form-group" style="grid-column: 1 / -1;">
                                 <label for="gift-aid-daily">Gift Aid</label>
                                 <input type="checkbox" name="gift_aid" id="gift-aid-daily" value="yes" />
-                                <input type="text" name="address" id="address-daily" class="text-input" style="display: none" value="{{auth()->user()->address?auth()->user()->address:''}}" />
+                                <input type="text" name="address" id="address-daily" class="text-input"
+                                    style="display: none"
+                                    value="{{ auth()->user()->address ? auth()->user()->address : '' }}" />
                             </div>
                         </div>
 
@@ -810,7 +812,7 @@
             </div>
 
             <!-- Friday Tab -->
-            <div id="friday" class="tab-panel">
+            <div id="friday" class="tab-panel ">
                 <div class="donation-card">
                     <div class="card-header">
                         <div class="card-icon">
@@ -822,7 +824,8 @@
                     </div>
 
                     <!-- Friday -->
-                    <form id="form-friday" action="#" method="POST">
+                    <form id="form-friday" action="{{ route('donation.friday') }}" method="POST">
+                        @csrf
                         <div class="form-grid">
                             <div class="form-group">
                                 <label for="currency-friday">Currency</label>
@@ -841,8 +844,7 @@
 
                             <div class="form-group">
                                 <label for="type-friday">Type</label>
-                                <input type="text" name="type" id="type-friday" value="Friday"
-                                    class="text-input" min="1" readonly />
+                                <input type="text" id="type-friday" value="Friday" class="text-input" readonly />
                             </div>
 
                             <!-- Single Range Picker -->
@@ -861,7 +863,13 @@
                                 <div id="card-errors-friday" role="alert" style="color: red; margin-top: 5px;">
                                 </div>
                             </div>
-
+                            <div class="form-group" style="grid-column: 1 / -1;">
+                                <label for="gift-aid-friday">Gift Aid</label>
+                                <input type="checkbox" name="gift_aid" id="gift-aid-friday" value="yes" />
+                                <input type="text" name="address" id="address-friday" class="text-input"
+                                    style="display: none"
+                                    value="{{ auth()->user()->address ? auth()->user()->address : '' }}" />
+                            </div>
                         </div>
 
                         <button type="submit" class="donate-btn">Friday Donation</button>
@@ -870,15 +878,15 @@
                 </div>
             </div>
 
-            <!-- Monthly Tab -->
-            <div id="monthly" class="tab-panel">
+            <!-- Special Tab -->
+            <div id="special" class="tab-panel active">
                 <div class="donation-card">
                     <div class="card-header">
                         <div class="card-icon">
                             <span class="iconify" data-icon="mdi:chart-line" data-width="40"
                                 data-height="40"></span>
                         </div>
-                        <h2 class="card-title">Monthly Donation Plan</h2>
+                        <h2 class="card-title">Special Donation Plan</h2>
                         <p class="card-subtitle">Sustain long-term change with monthly contributions. Maximum impact,
                             consistent support.</p>
                     </div>
@@ -1194,6 +1202,19 @@
         });
         document.getElementById('gift-aid-daily').addEventListener('change', function() {
             const addressInput = document.getElementById('address-daily');
+            if (this.checked) {
+                addressInput.style.display = 'block';
+                addressInput.setAttribute('required', 'required');
+                addressInput.setAttribute('placeholder', 'Enter your address');
+
+            } else {
+                addressInput.style.display = 'none';
+                addressInput.removeAttribute('required');
+                addressInput.value = '';
+            }
+        });
+        document.getElementById('gift-aid-friday').addEventListener('change', function() {
+            const addressInput = document.getElementById('address-friday');
             if (this.checked) {
                 addressInput.style.display = 'block';
                 addressInput.setAttribute('required', 'required');
