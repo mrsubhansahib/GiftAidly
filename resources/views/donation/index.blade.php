@@ -586,19 +586,37 @@
                     <form id="form-daily" action="{{ route('donation.daily_weekly_monthly') }}" method="POST">
                         @csrf
                         <div class="form-grid">
+                            @php
+                                $userCurrency = auth()->check()
+                                    ? auth()
+                                        ->user()
+                                        ->subscriptions()
+                                        ->where('status', 'active')
+                                        ->pluck('currency')
+                                        ->unique()
+                                        ->first()
+                                    : null;
+                                $currencies = ['gbp' => '£', 'usd' => '$', 'eur' => '€'];
+                            @endphp
                             <div class="form-group">
-                                <label for="currency-daily">Currency</label>
-                                <select name="currency" id="currency-daily" required class="select-input">
-                                    <option value="gbp">£</option>
-                                    <option value="usd">$</option>
-                                    <option value="eur">€</option>
+                                <label for="currency">Currency</label>
+                                <select name="currency" id="currency" required class="select-input">
+                                    @foreach ($currencies as $code => $symbol)
+                                        <option value="{{ $code }}" @selected($userCurrency === $code)
+                                            @disabled($userCurrency && $userCurrency !== $code)
+                                            title="{{ $userCurrency && $userCurrency !== $code ? 'You cannot select this currency because your previous donations were in ' . strtoupper($userCurrency) . '.' : '' }}">
+                                            {{ $symbol }}
+                                        </option>
+                                    @endforeach
                                 </select>
                             </div>
 
                             <div class="form-group">
                                 <label for="amount-daily">Amount</label>
-                                <input type="number" name="amount" id="amount-daily" required class="text-input"
+                                <input type="number" name="amount" id="amount-daily" class="text-input"
                                     min="1" />
+                                <span id="error-amount-daily"
+                                    style="color: red; font-size: 13px; display: block; margin-top: 3px;"></span>
                             </div>
 
                             <div class="form-group">
@@ -617,23 +635,33 @@
                                     placeholder="Pick start and end dates" />
                                 <input type="hidden" name="start_date" id="start_date-daily" />
                                 <input type="hidden" name="cancellation" id="cancellation-daily" />
+                                <span id="error-date-daily"
+                                    style="color: red; font-size: 13px; display: block; margin-top: 3px;"></span>
                             </div>
 
                             <div class="form-group" style="grid-column: 1 / -1;">
                                 <label for="card-element">Card Details</label>
                                 <div id="card-element" class="text-input"></div>
                                 <div id="card-errors" role="alert" style="color: red; margin-top: 5px;"></div>
+                                <span id="error-card-daily"
+                                    style="color: red; font-size: 13px; display: block; margin-top: 3px;"></span>
                             </div>
-                            <div class="form-group" style="grid-column: 1 / -1; display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
-                                <label for="gift-aid-daily" style="margin: 0; display: flex; align-items: center; gap: 6px;">
+                            <div class="form-group"
+                                style="grid-column: 1 / -1; display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+                                <label for="gift-aid-daily"
+                                    style="display: flex; align-items: center; gap: 6px; white-space: nowrap; margin-top: 6px;">
                                     Gift Aid
-                                    <input type="checkbox" name="gift_aid" id="gift-aid-daily" data-target="address-daily" value="yes" />
+                                    <input type="checkbox" name="gift_aid" id="gift-aid-daily"
+                                        data-target="address-daily" value="yes" />
                                 </label>
 
-                                <input type="text" name="address" id="address-daily" class="text-input"
-                                    style="display: none; flex: 1; min-width: 200px;"
-                                    placeholder="Enter your address"
-                                    value="{{ auth()->user()->address ? auth()->user()->address : '' }}" />
+                                <div style="flex: 1; min-width: 200px; display: flex; flex-direction: column;">
+                                    <input type="text" name="address" id="address-daily" class="text-input"
+                                        style="display: none; width: 100%;" placeholder="Enter your address"
+                                        value="{{ auth()->user()->address ? auth()->user()->address : '' }}" />
+                                    <span id="error-address-daily"
+                                        style="color: red; font-size: 13px; display: block; margin-top: 3px;"></span>
+                                </div>
                             </div>
 
                         </div>
@@ -663,9 +691,13 @@
                             <div class="form-group">
                                 <label for="currency-friday">Currency</label>
                                 <select name="currency" id="currency-friday" class="select-input">
-                                    <option value="gbp">£</option>
-                                    <option value="usd">$</option>
-                                    <option value="eur">€</option>
+                                    @foreach ($currencies as $code => $symbol)
+                                        <option value="{{ $code }}" @selected($userCurrency === $code)
+                                            @disabled($userCurrency && $userCurrency !== $code)
+                                            title="{{ $userCurrency && $userCurrency !== $code ? 'You cannot select this currency because your previous donations were in ' . strtoupper($userCurrency) . '.' : '' }}">
+                                            {{ $symbol }}
+                                        </option>
+                                    @endforeach
                                 </select>
                             </div>
 
@@ -673,6 +705,8 @@
                                 <label for="amount-friday">Amount</label>
                                 <input type="number" name="amount" id="amount-friday" class="text-input"
                                     min="1" />
+                                <span id="error-amount-friday"
+                                    style="color: red; font-size: 13px; display: block; margin-top: 3px;"></span>
                             </div>
 
                             <div class="form-group">
@@ -687,6 +721,8 @@
                                     placeholder="Pick start and end dates" />
                                 <input type="hidden" name="start_date" id="start_date-friday" />
                                 <input type="hidden" name="cancellation" id="cancellation-friday" />
+                                <span id="error-date-friday"
+                                    style="color: red; font-size: 13px; display: block; margin-top: 3px;"></span>
                             </div>
 
                             <!-- Stripe Card Element -->
@@ -695,17 +731,25 @@
                                 <div id="card-element-friday" class="text-input"></div>
                                 <div id="card-errors-friday" role="alert" style="color: red; margin-top: 5px;">
                                 </div>
+                                <span id="error-card-friday"
+                                    style="color: red; font-size: 13px; display: block; margin-top: 3px;"></span>
                             </div>
-                            <div class="form-group" style="grid-column: 1 / -1; display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
-                                <label for="gift-aid-friday" style="margin: 0; display: flex; align-items: center; gap: 6px;">
+                            <div class="form-group"
+                                style="grid-column: 1 / -1; display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+                                <label for="gift-aid-friday"
+                                    style="display: flex; align-items: center; gap: 6px; white-space: nowrap; margin-top: 6px;">
                                     Gift Aid
-                                    <input type="checkbox" name="gift_aid" id="gift-aid-friday" data-target="address-friday" value="yes" />
+                                    <input type="checkbox" name="gift_aid" id="gift-aid-friday"
+                                        data-target="address-friday" value="yes" />
                                 </label>
 
-                                <input type="text" name="address" id="address-friday" class="text-input"
-                                    style="display: none; flex: 1; min-width: 200px;"
-                                    placeholder="Enter your address"
-                                    value="{{ auth()->user()->address ? auth()->user()->address : '' }}" />
+                                <div style="flex: 1; min-width: 200px; display: flex; flex-direction: column;">
+                                    <input type="text" name="address" id="address-friday" class="text-input"
+                                        style="display: none; width: 100%;" placeholder="Enter your address"
+                                        value="{{ auth()->user()->address ? auth()->user()->address : '' }}" />
+                                    <span id="error-address-friday"
+                                        style="color: red; font-size: 13px; display: block; margin-top: 3px;"></span>
+                                </div>
                             </div>
                         </div>
 
@@ -768,15 +812,17 @@
                                 <div id="card-errors-monthly" role="alert" style="color: red; margin-top: 5px;">
                                 </div>
                             </div>
-                            <div class="form-group" style="grid-column: 1 / -1; display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
-                                <label for="gift-aid-monthly" style="margin: 0; display: flex; align-items: center; gap: 6px;">
+                            <div class="form-group"
+                                style="grid-column: 1 / -1; display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+                                <label for="gift-aid-monthly"
+                                    style="margin: 0; display: flex; align-items: center; gap: 6px;">
                                     Gift Aid
-                                    <input type="checkbox" name="gift_aid" id="gift-aid-monthly" data-target="address-monthly" value="yes" />
+                                    <input type="checkbox" name="gift_aid" id="gift-aid-monthly"
+                                        data-target="address-monthly" value="yes" />
                                 </label>
 
                                 <input type="text" name="address_monthly" id="address-monthly" class="text-input"
-                                    style="display: none; flex: 1; min-width: 200px;"
-                                    placeholder="Enter your address"
+                                    style="display: none; flex: 1; min-width: 200px;" placeholder="Enter your address"
                                     value="{{ auth()->user()->address ? auth()->user()->address : '' }}" />
                             </div>
                         </div>
@@ -793,10 +839,12 @@
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/index.js"></script>
     @livewireScripts
-
     {{-- Stripe script --}}
     <script src="https://js.stripe.com/v3/"></script>
     <script>
+        // ------------------------------
+        // ✅ Tab Switching
+        // ------------------------------
         function openTab(evt, tabName) {
             var i, tabPanels, tabBtns;
             tabPanels = document.getElementsByClassName("tab-panel");
@@ -807,7 +855,9 @@
             evt.currentTarget.classList.add("active");
         }
 
-        // Card hover animations (unchanged)
+        // ------------------------------
+        // ✅ Card hover animations
+        // ------------------------------
         document.querySelectorAll('.donation-card').forEach(card => {
             card.addEventListener('mouseenter', function() {
                 this.style.transform = 'translateY(-10px) scale(1.02)';
@@ -817,97 +867,30 @@
             });
         });
 
-        // Date -> YYYY-MM-DD (single definition)
-        function fmt(d) {
-            const pad = n => String(n).padStart(2, '0');
-            return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
-        }
-
-        function attachRangePickerFridays(rangeId, startHiddenId, endHiddenId, formId) {
-            const rangeEl = document.getElementById(rangeId);
-            const startEl = document.getElementById(startHiddenId);
-            const endEl = document.getElementById(endHiddenId);
-            const form = document.getElementById(formId);
-            if (!rangeEl || !startEl || !endEl || !form) return;
-
-            // hidden field for storing all Fridays
-            function ensureFridaysHidden() {
-                let h = form.querySelector('input[name="fridays"]');
-                if (!h) {
-                    h = document.createElement('input');
-                }
-                h.type = 'hidden';
-                h.name = 'fridays'; // CSV of all Fridays in range
-                h.id = rangeId + '-fridays';
-                form.appendChild(h);
-                return h;
-            }
-            const fridaysHidden = ensureFridaysHidden();
-
-            flatpickr(rangeEl, {
-                mode: "range", // ✅ only range select
-                altInput: true,
-                altFormat: "F j, Y",
-                dateFormat: "Y-m-d",
-                minDate: "today",
-                onChange(selectedDates) {
-                    if (selectedDates.length === 2) {
-                        const start = selectedDates[0];
-                        const end = selectedDates[1];
-
-                        // set hidden start/end values
-                        startEl.value = fmt(start);
-                        endEl.value = fmt(end);
-
-                        // collect all Fridays between start and end
-                        let fridays = [];
-                        let current = new Date(start);
-                        while (current <= end) {
-                            if (current.getDay() === 5) {
-                                fridays.push(fmt(new Date(current)));
-                            }
-                            current.setDate(current.getDate() + 1);
-                        }
-
-                        // store all Fridays in hidden input
-                        fridaysHidden.value = fridays.join(',');
-                        console.log("Selected Fridays:", fridaysHidden.value);
-                    } else {
-                        startEl.value = "";
-                        endEl.value = "";
-                        fridaysHidden.value = "";
-                    }
-                }
-            });
-
-            // validation on submit
-            // form.addEventListener('submit', function(e) {
-            //     if (!fridaysHidden.value) {
-            //         e.preventDefault();
-            //         alert('Please select a date range that includes at least one Friday.');
-            //     }
-            // });
-        }
-
-
+        // ------------------------------
+        // ✅ Helper Functions
+        // ------------------------------
         function fmt(d) {
             const pad = n => String(n).padStart(2, '0');
             return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
         }
 
-        // safe addMonths (handles Feb, 30/31 edge cases)
+        const firstOfMonth = (y, m) => new Date(y, m, 1);
+        const lastOfMonth = (y, m) => new Date(y, m + 1, 0);
+
         function addMonths(date, count) {
             const d = new Date(date);
             const day = d.getDate();
             d.setMonth(d.getMonth() + count);
-
-            // if target month doesn't have that day (e.g. Feb 30), adjust to last day of month
             if (d.getDate() < day) {
-                d.setDate(0); // go back to last day of previous month
+                d.setDate(0);
             }
             return d;
         }
 
+        // ------------------------------
+        // ✅ Daily/Weekly/Monthly Picker with Type
+        // ------------------------------
         function attachRangePickerWithType(rangeId, startHiddenId, endHiddenId, typeId, formId) {
             const rangeEl = document.getElementById(rangeId);
             const startEl = document.getElementById(startHiddenId);
@@ -920,9 +903,8 @@
             let fp = null;
 
             function initFlatpickr() {
-                if (fp) {
-                    fp.destroy();
-                }
+                if (fp) fp.destroy();
+
                 rangeEl.value = "";
                 startEl.value = "";
                 endEl.value = "";
@@ -952,8 +934,9 @@
                             if (type === "month") {
                                 const minEnd = addMonths(start, 1);
                                 if (end < minEnd) {
-                                    alert("Please select at least one full month (e.g. " +
-                                        fmt(start) + " → " + fmt(minEnd) + " or later).");
+                                    alert(
+                                        `Please select at least one full month (${fmt(start)} → ${fmt(minEnd)} or later).`
+                                    );
                                     fp.clear();
                                     startEl.value = "";
                                     endEl.value = "";
@@ -971,29 +954,139 @@
             initFlatpickr();
             typeEl.addEventListener("change", initFlatpickr);
 
+            // ✅ Custom validation on submit (Amount + Date + Gift Aid)
             form.addEventListener("submit", function(e) {
-                if (!startEl.value || !endEl.value) {
-                    e.preventDefault();
-                    alert("Please select a valid date range.");
+                const amount = form.querySelector('input[name="amount"]');
+                const amountError = form.querySelector('#error-amount-daily');
+                const dateError = form.querySelector('#error-date-daily');
+                const giftAidCheckbox = form.querySelector('#gift-aid-daily');
+                const addressInput = form.querySelector('#address-daily');
+                const addressError = form.querySelector('#error-address-daily');
+                let valid = true;
+
+                if (!amount.value || parseFloat(amount.value) < 1) {
+                    amountError.textContent = 'Please enter a valid amount.';
+                    valid = false;
+                } else {
+                    amountError.textContent = '';
                 }
+
+                if (!startEl.value || !endEl.value) {
+                    dateError.textContent = 'Please select a valid date range.';
+                    valid = false;
+                } else {
+                    dateError.textContent = '';
+                }
+
+                if (giftAidCheckbox.checked && addressInput.value.trim() === '') {
+                    addressError.textContent = 'Please enter your address for Gift Aid.';
+                    valid = false;
+                } else {
+                    addressError.textContent = '';
+                }
+
+                if (!valid) e.preventDefault();
             });
         }
 
-        document.addEventListener("DOMContentLoaded", function() {
-            attachRangePickerWithType(
-                "date-range-daily",
-                "start_date-daily",
-                "cancellation-daily",
-                "type-daily",
-                "form-daily"
-            );
-        });
-    </script>
+        // ------------------------------
+        // ✅ Friday Range Picker
+        // ------------------------------
+        function attachRangePickerFridays(rangeId, startHiddenId, endHiddenId, formId) {
+            const rangeEl = document.getElementById(rangeId);
+            const startEl = document.getElementById(startHiddenId);
+            const endEl = document.getElementById(endHiddenId);
+            const form = document.getElementById(formId);
+            if (!rangeEl || !startEl || !endEl || !form) return;
 
-    {{-- Stripe script --}}
-    <script src="https://js.stripe.com/v3/"></script>
-    <script src="https://js.stripe.com/v3/"></script>
-    <script>
+            function ensureFridaysHidden() {
+                let h = form.querySelector('input[name="fridays"]');
+                if (!h) {
+                    h = document.createElement('input');
+                    h.type = 'hidden';
+                    h.name = 'fridays';
+                    h.id = rangeId + '-fridays';
+                    form.appendChild(h);
+                }
+                return h;
+            }
+            const fridaysHidden = ensureFridaysHidden();
+
+            flatpickr(rangeEl, {
+                mode: "range",
+                altInput: true,
+                altFormat: "F j, Y",
+                dateFormat: "Y-m-d",
+                minDate: "today",
+                onChange(selectedDates) {
+                    if (selectedDates.length === 2) {
+                        const start = selectedDates[0];
+                        const end = selectedDates[1];
+                        startEl.value = fmt(start);
+                        endEl.value = fmt(end);
+
+                        let fridays = [];
+                        let current = new Date(start);
+                        while (current <= end) {
+                            if (current.getDay() === 5) fridays.push(fmt(new Date(current)));
+                            current.setDate(current.getDate() + 1);
+                        }
+                        fridaysHidden.value = fridays.join(',');
+                    } else {
+                        startEl.value = "";
+                        endEl.value = "";
+                        fridaysHidden.value = "";
+                    }
+                }
+            });
+
+            form.addEventListener('submit', function(e) {
+                const amount = form.querySelector('input[name="amount"]');
+                const amountError = form.querySelector('#error-amount-friday');
+                const dateError = form.querySelector('#error-date-friday');
+                const giftAidCheckbox = form.querySelector('#gift-aid-friday');
+                const addressInput = form.querySelector('#address-friday');
+                const addressError = form.querySelector('#error-address-friday');
+                let valid = true;
+
+                if (!amount.value || parseFloat(amount.value) < 1) {
+                    amountError.textContent = 'Please enter a valid amount.';
+                    valid = false;
+                } else {
+                    amountError.textContent = '';
+                }
+
+                if (!fridaysHidden.value) {
+                    dateError.textContent = 'Please select a date range that includes at least one Friday.';
+                    valid = false;
+                } else {
+                    dateError.textContent = '';
+                }
+
+                if (giftAidCheckbox.checked && addressInput.value.trim() === '') {
+                    addressError.textContent = 'Please enter your address for Gift Aid.';
+                    valid = false;
+                } else {
+                    addressError.textContent = '';
+                }
+
+                if (!valid) e.preventDefault();
+            });
+        }
+
+        // ------------------------------
+        // ✅ INIT Flatpickr
+        // ------------------------------
+        document.addEventListener("DOMContentLoaded", function() {
+            attachRangePickerWithType("date-range-daily", "start_date-daily", "cancellation-daily", "type-daily",
+                "form-daily");
+            attachRangePickerFridays("date-range-friday", "start_date-friday", "cancellation-friday",
+            "form-friday");
+        });
+
+        // ------------------------------
+        // ✅ Stripe (Original Working Version)
+        // ------------------------------
         document.addEventListener("DOMContentLoaded", function() {
             const stripe = Stripe("{{ config('services.stripe.key') }}");
 
@@ -1059,31 +1152,33 @@
                 });
             }
 
-            // ✅ Attach to all three forms
             setupStripeForm("form-daily", "card-element", "card-errors");
             setupStripeForm("form-friday", "card-element-friday", "card-errors-friday");
             setupStripeForm("form-monthly", "card-element-monthly", "card-errors-monthly");
         });
 
+        // ------------------------------
+        // ✅ Gift Aid Checkbox Toggle (Updated)
+        // ------------------------------
         document.querySelectorAll('input[type="checkbox"][name="gift_aid"]').forEach((checkbox) => {
             checkbox.addEventListener('change', function() {
                 const targetId = this.getAttribute('data-target');
                 const addressInput = document.getElementById(targetId);
+                const errorSpan = document.getElementById(`error-${targetId}`);
 
                 if (this.checked) {
                     addressInput.style.display = 'block';
-                    addressInput.setAttribute('required', 'required');
                     addressInput.setAttribute('placeholder', 'Enter your address');
                 } else {
                     addressInput.style.display = 'none';
-                    addressInput.removeAttribute('required');
                     addressInput.value = '';
+                    if (errorSpan) {
+                        errorSpan.textContent = '';
+                    }
                 }
             });
         });
     </script>
-
-
 
 
 </body>
