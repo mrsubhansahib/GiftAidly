@@ -565,13 +565,13 @@
 
     <div class="tab-container">
         <div class="tab-header">
-            <button class="tab-btn " onclick="openTab(event, 'daily-weekly-monthly')">Daily / Weekly / Monthly</button>
+            <button class="tab-btn active " onclick="openTab(event, 'daily-weekly-monthly')">Daily / Weekly / Monthly</button>
             <button class="tab-btn" onclick="openTab(event, 'friday')">Friday Special</button>
-            <button class="tab-btn active" onclick="openTab(event, 'special')">Donate Special</button>
+            <button class="tab-btn " onclick="openTab(event, 'special')">Donate Special</button>
         </div>
 
         <div class="tab-content">
-            <div id="daily-weekly-monthly" class="tab-panel ">
+            <div id="daily-weekly-monthly" class="tab-panel active">
                 <div class="donation-card">
                     <div class="card-header">
                         <div class="card-icon">
@@ -760,7 +760,7 @@
             </div>
 
             <!-- Special Tab -->
-            <div id="special" class="tab-panel active">
+            <div id="special" class="tab-panel ">
                 <div class="donation-card">
                     <div class="card-header">
                         <div class="card-icon">

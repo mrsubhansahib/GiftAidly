@@ -82,9 +82,9 @@ class SubscriptionController extends Controller
 
             // Window & dates
             $tz    = config('app.timezone');
-            $start = Carbon::createFromFormat('Y-m-d', $request->start_date, $tz)->startOfDay();
+            $start = Carbon::createFromFormat('Y-m-d', $request->start_date, $tz);
             $end   = Carbon::createFromFormat('Y-m-d', $request->cancellation, $tz);
-
+            // dd($start->toDateTimeString(), $end->toDateTimeString());
             $days   = (int) $start->diffInDays($end);
             $weeks  = (int) $start->diffInWeeks($end);
             $months = (int) $start->diffInMonths($end);
@@ -96,7 +96,7 @@ class SubscriptionController extends Controller
 
             $iterationsDay   = $days + 1;
             $iterationsWeek  = $weeks + 1;
-            $iterationsMonth = max(1, ($months ?: 0)) + 1;
+            $iterationsMonth = max(1, ($months ?: 0) + 1);
             $endDate = match ($request->type) {
                 'day'   => $anchor->copy()->addDays($iterationsDay),
                 'week'  => $anchor->copy()->addWeeks($iterationsWeek),
@@ -104,7 +104,7 @@ class SubscriptionController extends Controller
                 default => $anchor->copy()->addMonthsNoOverflow($iterationsMonth),
             };
 
-            // dd($endDate->toDateString());
+            // dd($endDate->toDateString(),$start);
 
             if ($forceChargeNow || !$startIsFuture) {
                 // ===== IMMEDIATE-CHARGE PATH =====
@@ -149,7 +149,7 @@ class SubscriptionController extends Controller
                     'payment_behavior'   => 'allow_incomplete',
                 ]);
             }
-
+            // dd($endDate->toDateString());
             // Save local record
             auth()->user()->subscriptions()->create([
                 'stripe_subscription_id' => $subscription->id,
@@ -165,7 +165,7 @@ class SubscriptionController extends Controller
                 'end_date'   => $request->type == 'day' ? $endDate->copy()->subDay()->subSecond() : ($request->type == 'week' ? ($endDate->copy()->subDays(7)->subSecond()) : ($request->type == 'month' ? $endDate->copy()->subMonth()->subSecond() : $endDate->copy()->subSecond())),
                 'canceled_at' => $request->type == 'day' ? $endDate->subDay() : ($request->type == 'week' ? ($endDate->copy()->subDays(7)) : ($request->type == 'month' ? $endDate->copy()->subMonth() : $endDate)),
             ]);
-            DB::commit();
+            // DB::commit();
 
             $msg = $forceChargeNow || !$startIsFuture
                 ? 'Donation successful! Invoice finalized & paid immediately.'
@@ -226,7 +226,7 @@ class SubscriptionController extends Controller
 
             // Window & dates
             $tz    = config('app.timezone');
-            $start = Carbon::createFromFormat('Y-m-d', $request->start_date, $tz)->startOfDay();
+            $start = Carbon::createFromFormat('Y-m-d', $request->start_date, $tz);
             $end   = Carbon::createFromFormat('Y-m-d', $request->cancellation, $tz);
 
 
