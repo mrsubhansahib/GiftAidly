@@ -768,6 +768,17 @@
                                 <div id="card-errors-monthly" role="alert" style="color: red; margin-top: 5px;">
                                 </div>
                             </div>
+                            <div class="form-group" style="grid-column: 1 / -1; display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+                                <label for="gift-aid-monthly" style="margin: 0; display: flex; align-items: center; gap: 6px;">
+                                    Gift Aid
+                                    <input type="checkbox" name="gift_aid" id="gift-aid-monthly" data-target="address-monthly" value="yes" />
+                                </label>
+
+                                <input type="text" name="address_monthly" id="address-monthly" class="text-input"
+                                    style="display: none; flex: 1; min-width: 200px;"
+                                    placeholder="Enter your address"
+                                    value="{{ auth()->user()->address ? auth()->user()->address : '' }}" />
+                            </div>
                         </div>
 
                         <button type="submit" class="donate-btn">Monthly Commitment</button>
@@ -812,39 +823,6 @@
             return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
         }
 
-        // Helpers for monthly picker
-        const firstOfMonth = (y, m) => new Date(y, m, 1); // m = 0-based
-        const lastOfMonth = (y, m) => new Date(y, m + 1, 0);
-
-        // Generic daily/weekly day-range
-        function attachRangePicker(rangeId, startHiddenId, endHiddenId, formId) {
-            const rangeEl = document.getElementById(rangeId);
-            const startEl = document.getElementById(startHiddenId);
-            const endEl = document.getElementById(endHiddenId);
-
-            flatpickr(rangeEl, {
-                mode: "range",
-                altInput: true,
-                altFormat: "F j, Y",
-                dateFormat: "Y-m-d",
-                minDate: "today",
-                onChange(selectedDates) {
-                    startEl.value = selectedDates[0] ? fmt(selectedDates[0]) : "";
-                    endEl.value = selectedDates[1] ? fmt(selectedDates[1]) : "";
-                }
-            });
-
-            const form = document.getElementById(formId);
-            form.addEventListener('submit', function(e) {
-                if (!startEl.value || !endEl.value) {
-                    e.preventDefault();
-                    alert('Please select a start and end date.');
-                }
-            });
-        }
-
-        // Friday-only day-range
-        // Friday: multiple selectable Fridays (today se aage)
         function attachRangePickerFridays(rangeId, startHiddenId, endHiddenId, formId) {
             const rangeEl = document.getElementById(rangeId);
             const startEl = document.getElementById(startHiddenId);
@@ -911,69 +889,104 @@
             // });
         }
 
-        // INIT calls (unchanged except Friday uses updated function)
-        document.addEventListener('DOMContentLoaded', function() {
-            attachRangePicker('date-range-daily', 'start_date-daily', 'cancellation-daily', 'form-daily');
-            attachRangePickerFridays('date-range-friday', 'start_date-friday', 'cancellation-friday',
-                'form-friday');
-            attachRangePickerMonths('date-range-monthly', 'start_date-monthly', 'cancellation-monthly',
-                'form-monthly');
-        });
 
-        // Month range picker (maps to first/last day in hidden fields)
-        function attachRangePickerMonths(rangeId, startHiddenId, endHiddenId, formId) {
+        function fmt(d) {
+            const pad = n => String(n).padStart(2, '0');
+            return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+        }
+
+        // safe addMonths (handles Feb, 30/31 edge cases)
+        function addMonths(date, count) {
+            const d = new Date(date);
+            const day = d.getDate();
+            d.setMonth(d.getMonth() + count);
+
+            // if target month doesn't have that day (e.g. Feb 30), adjust to last day of month
+            if (d.getDate() < day) {
+                d.setDate(0); // go back to last day of previous month
+            }
+            return d;
+        }
+
+        function attachRangePickerWithType(rangeId, startHiddenId, endHiddenId, typeId, formId) {
             const rangeEl = document.getElementById(rangeId);
             const startEl = document.getElementById(startHiddenId);
             const endEl = document.getElementById(endHiddenId);
-
-            flatpickr(rangeEl, {
-                mode: "range",
-                dateFormat: "Y-m",
-                altInput: true,
-                altFormat: "F Y",
-                minDate: "today",
-                plugins: [new monthSelectPlugin({
-                    shorthand: true,
-                    dateFormat: "Y-m",
-                    altFormat: "F Y"
-                })],
-                onChange(selectedDates) {
-                    if (selectedDates[0]) {
-                        const s = firstOfMonth(selectedDates[0].getFullYear(), selectedDates[0].getMonth());
-                        startEl.value = fmt(s); // e.g. 2025-09-01
-                    } else {
-                        startEl.value = "";
-                    }
-                    if (selectedDates[1]) {
-                        const e = lastOfMonth(selectedDates[1].getFullYear(), selectedDates[1].getMonth());
-                        endEl.value = fmt(e); // e.g. 2025-12-31
-                    } else {
-                        endEl.value = "";
-                    }
-                }
-            });
-
+            const typeEl = document.getElementById(typeId);
             const form = document.getElementById(formId);
-            form.addEventListener('submit', function(e) {
+
+            if (!rangeEl || !startEl || !endEl || !typeEl || !form) return;
+
+            let fp = null;
+
+            function initFlatpickr() {
+                if (fp) {
+                    fp.destroy();
+                }
+                rangeEl.value = "";
+                startEl.value = "";
+                endEl.value = "";
+
+                const type = typeEl.value;
+
+                fp = flatpickr(rangeEl, {
+                    mode: "range",
+                    altInput: true,
+                    altFormat: "F j, Y",
+                    dateFormat: "Y-m-d",
+                    minDate: "today",
+                    onClose(selected) {
+                        if (selected.length === 2) {
+                            const start = selected[0];
+                            const end = selected[1];
+                            const diffDays = (end - start) / (1000 * 60 * 60 * 24);
+
+                            if (type === "week" && diffDays < 7) {
+                                alert("Please select at least one full week (7 days).");
+                                fp.clear();
+                                startEl.value = "";
+                                endEl.value = "";
+                                return;
+                            }
+
+                            if (type === "month") {
+                                const minEnd = addMonths(start, 1);
+                                if (end < minEnd) {
+                                    alert("Please select at least one full month (e.g. " +
+                                        fmt(start) + " → " + fmt(minEnd) + " or later).");
+                                    fp.clear();
+                                    startEl.value = "";
+                                    endEl.value = "";
+                                    return;
+                                }
+                            }
+                        }
+
+                        startEl.value = selected[0] ? fmt(selected[0]) : "";
+                        endEl.value = selected[1] ? fmt(selected[1]) : "";
+                    }
+                });
+            }
+
+            initFlatpickr();
+            typeEl.addEventListener("change", initFlatpickr);
+
+            form.addEventListener("submit", function(e) {
                 if (!startEl.value || !endEl.value) {
                     e.preventDefault();
-                    alert('Please select a start and end month.');
+                    alert("Please select a valid date range.");
                 }
             });
         }
 
-        // Initialize all three
-        document.addEventListener('DOMContentLoaded', function() {
-            // Daily/Weekly: normal day range
-            attachRangePicker('date-range-daily', 'start_date-daily', 'cancellation-daily', 'form-daily');
-
-            // Friday: only Fridays selectable
-            attachRangePickerFridays('date-range-friday', 'start_date-friday', 'cancellation-friday',
-                'form-friday');
-
-            // Monthly: month range (maps to first/last day)
-            attachRangePickerMonths('date-range-monthly', 'start_date-monthly', 'cancellation-monthly',
-                'form-monthly');
+        document.addEventListener("DOMContentLoaded", function() {
+            attachRangePickerWithType(
+                "date-range-daily",
+                "start_date-daily",
+                "cancellation-daily",
+                "type-daily",
+                "form-daily"
+            );
         });
     </script>
 
