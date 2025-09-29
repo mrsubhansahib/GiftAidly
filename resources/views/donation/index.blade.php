@@ -587,26 +587,26 @@
                         @csrf
                         <div class="form-grid">
                             @php
-                                $userCurrency = auth()->check()
-                                    ? auth()
-                                        ->user()
-                                        ->subscriptions()
-                                        ->where('status', 'active')
-                                        ->pluck('currency')
-                                        ->unique()
-                                        ->first()
-                                    : null;
-                                $currencies = ['gbp' => '£', 'usd' => '$', 'eur' => '€'];
+                            $userCurrency = auth()->check()
+                            ? auth()
+                            ->user()
+                            ->subscriptions()
+                            ->where('status', 'active')
+                            ->pluck('currency')
+                            ->unique()
+                            ->first()
+                            : null;
+                            $currencies = ['gbp' => '£', 'usd' => '$', 'eur' => '€'];
                             @endphp
                             <div class="form-group">
                                 <label for="currency">Currency</label>
                                 <select name="currency" id="currency" required class="select-input">
                                     @foreach ($currencies as $code => $symbol)
-                                        <option value="{{ $code }}" @selected($userCurrency === $code)
-                                            @disabled($userCurrency && $userCurrency !== $code)
-                                            title="{{ $userCurrency && $userCurrency !== $code ? 'You cannot select this currency because your previous donations were in ' . strtoupper($userCurrency) . '.' : '' }}">
-                                            {{ $symbol }}
-                                        </option>
+                                    <option value="{{ $code }}" @selected($userCurrency===$code)
+                                        @disabled($userCurrency && $userCurrency !==$code)
+                                        title="{{ $userCurrency && $userCurrency !== $code ? 'You cannot select this currency because your previous donations were in ' . strtoupper($userCurrency) . '.' : '' }}">
+                                        {{ $symbol }}
+                                    </option>
                                     @endforeach
                                 </select>
                             </div>
@@ -692,11 +692,11 @@
                                 <label for="currency-friday">Currency</label>
                                 <select name="currency" id="currency-friday" class="select-input">
                                     @foreach ($currencies as $code => $symbol)
-                                        <option value="{{ $code }}" @selected($userCurrency === $code)
-                                            @disabled($userCurrency && $userCurrency !== $code)
-                                            title="{{ $userCurrency && $userCurrency !== $code ? 'You cannot select this currency because your previous donations were in ' . strtoupper($userCurrency) . '.' : '' }}">
-                                            {{ $symbol }}
-                                        </option>
+                                    <option value="{{ $code }}" @selected($userCurrency===$code)
+                                        @disabled($userCurrency && $userCurrency !==$code)
+                                        title="{{ $userCurrency && $userCurrency !== $code ? 'You cannot select this currency because your previous donations were in ' . strtoupper($userCurrency) . '.' : '' }}">
+                                        {{ $symbol }}
+                                    </option>
                                     @endforeach
                                 </select>
                             </div>
@@ -888,6 +888,21 @@
             return d;
         }
 
+        function fmt(d) {
+            const pad = n => String(n).padStart(2, '0');
+            return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+        }
+
+        function addMonths(date, count) {
+            const d = new Date(date);
+            const day = d.getDate();
+            d.setMonth(d.getMonth() + count);
+            if (d.getDate() < day) {
+                d.setDate(0);
+            }
+            return d;
+        }
+
         // ------------------------------
         // ✅ Daily/Weekly/Monthly Picker with Type
         // ------------------------------
@@ -899,6 +914,11 @@
             const form = document.getElementById(formId);
 
             if (!rangeEl || !startEl || !endEl || !typeEl || !form) return;
+
+            // grab error spans
+            const amountError = form.querySelector('#error-amount-daily');
+            const dateError = form.querySelector('#error-date-daily');
+            const addressError = form.querySelector('#error-address-daily');
 
             let fp = null;
 
@@ -924,7 +944,7 @@
                             const diffDays = (end - start) / (1000 * 60 * 60 * 24);
 
                             if (type === "week" && diffDays < 7) {
-                                alert("Please select at least one full week (7 days).");
+                                dateError.textContent = "Please select at least one full week (7 days).";
                                 fp.clear();
                                 startEl.value = "";
                                 endEl.value = "";
@@ -934,15 +954,15 @@
                             if (type === "month") {
                                 const minEnd = addMonths(start, 1);
                                 if (end < minEnd) {
-                                    alert(
-                                        `Please select at least one full month (${fmt(start)} → ${fmt(minEnd)} or later).`
-                                    );
+                                    dateError.textContent = `Please select at least one full month (${fmt(start)} → ${fmt(minEnd)} or later).`;
                                     fp.clear();
                                     startEl.value = "";
                                     endEl.value = "";
                                     return;
                                 }
                             }
+
+                            dateError.textContent = "";
                         }
 
                         startEl.value = selected[0] ? fmt(selected[0]) : "";
@@ -954,16 +974,14 @@
             initFlatpickr();
             typeEl.addEventListener("change", initFlatpickr);
 
-            // ✅ Custom validation on submit (Amount + Date + Gift Aid)
+            // ✅ validation on submit
             form.addEventListener("submit", function(e) {
                 const amount = form.querySelector('input[name="amount"]');
-                const amountError = form.querySelector('#error-amount-daily');
-                const dateError = form.querySelector('#error-date-daily');
                 const giftAidCheckbox = form.querySelector('#gift-aid-daily');
                 const addressInput = form.querySelector('#address-daily');
-                const addressError = form.querySelector('#error-address-daily');
                 let valid = true;
 
+                // Amount
                 if (!amount.value || parseFloat(amount.value) < 1) {
                     amountError.textContent = 'Please enter a valid amount.';
                     valid = false;
@@ -971,6 +989,7 @@
                     amountError.textContent = '';
                 }
 
+                // Date range
                 if (!startEl.value || !endEl.value) {
                     dateError.textContent = 'Please select a valid date range.';
                     valid = false;
@@ -978,6 +997,7 @@
                     dateError.textContent = '';
                 }
 
+                // Gift Aid
                 if (giftAidCheckbox.checked && addressInput.value.trim() === '') {
                     addressError.textContent = 'Please enter your address for Gift Aid.';
                     valid = false;
@@ -988,7 +1008,6 @@
                 if (!valid) e.preventDefault();
             });
         }
-
         // ------------------------------
         // ✅ Friday Range Picker
         // ------------------------------
@@ -997,8 +1016,11 @@
             const startEl = document.getElementById(startHiddenId);
             const endEl = document.getElementById(endHiddenId);
             const form = document.getElementById(formId);
+            const dateError = document.getElementById('error-date-friday');
+
             if (!rangeEl || !startEl || !endEl || !form) return;
 
+            // hidden input for fridays list
             function ensureFridaysHidden() {
                 let h = form.querySelector('input[name="fridays"]');
                 if (!h) {
@@ -1028,49 +1050,39 @@
                         let fridays = [];
                         let current = new Date(start);
                         while (current <= end) {
-                            if (current.getDay() === 5) fridays.push(fmt(new Date(current)));
+                            if (current.getDay() === 5) {
+                                fridays.push(fmt(new Date(current)));
+                            }
                             current.setDate(current.getDate() + 1);
                         }
+
                         fridaysHidden.value = fridays.join(',');
+
+                        // ✅ Inline error check
+                        if (fridays.length < 2) {
+                            dateError.textContent = "Please select a range that includes at least 2 Fridays.";
+                        } else {
+                            dateError.textContent = "";
+                        }
+
                     } else {
                         startEl.value = "";
                         endEl.value = "";
                         fridaysHidden.value = "";
+                        dateError.textContent = "Please select a valid date range.";
                     }
                 }
             });
 
+            // ✅ Final validation on submit
             form.addEventListener('submit', function(e) {
-                const amount = form.querySelector('input[name="amount"]');
-                const amountError = form.querySelector('#error-amount-friday');
-                const dateError = form.querySelector('#error-date-friday');
-                const giftAidCheckbox = form.querySelector('#gift-aid-friday');
-                const addressInput = form.querySelector('#address-friday');
-                const addressError = form.querySelector('#error-address-friday');
-                let valid = true;
-
-                if (!amount.value || parseFloat(amount.value) < 1) {
-                    amountError.textContent = 'Please enter a valid amount.';
-                    valid = false;
+                const fridaysArr = fridaysHidden.value ? fridaysHidden.value.split(',') : [];
+                if (fridaysArr.length < 2) {
+                    e.preventDefault();
+                    dateError.textContent = "Please select a range that includes at least 2 Fridays.";
                 } else {
-                    amountError.textContent = '';
+                    dateError.textContent = "";
                 }
-
-                if (!fridaysHidden.value) {
-                    dateError.textContent = 'Please select a date range that includes at least one Friday.';
-                    valid = false;
-                } else {
-                    dateError.textContent = '';
-                }
-
-                if (giftAidCheckbox.checked && addressInput.value.trim() === '') {
-                    addressError.textContent = 'Please enter your address for Gift Aid.';
-                    valid = false;
-                } else {
-                    addressError.textContent = '';
-                }
-
-                if (!valid) e.preventDefault();
             });
         }
 
@@ -1081,7 +1093,7 @@
             attachRangePickerWithType("date-range-daily", "start_date-daily", "cancellation-daily", "type-daily",
                 "form-daily");
             attachRangePickerFridays("date-range-friday", "start_date-friday", "cancellation-friday",
-            "form-friday");
+                "form-friday");
         });
 
         // ------------------------------
