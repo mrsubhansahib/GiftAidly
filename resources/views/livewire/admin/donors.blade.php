@@ -4,7 +4,7 @@ use App\Models\User;
 use function Livewire\Volt\{state};
 
 state([
-    'users' => fn() => User::all(),
+    'users' => fn() => User::where('role', 'donor')->get(),
 ]);
 
 ?>
