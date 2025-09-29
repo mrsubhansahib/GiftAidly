@@ -1,124 +1,148 @@
 @extends('layouts.vertical', ['subtitle' => 'Dashboard'])
 
 @section('content')
-
-@include('layouts.partials.page-title', ['title' => 'GiftAidly', 'subtitle' => 'Dashboard'])
-<div class="row">
-    <!-- Card 1 -->
-    <div class="col-md-6 col-xl-3">
-        <div class="card">
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-6">
-                        <div class="avatar-md bg-primary bg-opacity-10 rounded-circle">
-                            <iconify-icon icon="solar:globus-outline"
-                                class="fs-32 text-primary avatar-title"></iconify-icon>
+    @include('layouts.partials.page-title', ['title' => 'GiftAidly', 'subtitle' => 'Dashboard'])
+    <div class="row">
+        <!-- Card 1 -->
+        @if (auth()->check() && auth()->user()->role === 'admin')
+            <div class="col-md-6 col-xl-3">
+                <a href="{{ route('third', ['admin', 'donors', 'index']) }}" class="text-decoration-none">
+                    <div class="card hover-shadow" style="cursor: pointer;">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-6">
+                                    <div class="avatar-md bg-primary bg-opacity-10 rounded-circle">
+                                        <iconify-icon icon="solar:users-group-rounded-outline"
+                                            class="fs-32 text-primary avatar-title"></iconify-icon>
+                                    </div>
+                                </div>
+                                <div class="col-6 text-end">
+                                    <p class="text-muted mb-0 text-truncate">Donors</p>
+                                    <h3 class="text-dark mt-2 mb-0">
+                                        {{ \App\Models\User::where('role', 'donor')->count() }}
+                                    </h3>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <div class="col-6 text-end">
-                        <p class="text-muted mb-0 text-truncate">Clicks</p>
-                        <h3 class="text-dark mt-2 mb-0">15,352</h3>
-                    </div>
-                </div>
+                </a>
             </div>
-            <div class="card-footer border-0 py-2 bg-light bg-opacity-50 mx-2 mb-2">
-                <div class="d-flex align-items-center justify-content-between">
-                    <div>
-                        <span class="text-success"> <i class="bx bxs-up-arrow fs-12"></i> 3.02%</span>
-                        <span class="text-muted ms-1 fs-12">From last month</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+        @endif
 
-    <!-- Card 2 -->
-    <div class="col-md-6 col-xl-3">
-        <div class="card">
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-6">
-                        <div class="avatar-md bg-primary bg-opacity-10 rounded-circle">
-                            <iconify-icon icon="solar:bag-check-outline"
-                                class="fs-32 text-primary avatar-title"></iconify-icon>
+        <!-- Card 2 -->
+        @php
+            $user = auth()->user();
+            $isAdmin = $user && $user->role === 'admin';
+            $isDonor = $user && $user->role === 'donor';
+
+            $donationCount = $isAdmin
+                ? \App\Models\Subscription::count()
+                : ($isDonor
+                    ? \App\Models\Subscription::where('user_id', $user->id)->count()
+                    : 0);
+
+            $donationRoute = $isAdmin
+                ? route('third', ['admin', 'donations', 'index'])
+                : route('third', ['user', 'donations', 'index']);
+
+            $donationColClass = $isDonor ? 'col-md-6 col-xl-6' : 'col-md-6 col-xl-3';
+        @endphp
+
+        @if ($isAdmin || $isDonor)
+            <div class="{{ $donationColClass }}">
+                <a href="{{ $donationRoute }}" class="text-decoration-none">
+                    <div class="card hover-shadow" style="cursor: pointer;">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-6">
+                                    <div class="avatar-md bg-primary bg-opacity-10 rounded-circle">
+                                        <iconify-icon icon="solar:hand-heart-outline"
+                                            class="fs-32 text-primary avatar-title"></iconify-icon>
+                                    </div>
+                                </div>
+                                <div class="col-6 text-end">
+                                    <p class="text-muted mb-0 text-truncate">
+                                        {{ $isAdmin ? 'Donations' : 'My Donations' }}
+                                    </p>
+                                    <h3 class="text-dark mt-2 mb-0">{{ $donationCount }}</h3>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <div class="col-6 text-end">
-                        <p class="text-muted mb-0 text-truncate">Sales</p>
-                        <h3 class="text-dark mt-2 mb-0">8,764</h3>
-                    </div>
-                </div>
+                </a>
             </div>
-            <div class="card-footer border-0 py-2 bg-light bg-opacity-50 mx-2 mb-2">
-                <div class="d-flex align-items-center justify-content-between">
-                    <div>
-                        <span class="text-danger"> <i class="bx bxs-down-arrow fs-12"></i> 1.15%</span>
-                        <span class="text-muted ms-1 fs-12">From last month</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+        @endif
 
-    <!-- Card 3 -->
-    <div class="col-md-6 col-xl-3">
-        <div class="card">
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-6">
-                        <div class="avatar-md bg-primary bg-opacity-10 rounded-circle">
-                            <iconify-icon icon="solar:calendar-date-outline"
-                                class="fs-32 text-primary avatar-title"></iconify-icon>
+
+        <!-- Card 3 -->
+        @php
+            $invoiceCount = $isAdmin
+                ? \App\Models\Invoice::count()
+                : ($isDonor
+                    ? \App\Models\Invoice::whereHas('subscription', function ($query) use ($user) {
+                        $query->where('user_id', $user->id);
+                    })->count()
+                    : 0);
+
+            $invoiceRoute = $isAdmin
+                ? route('third', ['admin', 'invoices', 'index'])
+                : route('third', ['user', 'invoices', 'index']);
+
+            $invoiceColClass = $isDonor ? 'col-md-6 col-xl-6' : 'col-md-6 col-xl-3';
+        @endphp
+
+        @if ($isAdmin || $isDonor)
+            <div class="{{ $invoiceColClass }}">
+                <a href="{{ $invoiceRoute }}" class="text-decoration-none">
+                    <div class="card hover-shadow" style="cursor: pointer;">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-6">
+                                    <div class="avatar-md bg-primary bg-opacity-10 rounded-circle">
+                                        <iconify-icon icon="solar:bill-list-outline"
+                                            class="fs-32 text-primary avatar-title"></iconify-icon>
+                                    </div>
+                                </div>
+                                <div class="col-6 text-end">
+                                    <p class="text-muted mb-0 text-truncate">
+                                        {{ $isAdmin ? 'Invoices' : 'My Invoices' }}
+                                    </p>
+                                    <h3 class="text-dark mt-2 mb-0">{{ $invoiceCount }}</h3>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <div class="col-6 text-end">
-                        <p class="text-muted mb-0 text-truncate">Events</p>
-                        <h3 class="text-dark mt-2 mb-0">5,123</h3>
-                    </div>
-                </div>
+                </a>
             </div>
-            <div class="card-footer border-0 py-2 bg-light bg-opacity-50 mx-2 mb-2">
-                <div class="d-flex align-items-center justify-content-between">
-                    <div>
-                        <span class="text-success"> <i class="bx bxs-up-arrow fs-12"></i> 4.78%</span>
-                        <span class="text-muted ms-1 fs-12">From last month</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+        @endif
 
-    <!-- Card 4 -->
-    <div class="col-md-6 col-xl-3">
-        <div class="card">
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-6">
-                        <div class="avatar-md bg-primary bg-opacity-10 rounded-circle">
-                            <iconify-icon icon="solar:users-group-two-rounded-outline"
-                                class="fs-32 text-primary avatar-title"></iconify-icon>
+
+        @if (auth()->check() && auth()->user()->role === 'admin')
+            <div class="col-md-6 col-xl-3">
+                <a href="{{ route('third', ['admin', 'transactions', 'index']) }}" class="text-decoration-none">
+                    <div class="card hover-shadow" style="cursor: pointer;">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-6">
+                                    <div class="avatar-md bg-primary bg-opacity-10 rounded-circle">
+                                        <iconify-icon icon="solar:transfer-horizontal-outline"
+                                            class="fs-32 text-primary avatar-title"></iconify-icon>
+                                    </div>
+                                </div>
+                                <div class="col-6 text-end">
+                                    <p class="text-muted mb-0 text-truncate">Transactions</p>
+                                    <h3 class="text-dark mt-2 mb-0">{{ \App\Models\Transaction::count() }}</h3>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <div class="col-6 text-end">
-                        <p class="text-muted mb-0 text-truncate">Users</p>
-                        <h3 class="text-dark mt-2 mb-0">12,945</h3>
-                    </div>
-                </div>
+                </a>
             </div>
-            <div class="card-footer border-0 py-2 bg-light bg-opacity-50 mx-2 mb-2">
-                <div class="d-flex align-items-center justify-content-between">
-                    <div>
-                        <span class="text-success"> <i class="bx bxs-up-arrow fs-12"></i> 2.35%</span>
-                        <span class="text-muted ms-1 fs-12">From last month</span>
-                    </div>
-                </div>
-            </div>
-        </div>
+        @endif
     </div>
-</div>
 
 
-<div class="row">
+    {{-- <div class="row">
     <div class="col-lg-6">
         <div class="card card-height-100">
             <div class="card-header d-flex align-items-center justify-content-between gap-2">
@@ -463,9 +487,9 @@
             </div>
         </div> <!-- end card -->
     </div> <!-- end col -->
-</div> <!-- end row -->
+</div> <!-- end row --> --}}
 @endsection
 
 @section('scripts')
-@vite(['resources/js/pages/dashboard.js'])
+    @vite(['resources/js/pages/dashboard.js'])
 @endsection

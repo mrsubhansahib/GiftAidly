@@ -92,7 +92,7 @@
                </li>
                @endif
 
-               <li class="nav-item">
+               {{-- <li class="nav-item">
                     <a class="nav-link menu-arrow" href="#sidebarAuthentication" data-bs-toggle="collapse" role="button"
                          aria-expanded="false" aria-controls="sidebarAuthentication">
                          <span class="nav-icon">
@@ -392,7 +392,7 @@
                          </span>
                          <span class="nav-text"> Disable Item </span>
                     </a>
-               </li>
+               </li> --}}
           </ul>
      </div>
 </div>
