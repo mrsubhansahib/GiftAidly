@@ -44,7 +44,7 @@ new class extends Component {
         $this->validate([
             'name' => 'required|string|max:255',
             'price' => 'required|numeric',
-            'currency' => 'required|in:USD,GBP,EUR',
+            'currency' => 'required|in:usd,gbp,eur',
         ]);
 
         if ($this->editingId) {
@@ -77,7 +77,7 @@ new class extends Component {
         $this->editingId = null;
         $this->name = '';
         $this->price = '';
-        $this->currency = 'USD'; // reset default
+        $this->currency = 'gbp'; // reset default
     }
 };
 ?>
@@ -164,9 +164,9 @@ new class extends Component {
                         <div class="mb-3">
                             <label class="form-label">Currency</label>
                             <select wire:model="currency" class="form-select">
-                                <option value="USD">Dollar (USD)</option>
-                                <option value="GBP">Pound (GBP)</option>
-                                <option value="EUR">Euro (EUR)</option>
+                                <option value="usd">Dollar (USD)</option>
+                                <option value="gbp">Pound (GBP)</option>
+                                <option value="eur">Euro (EUR)</option>
                             </select>
                             @error('currency') <div class="text-danger small">{{ $message }}</div> @enderror
                         </div>

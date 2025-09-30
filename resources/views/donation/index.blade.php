@@ -579,13 +579,13 @@
 
     <div class="tab-container">
         <div class="tab-header">
-            <button class="tab-btn active " onclick="openTab(event, 'daily-weekly-monthly')">Daily / Weekly / Monthly</button>
+            <button class="tab-btn  " onclick="openTab(event, 'daily-weekly-monthly')">Daily / Weekly / Monthly</button>
             <button class="tab-btn" onclick="openTab(event, 'friday')">Friday Special</button>
-            <button class="tab-btn " onclick="openTab(event, 'special')">Donate Special</button>
+            <button class="tab-btn active" onclick="openTab(event, 'special')">Donate Special</button>
         </div>
 
         <div class="tab-content">
-            <div id="daily-weekly-monthly" class="tab-panel active">
+            <div id="daily-weekly-monthly" class="tab-panel ">
                 <div class="donation-card">
                     <div class="card-header">
                         <div class="card-icon">
@@ -768,7 +768,7 @@
             </div>
 
             <!-- Special Tab -->
-            <div id="special" class="tab-panel ">
+            <div id="special" class="tab-panel active">
                 <div class="donation-card">
                     <div class="card-header">
                         <div class="card-icon">
@@ -781,7 +781,8 @@
                     </div>
 
                     <!-- Monthly -->
-                    <form id="form-monthly" action="#" method="POST">
+                    <form id="form-monthly" action="{{route('donation.special')}}" method="POST">
+                        @csrf
                         <div class="form-grid">
                             @php
                                 use App\Models\SpecialDonation;
@@ -802,8 +803,8 @@
 
                             <div class="form-group">
                                 <label for="pay-amount">Amount</label>
-                                <input type="number" name="amount" id="pay-amount" class="text-input"
-                                    min="1" />
+                                <input type="number" name="amount" placeholder="100.00" readonly id="pay-amount" class="text-input"
+                                   />
                             </div>
 
                             <div class="form-group">
@@ -818,7 +819,7 @@
                                 </select>
                             </div>
 
-
+                            
                             <!-- Stripe Card Element -->
                             <div class="form-group" style="grid-column: 1 / -1;">
                                 <label for="card-element-monthly">Card Details</label>
@@ -835,7 +836,7 @@
                                         data-target="address-monthly" value="yes" />
                                 </label>
 
-                                <input type="text" name="address_monthly" id="address-monthly" class="text-input"
+                                <input type="text" name="address" id="address-monthly" class="text-input"
                                     style="display: none; flex: 1; min-width: 200px;" placeholder="Enter your address"
                                     value="{{ auth()->user()->address ? auth()->user()->address : '' }}" />
                             </div>
@@ -1246,7 +1247,7 @@
                 format: 1
             }, function(data) {
                 if (data.success) {
-                    rates = data.quotes; // e.g. { GBPUSD: 1.26, GBPEUR: 1.15 }
+                    rates = data.quotes; // e.g. { gbpUSD: 1.26, gbpEUR: 1.15 }
                     updateAmount(); // update if something already selected
                 } else {
                     console.error('Currency API error');

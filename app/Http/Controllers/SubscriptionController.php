@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Invoice;
 use App\Models\ProductCatalog;
+use App\Models\SpecialDonation;
 use App\Models\Transaction;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -14,7 +15,18 @@ class SubscriptionController extends Controller
 {
     public function donateDailyWeeklyMonthly(Request $request)
     {
-
+        $request->validate([
+            'amount' => 'required|numeric|min:1',
+            'currency' => 'required|in:gbp,usd,eur',
+            'type' => 'required|in:day,week,month',
+            'gift_aid' => 'nullable|in:yes,no',
+            'address' => 'required_if:gift_aid,yes|max:500',
+            'start_date' => 'required|date|after_or_equal:' . now()->toDateString(),
+            'cancellation' => 'required|date|after:start_date',
+            'stripeToken' => 'required|string',
+            'charge_now' => 'nullable|boolean',
+        ]);
+        // dd($request->all());
 
         DB::beginTransaction();
         try {
@@ -193,6 +205,16 @@ class SubscriptionController extends Controller
     }
     public function donateFriday(Request $request)
     {
+        $request->validate([
+            'amount' => 'required|numeric|min:1',
+            'currency' => 'required|in:gbp,usd,eur',
+            'gift_aid' => 'nullable|in:yes,no',
+            'address' => 'required_if:gift_aid,yes|max:500',
+            'start_date' => 'required|date|after_or_equal:' . now()->toDateString(),
+            'cancellation' => 'required|date|after:start_date',
+            'stripeToken' => 'required|string',
+            'charge_now' => 'nullable|boolean',
+        ]);
 
         // dd($request->all());
 
@@ -283,7 +305,6 @@ class SubscriptionController extends Controller
                 if ($invoice->collection_method === 'charge_automatically' && $invoice->status !== 'paid') {
                     $invoice = $invoice->pay(); // instance method
                 }
-            
             } else {
                 // ===== FUTURE START / TRIAL PATH =====
                 // No invoice yet; it will be created at trial_end
@@ -313,7 +334,7 @@ class SubscriptionController extends Controller
                 'end_date'   => $endDate->copy()->subDays(7)->subSecond(),
                 'canceled_at' => $endDate->copy()->subDays(7),
             ]);
-           
+
             if ($invoice !== null && $invoice->status === 'paid') {
                 Invoice::create([
                     'subscription_id' => $subscription->id,
@@ -339,123 +360,117 @@ class SubscriptionController extends Controller
             return back()->withInput()->with('error', 'Error: ' . $e->getMessage());
         }
     }
-    public function donateMonthly(Request $request)
+    public function donateSpecial(Request $request)
     {
+        $request->validate([
+            'special' => 'required|exists:special_donations,id',
+            'amount' => 'required|numeric|min:1',
+            'currency' => 'required|in:gbp,usd,eur',
+            'gift_aid' => 'nullable|in:yes,no',
+            'address' => 'required_if:gift_aid,yes|max:500',
+            'stripeToken' => 'required|string',
+        ]);
         // dd($request->all());
 
         DB::beginTransaction();
         try {
-
-
             Stripe\Stripe::setApiKey(env('STRIPE_SECRET'));
 
-            if (!auth()->user()->stripe_id) {
+            // ✅ Ensure customer exists
+            if (!auth()->user()->stripe_customer_id) {
                 $customer = Stripe\Customer::create([
-                    'name' => auth()->user()->first_name . ' ' . auth()->user()->last_name,
+                    'name'  => auth()->user()->name,
                     'email' => auth()->user()->email,
                     'source' => $request->stripeToken,
                 ]);
-                auth()->user()->update(['stripe_id' => $customer->id]);
+                auth()->user()->update([
+                    'stripe_customer_id' => $customer->id,
+                    'address' => $request->gift_aid == "yes" ? $request->address : auth()->user()->address
+                ]);
             } else {
-                $customer = Stripe\Customer::retrieve(auth()->user()->stripe_id);
+                $customer = Stripe\Customer::retrieve(auth()->user()->stripe_customer_id);
+                auth()->user()->update([
+                    'address' => $request->gift_aid == "yes" ? $request->address : auth()->user()->address
+                ]);
             }
 
-            $product = Stripe\Product::create([
-                'name' => 'Custom Subscription',
-            ]);
+            // ✅ Get selected special donation
+            $donation = SpecialDonation::findOrFail($request->special);
 
+            // ✅ Create/Retrieve product in Stripe
+            if (!ProductCatalog::where('name', $donation->name)->exists()) {
+                $product = Stripe\Product::create([
+                    'name' => $donation->name,
+                ]);
+                ProductCatalog::firstOrCreate([
+                    'name' => $donation->name,
+                    'product_id' => $product->id,
+                ]);
+            } else {
+                $product = Stripe\Product::retrieve(
+                    ProductCatalog::where('name', $donation->name)->first()->product_id
+                );
+            }
+            // ✅ Create one-time Price (no recurring)
             $price = Stripe\Price::create([
                 'unit_amount' => $request->amount * 100,
-                'currency' => $request->currency,
-                'recurring' => ['interval' => $request->type],
-                'product' => $product->id,
+                'currency'    => $request->currency,
+                'product'     => $product->id,
             ]);
 
-            // Window & dates
-            $startDate = Carbon::parse($request->start_date)->startOfDay();
-            $days   = Carbon::parse($request->cancellation)->diffInDays($request->start_date);
-            $weeks  = Carbon::parse($request->cancellation)->diffInWeeks($request->start_date);
-            $months = Carbon::parse($request->cancellation)->diffInMonths($request->start_date);
+            // dd($price);
+            // ✅ Create PaymentIntent (one-time charge)
+            $paymentIntent = \Stripe\PaymentIntent::create([
+                'amount'   => $request->amount * 100,
+                'currency' => $request->currency,
+                'customer' => $customer->id,
+                'confirm'  => true,
+                'automatic_payment_methods' => [
+                    'enabled' => true,
+                    'allow_redirects' => 'never', // 🚀 force card-only, no redirects
+                ],
+                'payment_method_data' => [
+                    'type' => 'card',
+                    'card' => [
+                        'token' => $request->stripeToken,
+                    ],
+                ],
+            ]);
 
-            $startIsFuture  = $startDate->isFuture();
-            $forceChargeNow = (bool) $request->boolean('charge_now');
-
-            // Anchor ONLY for our own endDate math (Stripe ko na bhejein in immediate path)
-            $anchor = $forceChargeNow || !$startIsFuture ? Carbon::now() : $startDate->copy();
-
-            $iterationsDay   = $days + 1;
-            $iterationsWeek  = $weeks + 1;
-            $iterationsMonth = max(1, ($months ?: 0) + 1);
-
-            $endDate = match ($request->type) {
-                'day'   => $anchor->copy()->addDays($iterationsDay),
-                'week'  => $anchor->copy()->addWeeks($iterationsWeek),
-                default => $anchor->copy()->addMonthsNoOverflow($iterationsMonth),
-            };
-
-            if ($forceChargeNow || !$startIsFuture) {
-                // ===== IMMEDIATE-CHARGE PATH =====
-                // IMPORTANT: Do NOT send billing_cycle_anchor (Stripe will start "now")
-                $subscription = Stripe\Subscription::create([
-                    'customer'           => $customer->id,
-                    'items'              => [['price' => $price->id]],
-                    'cancel_at'          => $endDate->timestamp,
-                    'proration_behavior' => 'none',
-                    'collection_method'  => 'charge_automatically',
-                    'payment_behavior'   => 'allow_incomplete', // we'll finalize+pay below
-                    'expand'             => ['latest_invoice'],
-                ]);
-
-                // Always fetch invoice by ID
-                $latest   = $subscription->latest_invoice;
-                $latestId = is_string($latest) ? $latest : ($latest->id ?? null);
-                if (!$latestId) {
-                    throw new \Exception('Latest invoice ID not found on subscription (immediate charge path).');
-                }
-                $invoice = Stripe\Invoice::retrieve($latestId);
-
-                // Finalize if draft
-                if ($invoice->status === 'draft') {
-                    $invoice = $invoice->finalizeInvoice(); // instance method
-                }
-
-                // Pay now if not paid yet
-                if ($invoice->collection_method === 'charge_automatically' && $invoice->status !== 'paid') {
-                    $invoice = $invoice->pay(); // instance method
-                }
-            } else {
-                // ===== FUTURE START / TRIAL PATH =====
-                // No invoice yet; it will be created at trial_end
-                $subscription = Stripe\Subscription::create([
-                    'customer'           => $customer->id,
-                    'items'              => [['price' => $price->id]],
-                    'trial_end'          => $startDate->timestamp,   // start & bill on this date
-                    'cancel_at'          => $endDate->timestamp,
-                    'proration_behavior' => 'none',
-                    'collection_method'  => 'charge_automatically',
-                    'payment_behavior'   => 'allow_incomplete',
-                ]);
-            }
-
-            // Save local record
-            auth()->user()->subscriptions()->create([
-                'stripe_subscription_id' => $subscription->id,
+            $subscription = auth()->user()->subscriptions()->create([
+                'stripe_subscription_id' => 'one-time-' . $paymentIntent->id,
                 'stripe_price_id' => $price->id,
-                'status' => $subscription->status,
+                'status' => 'ended',
                 'price' => $request->amount,
                 'currency' => $request->currency,
-                'type' => $request->type,
-                'start_date' => Carbon::createFromTimestamp($subscription->current_period_start),
-                'end_date'   => $endDate->copy()->subSecond(),
-                'canceled_at' => $endDate,
+                'type' => 'special (' . $donation->name . ')',
+                'gift_aid' => $request->gift_aid == "yes" ? $request->gift_aid : 'no',
+                'start_date' => now(),  // fallback to requested start_date
+                'end_date'   => now()->addSecond(),
+                'canceled_at' => now()->addSeconds(2),
             ]);
+
+            // ✅ Save local invoice
+            $invoice = Invoice::create([
+                'subscription_id'   => $subscription->id, // one-time, no subscription
+                'stripe_invoice_id' => $paymentIntent->id, // store PaymentIntent ID instead
+                'amount_due'        => $request->amount,
+                'currency'          => $request->currency,
+                'invoice_date'      => now(),
+                'paid_at'           => now(),
+            ]);
+
+            // ✅ Save local transaction
+            Transaction::create([
+                'invoice_id'            => $invoice->id,
+                'stripe_transaction_id' => $paymentIntent->charges->data[0]->id ?? $paymentIntent->id,
+                'paid_at'               => now(),
+                'status'                => 'paid',
+            ]);
+
             DB::commit();
 
-            $msg = $forceChargeNow || !$startIsFuture
-                ? 'Donation successful! Invoice finalized & paid immediately.'
-                : 'Subscription scheduled. Billing will start on your selected start date.';
-
-            return redirect()->route('dashboard')->with('success', $msg);
+            return redirect()->back()->with('success', 'Special donation successful! Invoice finalized & paid immediately.');
         } catch (\Stripe\Exception\CardException $e) {
             DB::rollBack();
             return back()->withInput()->with('error', 'Stripe card error: ' . $e->getMessage());
