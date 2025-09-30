@@ -75,7 +75,7 @@
                 url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 300"><defs><pattern id="grid" width="50" height="50" patternUnits="userSpaceOnUse"><path d="M 50 0 L 0 0 0 50" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/></pattern></defs><rect width="100%" height="100%" fill="url(%23grid)"/></svg>');
             color: white;
             text-align: center;
-            padding: 80px 20px;
+            padding: 40px 20px;
             position: relative;
         }
 
@@ -517,6 +517,19 @@
                 grid-template-columns: 1fr;
             }
         }
+
+        .friday-highlight {
+            background: #3b82f6 !important;
+            /* blue circle */
+            color: #fff !important;
+            border-radius: 50% !important;
+            font-weight: bold;
+        }
+
+        .flatpickr-disabled {
+            opacity: 0.4 !important;
+            pointer-events: none !important;
+        }
     </style>
     @livewireStyles
 
@@ -680,7 +693,7 @@
                         <div class="card-icon">
                             <span class="iconify" data-icon="mdi:mosque" data-width="40" data-height="40"></span>
                         </div>
-                        <h2 class="card-title">Friday Special Donation</h2>
+                        <h2 class="card-title">Friday Giving</h2>
                         <p class="card-subtitle">Make your Fridays more meaningful with special charitable
                             contributions.</p>
                     </div>
@@ -768,7 +781,7 @@
                             <span class="iconify" data-icon="mdi:chart-line" data-width="40"
                                 data-height="40"></span>
                         </div>
-                        <h2 class="card-title">Special Donation Plan</h2>
+                        <h2 class="card-title">Special Donations</h2>
                         <p class="card-subtitle">Sustain long-term change with monthly contributions. Maximum impact,
                             consistent support.</p>
                     </div>
@@ -1012,80 +1025,107 @@
         // ------------------------------
         // ✅ Friday Range Picker
         // ------------------------------
+        document.addEventListener("DOMContentLoaded", function() {
+            attachRangePickerFridays(
+                "date-range-friday", // range input
+                "start_date-friday", // hidden start
+                "cancellation-friday", // hidden end
+                "form-friday" // form
+            );
+        });
+
         function attachRangePickerFridays(rangeId, startHiddenId, endHiddenId, formId) {
             const rangeEl = document.getElementById(rangeId);
             const startEl = document.getElementById(startHiddenId);
             const endEl = document.getElementById(endHiddenId);
             const form = document.getElementById(formId);
-            const dateError = document.getElementById('error-date-friday');
 
             if (!rangeEl || !startEl || !endEl || !form) return;
 
-            // hidden input for fridays list
-            function ensureFridaysHidden() {
-                let h = form.querySelector('input[name="fridays"]');
-                if (!h) {
-                    h = document.createElement('input');
-                    h.type = 'hidden';
-                    h.name = 'fridays';
-                    h.id = rangeId + '-fridays';
-                    form.appendChild(h);
-                }
-                return h;
+            // hidden input for CSV of Fridays
+            let fridaysHidden = form.querySelector('input[name="fridays"]');
+            if (!fridaysHidden) {
+                fridaysHidden = document.createElement('input');
+                fridaysHidden.type = 'hidden';
+                fridaysHidden.name = 'fridays';
+                form.appendChild(fridaysHidden);
             }
-            const fridaysHidden = ensureFridaysHidden();
 
-            flatpickr(rangeEl, {
+            const dateError = form.querySelector('#error-date-friday');
+
+            const fp = flatpickr(rangeEl, {
                 mode: "range",
                 altInput: true,
                 altFormat: "F j, Y",
                 dateFormat: "Y-m-d",
                 minDate: "today",
-                onChange(selectedDates) {
+
+                onChange(selectedDates, dateStr, instance) {
                     if (selectedDates.length === 2) {
                         const start = selectedDates[0];
                         const end = selectedDates[1];
-                        startEl.value = fmt(start);
-                        endEl.value = fmt(end);
 
+                        // ✅ get all Fridays
                         let fridays = [];
                         let current = new Date(start);
                         while (current <= end) {
-                            if (current.getDay() === 5) {
-                                fridays.push(fmt(new Date(current)));
-                            }
+                            if (current.getDay() === 5) fridays.push(fmt(current));
                             current.setDate(current.getDate() + 1);
                         }
 
-                        fridaysHidden.value = fridays.join(',');
+                        // ✅ backend hidden fields
+                        startEl.value = fridays.length ? fridays[0] : "";
+                        endEl.value = fridays.length ? fridays[fridays.length - 1] : "";
+                        fridaysHidden.value = fridays.join(",");
 
-                        // ✅ Inline error check
-                        if (fridays.length < 2) {
-                            dateError.textContent = "Please select a range that includes at least 2 Fridays.";
-                        } else {
-                            dateError.textContent = "";
-                        }
+                        // ✅ input me sirf range show
+                        instance._input.value =
+                            `${instance.formatDate(start, "F j, Y")} → ${instance.formatDate(end, "F j, Y")}`;
 
-                    } else {
-                        startEl.value = "";
-                        endEl.value = "";
-                        fridaysHidden.value = "";
-                        dateError.textContent = "Please select a valid date range.";
+                        // ✅ update UI (highlight Fridays, disable others)
+                        highlightFridays(instance, start, end);
+
+                        dateError.textContent = (fridays.length < 1) ?
+                            "No Fridays found in selected range." :
+                            "";
                     }
+                },
+
+                onMonthChange: (sel, str, inst) => {
+                    if (sel.length === 2) highlightFridays(inst, sel[0], sel[1]);
+                },
+                onYearChange: (sel, str, inst) => {
+                    if (sel.length === 2) highlightFridays(inst, sel[0], sel[1]);
                 }
             });
 
-            // ✅ Final validation on submit
-            form.addEventListener('submit', function(e) {
-                const fridaysArr = fridaysHidden.value ? fridaysHidden.value.split(',') : [];
-                if (fridaysArr.length < 2) {
-                    e.preventDefault();
-                    dateError.textContent = "Please select a range that includes at least 2 Fridays.";
-                } else {
-                    dateError.textContent = "";
-                }
-            });
+            // highlight helper
+            function highlightFridays(instance, start, end) {
+                setTimeout(() => {
+                    instance.calendarContainer.querySelectorAll(".flatpickr-day").forEach(el => {
+                        const date = el.dateObj;
+                        if (date >= start && date <= end) {
+                            if (date.getDay() === 5) {
+                                el.classList.add("friday-highlight");
+                                el.classList.remove("flatpickr-disabled");
+                            } else {
+                                el.classList.add("flatpickr-disabled");
+                                el.classList.remove("friday-highlight");
+                            }
+                        } else {
+                            el.classList.remove("friday-highlight");
+                            el.classList.remove("flatpickr-disabled");
+                        }
+                    });
+                });
+            }
+
+            function fmt(d) {
+                const pad = n => String(n).padStart(2, '0');
+                return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+            }
         }
+
 
         // ------------------------------
         // ✅ INIT Flatpickr
