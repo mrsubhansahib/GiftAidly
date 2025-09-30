@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\View;
 
 class RoutingController extends Controller
 {
@@ -13,30 +14,53 @@ class RoutingController extends Controller
 
     /**
      * Display a view based on first route param
-     *
-     * @return \Illuminate\Http\Response
      */
     public function root(Request $request, $first)
     {
-        return view($first);
+        if (View::exists($first)) {
+            return view($first);
+        }
+
+        return view('pages.404'); // fallback view
     }
 
     /**
-     * second level route
+     * Second level route
      */
     public function secondLevel(Request $request, $first, $second)
     {
-        return view($first . '.' . $second);
-    }
-    public function livewireView($first) {
-        return view($first);
+        $viewPath = $first . '.' . $second;
+
+        if (View::exists($viewPath)) {
+            return view($viewPath);
+        }
+
+        return view('pages.404'); // fallback view
     }
 
     /**
-     * third level route
+     * Livewire route
+     */
+    public function livewireView($first)
+    {
+        if (View::exists($first)) {
+            return view($first);
+        }
+
+        return view('pages.404'); // fallback view
+    }
+
+    /**
+     * Third level route
      */
     public function thirdLevel(Request $request, $first, $second, $third)
     {
-        return view($first . '.' . $second . '.' . $third); 
-    }    
+        $viewPath = $first . '.' . $second . '.' . $third;
+
+        if (View::exists($viewPath)) {
+            return view($viewPath);
+        }
+
+        return view('pages.404'); // fallback view
+    }
 }
