@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Invoice;
 use App\Models\ProductCatalog;
+use App\Models\Transaction;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -13,11 +15,10 @@ class SubscriptionController extends Controller
     public function donateDailyWeeklyMonthly(Request $request)
     {
 
-        // dd($request->all());
 
         DB::beginTransaction();
         try {
-
+            $invoice = null;
 
             Stripe\Stripe::setApiKey(env('STRIPE_SECRET'));
 
@@ -151,7 +152,7 @@ class SubscriptionController extends Controller
             }
             // dd($endDate->toDateString());
             // Save local record
-            auth()->user()->subscriptions()->create([
+            $subscription = auth()->user()->subscriptions()->create([
                 'stripe_subscription_id' => $subscription->id,
                 'stripe_price_id' => $price->id,
                 'status' => $subscription->status,
@@ -165,8 +166,18 @@ class SubscriptionController extends Controller
                 'end_date'   => $request->type == 'day' ? $endDate->copy()->subDay()->subSecond() : ($request->type == 'week' ? ($endDate->copy()->subDays(7)->subSecond()) : ($request->type == 'month' ? $endDate->copy()->subMonth()->subSecond() : $endDate->copy()->subSecond())),
                 'canceled_at' => $request->type == 'day' ? $endDate->subDay() : ($request->type == 'week' ? ($endDate->copy()->subDays(7)) : ($request->type == 'month' ? $endDate->copy()->subMonth() : $endDate)),
             ]);
-            // DB::commit();
+            if ($invoice !== null && $invoice->status === 'paid') {
+                Invoice::create([
+                    'subscription_id' => $subscription->id,
+                    'stripe_invoice_id' => $invoice->id,
+                    'amount_due' => $invoice->amount_due / 100, // convert from cents
+                    'currency' => $invoice->currency,
+                    'invoice_date' => Carbon::createFromTimestamp($invoice->created),
+                    'paid_at' => Carbon::createFromTimestamp($invoice->status_transitions->paid_at ?? now()),
+                ]);
+            }
 
+            DB::commit();
             $msg = $forceChargeNow || !$startIsFuture
                 ? 'Donation successful! Invoice finalized & paid immediately.'
                 : 'Subscription scheduled. Billing will start on your selected start date.';
@@ -188,7 +199,7 @@ class SubscriptionController extends Controller
         DB::beginTransaction();
         try {
 
-
+            $invoice = null;
             Stripe\Stripe::setApiKey(env('STRIPE_SECRET'));
 
             if (!auth()->user()->stripe_customer_id) {
@@ -272,6 +283,7 @@ class SubscriptionController extends Controller
                 if ($invoice->collection_method === 'charge_automatically' && $invoice->status !== 'paid') {
                     $invoice = $invoice->pay(); // instance method
                 }
+            
             } else {
                 // ===== FUTURE START / TRIAL PATH =====
                 // No invoice yet; it will be created at trial_end
@@ -287,7 +299,7 @@ class SubscriptionController extends Controller
             }
 
             // Save local record
-            auth()->user()->subscriptions()->create([
+            $subscription = auth()->user()->subscriptions()->create([
                 'stripe_subscription_id' => $subscription->id,
                 'stripe_price_id' => $price->id,
                 'status' => $subscription->status,
@@ -301,6 +313,17 @@ class SubscriptionController extends Controller
                 'end_date'   => $endDate->copy()->subDays(7)->subSecond(),
                 'canceled_at' => $endDate->copy()->subDays(7),
             ]);
+           
+            if ($invoice !== null && $invoice->status === 'paid') {
+                Invoice::create([
+                    'subscription_id' => $subscription->id,
+                    'stripe_invoice_id' => $invoice->id,
+                    'amount_due' => $invoice->amount_due / 100, // convert from cents
+                    'currency' => $invoice->currency,
+                    'invoice_date' => Carbon::createFromTimestamp($invoice->created),
+                    'paid_at' => Carbon::createFromTimestamp($invoice->status_transitions->paid_at ?? now()),
+                ]);
+            }
             DB::commit();
 
             $msg = $forceChargeNow || !$startIsFuture
