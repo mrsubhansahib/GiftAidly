@@ -601,26 +601,20 @@
                         @csrf
                         <div class="form-grid">
                             @php
-                            $userCurrency = auth()->check()
-                            ? auth()
-                            ->user()
-                            ->subscriptions()
-                            ->where('status', 'active')
-                            ->pluck('currency')
-                            ->unique()
-                            ->first()
-                            : null;
-                            $currencies = ['gbp' => '£', 'usd' => '$', 'eur' => '€'];
+                                $userCurrency = auth()->check()
+                                    ? auth()->user()->subscriptions()->pluck('currency')->unique()->first()
+                                    : null;
+                                $currencies = ['gbp' => '£', 'usd' => '$', 'eur' => '€'];
                             @endphp
                             <div class="form-group">
                                 <label for="currency">Currency</label>
                                 <select name="currency" id="currency" required class="select-input">
                                     @foreach ($currencies as $code => $symbol)
-                                    <option value="{{ $code }}" @selected($userCurrency===$code)
-                                        @disabled($userCurrency && $userCurrency !==$code)
-                                        title="{{ $userCurrency && $userCurrency !== $code ? 'You cannot select this currency because your previous donations were in ' . strtoupper($userCurrency) . '.' : '' }}">
-                                        {{ $symbol }}
-                                    </option>
+                                        <option value="{{ $code }}" @selected($userCurrency === $code)
+                                            @disabled($userCurrency && $userCurrency !== $code)
+                                            title="{{ $userCurrency && $userCurrency !== $code ? 'You cannot select this currency because your previous donations were in ' . strtoupper($userCurrency) . '.' : '' }}">
+                                            {{ $symbol }}
+                                        </option>
                                     @endforeach
                                 </select>
                             </div>
@@ -706,11 +700,11 @@
                                 <label for="currency-friday">Currency</label>
                                 <select name="currency" id="currency-friday" class="select-input">
                                     @foreach ($currencies as $code => $symbol)
-                                    <option value="{{ $code }}" @selected($userCurrency===$code)
-                                        @disabled($userCurrency && $userCurrency !==$code)
-                                        title="{{ $userCurrency && $userCurrency !== $code ? 'You cannot select this currency because your previous donations were in ' . strtoupper($userCurrency) . '.' : '' }}">
-                                        {{ $symbol }}
-                                    </option>
+                                        <option value="{{ $code }}" @selected($userCurrency === $code)
+                                            @disabled($userCurrency && $userCurrency !== $code)
+                                            title="{{ $userCurrency && $userCurrency !== $code ? 'You cannot select this currency because your previous donations were in ' . strtoupper($userCurrency) . '.' : '' }}">
+                                            {{ $symbol }}
+                                        </option>
                                     @endforeach
                                 </select>
                             </div>
@@ -789,35 +783,41 @@
                     <!-- Monthly -->
                     <form id="form-monthly" action="#" method="POST">
                         <div class="form-grid">
+                            @php
+                                use App\Models\SpecialDonation;
+                                $specials = SpecialDonation::all();
+                            @endphp
+
                             <div class="form-group">
                                 <label for="currency-monthly">Currency</label>
                                 <select name="currency" id="currency-monthly" class="select-input">
-                                    <option value="gbp">£</option>
-                                    <option value="usd">$</option>
-                                    <option value="eur">€</option>
+                                    <option value="GBP" {{ old('currency', 'GBP') == 'GBP' ? 'selected' : '' }}>£
+                                    </option>
+                                    <option value="USD" {{ old('currency') == 'USD' ? 'selected' : '' }}>$
+                                    </option>
+                                    <option value="EUR" {{ old('currency') == 'EUR' ? 'selected' : '' }}>€
+                                    </option>
                                 </select>
                             </div>
 
                             <div class="form-group">
-                                <label for="amount-monthly">Amount</label>
-                                <input type="number" name="amount" id="amount-monthly" class="text-input"
+                                <label for="pay-amount">Amount</label>
+                                <input type="number" name="amount" id="pay-amount" class="text-input"
                                     min="1" />
                             </div>
 
                             <div class="form-group">
-                                <label for="type-monthly">Type</label>
-                                <input type="text" id="type-monthly" value="Monthly" name="type"
-                                    class="text-input" readonly />
+                                <label for="pay-special">Pay Special</label>
+                                <select name="special" id="pay-special" class="select-input">
+                                    <option value="">-- Select Special --</option>
+                                    @foreach ($specials as $special)
+                                        <option value="{{ $special->id }}" data-price="{{ $special->price }}">
+                                            {{ $special->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
                             </div>
 
-                            <!-- Single Range Picker -->
-                            <div class="form-group" style="grid-column: 1 / -1;">
-                                <label for="date-range-monthly">Select Date Range</label>
-                                <input type="text" id="date-range-monthly" class="text-input"
-                                    placeholder="Pick start and end dates" />
-                                <input type="hidden" name="start_date" id="start_date-monthly" />
-                                <input type="hidden" name="cancellation" id="cancellation-monthly" />
-                            </div>
 
                             <!-- Stripe Card Element -->
                             <div class="form-group" style="grid-column: 1 / -1;">
@@ -849,7 +849,7 @@
     </div>
 
 
-
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/index.js"></script>
     @livewireScripts
@@ -968,7 +968,8 @@
                             if (type === "month") {
                                 const minEnd = addMonths(start, 1);
                                 if (end < minEnd) {
-                                    dateError.textContent = `Please select at least one full month (${fmt(start)} → ${fmt(minEnd)} or later).`;
+                                    dateError.textContent =
+                                        `Please select at least one full month (${fmt(start)} → ${fmt(minEnd)} or later).`;
                                     fp.clear();
                                     startEl.value = "";
                                     endEl.value = "";
@@ -1232,7 +1233,54 @@
             });
         });
     </script>
+    {{-- Jquery Script --}}
+    <script>
+        $(document).ready(function() {
+            const apiKey = 'd8be31378397f36afc09fc2d0b1b1d6c';
+            let rates = {}; // cache conversion rates
+            // Fetch rates once on page load
+            $.get('https://api.exchangerate.host/live', {
+                access_key: apiKey,
+                source: 'GBP',
+                currencies: 'USD,EUR',
+                format: 1
+            }, function(data) {
+                if (data.success) {
+                    rates = data.quotes; // e.g. { GBPUSD: 1.26, GBPEUR: 1.15 }
+                    updateAmount(); // update if something already selected
+                } else {
+                    console.error('Currency API error');
+                }
+            }).fail(function() {
+                console.error('Failed to fetch rates');
+            });
 
+            function updateAmount() {
+                const selectedSpecial = $('#pay-special').find(':selected');
+                const basePrice = parseFloat(selectedSpecial.data('price')) || 0;
+                const targetCurrency = $('#currency-monthly').val();
+                if (!basePrice || !targetCurrency) {
+                    $('#pay-amount').val('');
+                    return;
+                }
+                if (targetCurrency === 'GBP') {
+                    $('#pay-amount').val(basePrice.toFixed(2));
+                    return;
+                }
+                // Use cached rates for instant conversion
+                const rate = rates['GBP' + targetCurrency];
+                if (rate) {
+                    const converted = (basePrice * rate).toFixed(2);
+                    $('#pay-amount').val(converted);
+                } else {
+                    $('#pay-amount').val('');
+                }
+            }
+            // Events
+            $('#pay-special').on('change', updateAmount);
+            $('#currency-monthly').on('change', updateAmount);
+        });
+    </script>
 
 </body>
 
