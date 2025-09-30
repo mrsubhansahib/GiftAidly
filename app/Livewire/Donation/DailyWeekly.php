@@ -17,11 +17,11 @@ class DailyWeekly extends Component
     public $payment_method_id;
 
     protected $rules = [
-        'currency' => 'required|string',
-        'amount' => 'required|numeric|min:1',
-        'type' => 'required|in:day,week',
-        'start_date' => 'required|date',
-        'cancellation' => 'required|date|after_or_equal:start_date',
+        'currency'          => 'required|string',
+        'amount'            => 'required|numeric|min:1',
+        'type'              => 'required|in:day,week',
+        'start_date'        => 'required|date',
+        'cancellation'      => 'required|date|after_or_equal:start_date',
         'payment_method_id' => 'required|string',
     ];
 
@@ -38,11 +38,11 @@ class DailyWeekly extends Component
             // Ensure Stripe customer
             if (!$user->stripe_id) {
                 $customer = Stripe\Customer::create([
-                    'name' => $user->name,
-                    'email' => $user->email,
-                    'payment_method' => $this->payment_method_id,
-                    'invoice_settings' => [
-                        'default_payment_method' => $this->payment_method_id,
+                    'name'                          => $user->name,
+                    'email'                         => $user->email,
+                    'payment_method'                => $this->payment_method_id,
+                    'invoice_settings'              => [
+                    'default_payment_method'        => $this->payment_method_id,
                     ],
                 ]);
                 $user->update(['stripe_id' => $customer->id]);
@@ -56,10 +56,10 @@ class DailyWeekly extends Component
             ]);
 
             $price = Stripe\Price::create([
-                'unit_amount' => $this->amount * 100,
-                'currency' => $this->currency,
-                'recurring' => ['interval' => $this->type], // day or week
-                'product' => $product->id,
+                'unit_amount'       => $this->amount * 100,
+                'currency'          => $this->currency,
+                'recurring'         => ['interval' => $this->type], // day or week
+                'product'           => $product->id,
             ]);
 
             // Dates
@@ -70,35 +70,35 @@ class DailyWeekly extends Component
             if (!$startIsFuture) {
                 // Immediate
                 $subscription = Stripe\Subscription::create([
-                    'customer' => $customer->id,
-                    'items' => [['price' => $price->id]],
-                    'cancel_at' => $endDate->timestamp,
-                    'collection_method' => 'charge_automatically',
-                    'default_payment_method' => $this->payment_method_id,
+                    'customer'                  => $customer->id,
+                    'items'                     => [['price' => $price->id]],
+                    'cancel_at'                 => $endDate->timestamp,
+                    'collection_method'         => 'charge_automatically',
+                    'default_payment_method'    => $this->payment_method_id,
                 ]);
             } else {
                 // Scheduled (trial until start_date)
                 $subscription = Stripe\Subscription::create([
-                    'customer' => $customer->id,
-                    'items' => [['price' => $price->id]],
-                    'trial_end' => $startDate->timestamp,
-                    'cancel_at' => $endDate->timestamp,
-                    'collection_method' => 'charge_automatically',
-                    'default_payment_method' => $this->payment_method_id,
+                    'customer'                  => $customer->id,
+                    'items'                     => [['price' => $price->id]],
+                    'trial_end'                 => $startDate->timestamp,
+                    'cancel_at'                 => $endDate->timestamp,
+                    'collection_method'         => 'charge_automatically',
+                    'default_payment_method'    => $this->payment_method_id,
                 ]);
             }
 
             // Save locally
             $user->subscriptions()->create([
-                'stripe_subscription_id' => $subscription->id,
-                'stripe_price_id' => $price->id,
-                'status' => $subscription->status,
-                'price' => $this->amount,
-                'currency' => $this->currency,
-                'type' => $this->type,
-                'start_date' => Carbon::createFromTimestamp($subscription->current_period_start),
-                'end_date' => Carbon::createFromTimestamp($subscription->current_period_end),
-                'canceled_at' => $endDate,
+                'stripe_subscription_id'    => $subscription->id,
+                'stripe_price_id'           => $price->id,
+                'status'                    => $subscription->status,
+                'price'                     => $this->amount,
+                'currency'                  => $this->currency,
+                'type'                      => $this->type,
+                'start_date'                => Carbon::createFromTimestamp($subscription->current_period_start),
+                'end_date'                  => Carbon::createFromTimestamp($subscription->current_period_end),
+                'canceled_at'               => $endDate,
             ]);
 
             DB::commit();
