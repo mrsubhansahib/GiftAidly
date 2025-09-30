@@ -92,33 +92,27 @@
                </li>
                @endif
 
-               {{-- <li class="nav-item">
+               <li class="nav-item">
                     <a class="nav-link menu-arrow" href="#sidebarAuthentication" data-bs-toggle="collapse" role="button"
                          aria-expanded="false" aria-controls="sidebarAuthentication">
                          <span class="nav-icon">
-                              <iconify-icon icon="solar:user-circle-outline"></iconify-icon>
+                              <iconify-icon icon="solar:wallet-money-linear"></iconify-icon>
                          </span>
-                         <span class="nav-text"> Authentication </span>
+                         <span class="nav-text"> Special Donations </span>
                     </a>
                     <div class="collapse" id="sidebarAuthentication">
                          <ul class="nav sub-navbar-nav">
                               <li class="sub-nav-item">
-                                   <a class="sub-nav-link" href="{{ route ('second' , ['auth','signin']) }}">Sign In</a>
+                                   <a class="sub-nav-link" href="{{ route ('second' , ['auth','signin']) }}">List</a>
                               </li>
                               <li class="sub-nav-item">
-                                   <a class="sub-nav-link" href="{{ route ('second' , ['auth','signup']) }}">Sign Up</a>
+                                   <a class="sub-nav-link" href="{{ route ('second' , ['auth','signup']) }}">Create</a>
                               </li>
-                              <li class="sub-nav-item">
-                                   <a class="sub-nav-link" href="{{ route ('second' , ['auth','password']) }}">Reset Password</a>
-                              </li>
-                              <li class="sub-nav-item">
-                                   <a class="sub-nav-link" href="{{ route ('second' , ['auth','lock-screen']) }}">Lock Screen</a>
                               </li>
                          </ul>
-                    </div>
                </li>
 
-               <li class="nav-item">
+               {{-- <li class="nav-item">
                     <a class="nav-link menu-arrow" href="#sidebarError" data-bs-toggle="collapse" role="button"
                          aria-expanded="false" aria-controls="sidebarError">
                          <span class="nav-icon">

@@ -1,0 +1,155 @@
+<?php
+
+use App\Models\Invoice;
+
+?>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table id="datatable" class="table table-striped table-bordered align-middle">
+                            <thead>
+                                <tr>
+                                    <th>Email</th>
+                                    <th>Donation Type</th>
+                                    <th>Amount</th>
+                                    
+                                    <th>Invoice Date</th>
+                                    <th class="text-center">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!--[if BLOCK]><![endif]--><?php $__currentLoopData = $this->invoices; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $invoice): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                    <tr>
+                                        <td><?php echo e($invoice->subscription->user->email ?? '-'); ?></td>
+                                        <td><?php echo e(ucfirst($invoice->subscription->type)); ?></td>
+                                        <td><?php echo e($invoice->subscription->price . ' ' . ucfirst($invoice->currency)); ?></td>
+                                        
+                                        <td><?php echo e($invoice->invoice_date ? \Carbon\Carbon::parse($invoice->invoice_date)->format('Y-m-d') : '-'); ?>
+
+                                        </td>
+                                        <td class="text-center">
+                                            <button class="btn btn-sm btn-primary" data-bs-toggle="modal"
+                                                data-bs-target="#invoiceModal<?php echo e($invoice->id); ?>">
+                                                View
+                                            </button>
+                                        </td>
+                                    </tr>
+
+                                    <!-- Bootstrap Modal -->
+                                    <div class="modal fade" id="invoiceModal<?php echo e($invoice->id); ?>" tabindex="-1"
+                                        aria-labelledby="invoiceModalLabel<?php echo e($invoice->id); ?>" aria-hidden="true">
+                                        <div class="modal-dialog modal-lg modal-dialog-centered">
+                                            <div class="modal-content border-0 rounded-4 shadow-lg">
+
+                                                <!-- Minimal Header -->
+                                                <div class="modal-header border-0 pb-0">
+                                                    <h4 class="modal-title text-dark fw-semibold"
+                                                        id="invoiceModalLabel<?php echo e($invoice->id); ?>">
+                                                        Invoice #<?php echo e(substr($invoice->stripe_invoice_id ?? 'N/A', -8)); ?>
+
+                                                    </h4>
+                                                    <button type="button" class="btn-close"
+                                                        data-bs-dismiss="modal"></button>
+                                                </div>
+
+                                                <!-- Modal Body -->
+                                                <div class="modal-body px-4 pb-4">
+
+                                                    <!-- Customer & Status Row -->
+                                                    <div class="d-flex justify-content-between align-items-center mb-4">
+                                                        <div>
+                                                            <h6 class="text-muted mb-1">Customer</h6>
+                                                            <p class="mb-0 fw-medium">
+                                                                <?php echo e($invoice->subscription->user->name ?? 'Guest User'); ?>
+
+                                                            </p>
+                                                            <small
+                                                                class="text-muted"><?php echo e($invoice->subscription->user->email ?? '-'); ?></small>
+                                                        </div>
+                                                        <div class="text-end">
+                                                            <span
+                                                                class="badge <?php echo e($invoice->paid_at ? 'bg-success bg-opacity-10 text-success border border-success' : 'bg-warning bg-opacity-10 text-warning border border-warning'); ?> px-3 py-2 rounded-3">
+                                                                <?php echo e($invoice->paid_at ? 'Paid' : 'Pending'); ?>
+
+                                                            </span>
+                                                        </div>
+                                                    </div>
+
+                                                    <!-- Amount Section -->
+                                                    <div class="row mb-4">
+                                                        <div class="col-6">
+                                                            <div class="text-center p-4 bg-light rounded-3">
+                                                                <h6 class="text-muted mb-2">Amount</h6>
+                                                                <h3 class="text-dark fw-bold mb-0">
+                                                                    <?php echo e(number_format($invoice->amount_due ?? 0)); ?></h3>
+                                                                <small
+                                                                    class="text-muted"><?php echo e(strtoupper($invoice->currency ?? 'PKR')); ?></small>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-6">
+                                                            <div class="text-center p-4 bg-light rounded-3">
+                                                                <h6 class="text-muted mb-2">Date</h6>
+                                                                <p class="fw-semibold mb-1">
+                                                                    <?php echo e($invoice->invoice_date ? \Carbon\Carbon::parse($invoice->invoice_date)->format('M d, Y') : 'Not set'); ?>
+
+                                                                </p>
+                                                                <small class="text-muted">Invoice Date</small>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <!-- Details Section -->
+                                                    <div class="border-top pt-4">
+                                                        <h5 class="text-muted mb-4 fw-semibold">Transaction Details</h5>
+
+                                                        <div class="row g-4">
+                                                            <div class="col-sm-6">
+                                                                <label
+                                                                    class="form-label text-muted mb-2 fw-semibold">Subscription
+                                                                    ID</label>
+                                                                <input type="text"
+                                                                    class="form-control bg-light border-0 fs-6 py-2"
+                                                                    value="<?php echo e($invoice->subscription_id ?? '-'); ?>"
+                                                                    readonly>
+                                                            </div>
+
+                                                            <div class="col-sm-6">
+                                                                <label
+                                                                    class="form-label text-muted mb-2 fw-semibold">Stripe
+                                                                    Invoice ID</label>
+                                                                <input type="text"
+                                                                    class="form-control bg-light border-0 fs-6 py-2"
+                                                                    value="<?php echo e($invoice->stripe_invoice_id ?? '-'); ?>"
+                                                                    readonly>
+                                                            </div>
+
+                                                            <!--[if BLOCK]><![endif]--><?php if($invoice->paid_at): ?>
+                                                                <div class="col-sm-6">
+                                                                    <label
+                                                                        class="form-label text-muted mb-2 fw-semibold">Payment
+                                                                        Date</label>
+                                                                    <input type="text"
+                                                                        class="form-control bg-light border-0 fs-6 py-2"
+                                                                        value="<?php echo e(\Carbon\Carbon::parse($invoice->paid_at)->format('M d, Y')); ?>"
+                                                                        readonly>
+                                                                </div>
+                                                            <?php endif; ?><!--[if ENDBLOCK]><![endif]-->
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><!--[if ENDBLOCK]><![endif]-->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div><?php /**PATH D:\Laravel\Softic-Era\Current Projects\GiftAidly\resources\views\livewire/admin/invoices.blade.php ENDPATH**/ ?>

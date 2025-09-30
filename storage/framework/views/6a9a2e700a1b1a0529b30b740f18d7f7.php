@@ -7,6 +7,7 @@
     <script src="https://cdn.jsdelivr.net/npm/iconify-icon@2/dist/iconify-icon.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/style.css">
+    <link rel="shortcut icon" href="/images/favicon.png">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Make a Difference | GiftAidly</title>
     <style>
@@ -516,95 +517,6 @@
                 grid-template-columns: 1fr;
             }
         }
-
-        .donation-slider {
-            position: relative;
-            max-width: 100%;
-            overflow: hidden;
-            margin: 20px auto;
-        }
-
-        .slider-wrapper {
-            overflow: hidden;
-            width: 100%;
-        }
-
-        .slider-track {
-            display: flex;
-            transition: transform 0.6s ease-in-out;
-            will-change: transform;
-        }
-
-        .slider-card {
-            min-width: 250px;
-            max-width: 250px;
-            margin: 0 10px;
-            background: white;
-            border-radius: 12px;
-            text-align: center;
-            padding: 15px;
-            color: black;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
-        }
-
-        .slider-card h5 {
-            color: #111;
-            /* heading dark */
-        }
-
-        .slider-card p {
-            color: #555;
-            /* price grey */
-        }
-
-        .slider-card img {
-            width: 100%;
-            height: 150px;
-            object-fit: cover;
-            border-radius: 8px;
-            margin-bottom: 10px;
-        }
-
-        .btn-donate {
-            background: linear-gradient(135deg, #1d43ab, #f9c001);
-            color: #fff;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .btn-donate:hover {
-            transform: scale(1.05);
-        }
-
-        .slider-btn {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            background: rgba(0, 0, 0, 0.4);
-            border: none;
-            color: #fff;
-            font-size: 24px;
-            cursor: pointer;
-            padding: 6px 15px;
-            border-radius: 50%;
-            transition: background 0.3s;
-            z-index: 10;
-        }
-
-        .slider-btn:hover {
-            background: rgba(0, 0, 0, 0.8);
-        }
-
-        .slider-btn.prev {
-            left: 10px;
-        }
-
-        .slider-btn.next {
-            right: 10px;
-        }
     </style>
     <?php echo \Livewire\Mechanisms\FrontendAssets\FrontendAssets::styles(); ?>
 
@@ -648,103 +560,20 @@
             <p>Join thousands of donors who are changing lives around the world. Every contribution matters, every
                 donation counts.</p>
         </div>
-        <!-- Custom Donation Slider -->
-        <div class="donation-slider mt-5">
-            <div class="slider-wrapper">
-                <div class="slider-track">
 
-                    <!-- Card 1 -->
-                    <div class="slider-card">
-                        <img src="/images/donation-food/istockphoto-1224414210-612x612.jpg" alt="Food Pack">
-                        <h5>Food Pack</h5>
-                        <p>£50</p>
-                        <button class="btn-donate">Donate Now</button>
-                    </div>
-
-                    <!-- Card 2 -->
-                    <div class="slider-card">
-                        <img src="/images/donation-food/istockphoto-1224414210-612x612.jpg" alt="Water Pump">
-                        <h5>Water Pump</h5>
-                        <p>£100</p>
-                        <button class="btn-donate">Donate Now</button>
-                    </div>
-
-                    <!-- Card 2 -->
-                    <div class="slider-card">
-                        <img src="/images/donation-food/istockphoto-1224414210-612x612.jpg" alt="Water Pump">
-                        <h5>Water Pump</h5>
-                        <p>£100</p>
-                        <button class="btn-donate">Donate Now</button>
-                    </div>
-                    <!-- Card 2 -->
-                    <div class="slider-card">
-                        <img src="/images/donation-food/istockphoto-1224414210-612x612.jpg" alt="Water Pump">
-                        <h5>Water Pump</h5>
-                        <p>£100</p>
-                        <button class="btn-donate">Donate Now</button>
-                    </div>
-                    <!-- Card 2 -->
-                    <div class="slider-card">
-                        <img src="/images/donation-food/istockphoto-1224414210-612x612.jpg" alt="Water Pump">
-                        <h5>Water Pump</h5>
-                        <p>£100</p>
-                        <button class="btn-donate">Donate Now</button>
-                    </div>
-                    <!-- Card 2 -->
-                    <div class="slider-card">
-                        <img src="/images/donation-food/istockphoto-1224414210-612x612.jpg" alt="Water Pump">
-                        <h5>Water Pump</h5>
-                        <p>£100</p>
-                        <button class="btn-donate">Donate Now</button>
-                    </div>
-                    <!-- Card 2 -->
-                    <div class="slider-card">
-                        <img src="/images/donation-food/istockphoto-1224414210-612x612.jpg" alt="Water Pump">
-                        <h5>Water Pump</h5>
-                        <p>£100</p>
-                        <button class="btn-donate">Donate Now</button>
-                    </div>
-                    <!-- Card 2 -->
-                    <div class="slider-card">
-                        <img src="/images/donation-food/istockphoto-1224414210-612x612.jpg" alt="Water Pump">
-                        <h5>Water Pump</h5>
-                        <p>£100</p>
-                        <button class="btn-donate">Donate Now</button>
-                    </div>
-                    <!-- Card 2 -->
-                    <div class="slider-card">
-                        <img src="/images/donation-food/istockphoto-1224414210-612x612.jpg" alt="Water Pump">
-                        <h5>Water Pump</h5>
-                        <p>£100</p>
-                        <button class="btn-donate">Donate Now</button>
-                    </div>
-                    <!-- Card 2 -->
-                    <div class="slider-card">
-                        <img src="/images/donation-food/istockphoto-1224414210-612x612.jpg" alt="Water Pump">
-                        <h5>Water Pump</h5>
-                        <p>£100</p>
-                        <button class="btn-donate">Donate Now</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Controls -->
-            <button class="slider-btn prev">❮</button>
-            <button class="slider-btn next">❯</button>
-        </div>
 
 
     </section>
 
     <div class="tab-container">
         <div class="tab-header">
-            <button class="tab-btn " onclick="openTab(event, 'daily-weekly-monthly')">Daily / Weekly / Monthly</button>
+            <button class="tab-btn active " onclick="openTab(event, 'daily-weekly-monthly')">Daily / Weekly / Monthly</button>
             <button class="tab-btn" onclick="openTab(event, 'friday')">Friday Special</button>
-            <button class="tab-btn active" onclick="openTab(event, 'special')">Donate Special</button>
+            <button class="tab-btn " onclick="openTab(event, 'special')">Donate Special</button>
         </div>
 
         <div class="tab-content">
-            <div id="daily-weekly-monthly" class="tab-panel ">
+            <div id="daily-weekly-monthly" class="tab-panel active">
                 <div class="donation-card">
                     <div class="card-header">
                         <div class="card-icon">
@@ -759,19 +588,38 @@
                     <form id="form-daily" action="<?php echo e(route('donation.daily_weekly_monthly')); ?>" method="POST">
                         <?php echo csrf_field(); ?>
                         <div class="form-grid">
+                            <?php
+                            $userCurrency = auth()->check()
+                            ? auth()
+                            ->user()
+                            ->subscriptions()
+                            ->where('status', 'active')
+                            ->pluck('currency')
+                            ->unique()
+                            ->first()
+                            : null;
+                            $currencies = ['gbp' => '£', 'usd' => '$', 'eur' => '€'];
+                            ?>
                             <div class="form-group">
-                                <label for="currency-daily">Currency</label>
-                                <select name="currency" id="currency-daily" required class="select-input">
-                                    <option value="gbp">£</option>
-                                    <option value="usd">$</option>
-                                    <option value="eur">€</option>
+                                <label for="currency">Currency</label>
+                                <select name="currency" id="currency" required class="select-input">
+                                    <?php $__currentLoopData = $currencies; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $code => $symbol): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                    <option value="<?php echo e($code); ?>" <?php if($userCurrency===$code): echo 'selected'; endif; ?>
+                                        <?php if($userCurrency && $userCurrency !==$code): echo 'disabled'; endif; ?>
+                                        title="<?php echo e($userCurrency && $userCurrency !== $code ? 'You cannot select this currency because your previous donations were in ' . strtoupper($userCurrency) . '.' : ''); ?>">
+                                        <?php echo e($symbol); ?>
+
+                                    </option>
+                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                 </select>
                             </div>
 
                             <div class="form-group">
                                 <label for="amount-daily">Amount</label>
-                                <input type="number" name="amount" id="amount-daily" required class="text-input"
+                                <input type="number" name="amount" id="amount-daily" class="text-input"
                                     min="1" />
+                                <span id="error-amount-daily"
+                                    style="color: red; font-size: 13px; display: block; margin-top: 3px;"></span>
                             </div>
 
                             <div class="form-group">
@@ -790,20 +638,35 @@
                                     placeholder="Pick start and end dates" />
                                 <input type="hidden" name="start_date" id="start_date-daily" />
                                 <input type="hidden" name="cancellation" id="cancellation-daily" />
+                                <span id="error-date-daily"
+                                    style="color: red; font-size: 13px; display: block; margin-top: 3px;"></span>
                             </div>
 
                             <div class="form-group" style="grid-column: 1 / -1;">
                                 <label for="card-element">Card Details</label>
                                 <div id="card-element" class="text-input"></div>
                                 <div id="card-errors" role="alert" style="color: red; margin-top: 5px;"></div>
+                                <span id="error-card-daily"
+                                    style="color: red; font-size: 13px; display: block; margin-top: 3px;"></span>
                             </div>
-                            <div class="form-group" style="grid-column: 1 / -1;">
-                                <label for="gift-aid-daily">Gift Aid</label>
-                                <input type="checkbox" name="gift_aid" id="gift-aid-daily" value="yes" />
-                                <input type="text" name="address" id="address-daily" class="text-input"
-                                    style="display: none"
-                                    value="<?php echo e(auth()->user()->address ? auth()->user()->address : ''); ?>" />
+                            <div class="form-group"
+                                style="grid-column: 1 / -1; display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+                                <label for="gift-aid-daily"
+                                    style="display: flex; align-items: center; gap: 6px; white-space: nowrap; margin-top: 6px;">
+                                    Gift Aid
+                                    <input type="checkbox" name="gift_aid" id="gift-aid-daily"
+                                        data-target="address-daily" value="yes" />
+                                </label>
+
+                                <div style="flex: 1; min-width: 200px; display: flex; flex-direction: column;">
+                                    <input type="text" name="address" id="address-daily" class="text-input"
+                                        style="display: none; width: 100%;" placeholder="Enter your address"
+                                        value="<?php echo e(auth()->user()->address ? auth()->user()->address : ''); ?>" />
+                                    <span id="error-address-daily"
+                                        style="color: red; font-size: 13px; display: block; margin-top: 3px;"></span>
+                                </div>
                             </div>
+
                         </div>
 
                         <button type="submit" class="donate-btn">Donate Now</button>
@@ -831,9 +694,14 @@
                             <div class="form-group">
                                 <label for="currency-friday">Currency</label>
                                 <select name="currency" id="currency-friday" class="select-input">
-                                    <option value="gbp">£</option>
-                                    <option value="usd">$</option>
-                                    <option value="eur">€</option>
+                                    <?php $__currentLoopData = $currencies; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $code => $symbol): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                    <option value="<?php echo e($code); ?>" <?php if($userCurrency===$code): echo 'selected'; endif; ?>
+                                        <?php if($userCurrency && $userCurrency !==$code): echo 'disabled'; endif; ?>
+                                        title="<?php echo e($userCurrency && $userCurrency !== $code ? 'You cannot select this currency because your previous donations were in ' . strtoupper($userCurrency) . '.' : ''); ?>">
+                                        <?php echo e($symbol); ?>
+
+                                    </option>
+                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                 </select>
                             </div>
 
@@ -841,6 +709,8 @@
                                 <label for="amount-friday">Amount</label>
                                 <input type="number" name="amount" id="amount-friday" class="text-input"
                                     min="1" />
+                                <span id="error-amount-friday"
+                                    style="color: red; font-size: 13px; display: block; margin-top: 3px;"></span>
                             </div>
 
                             <div class="form-group">
@@ -855,6 +725,8 @@
                                     placeholder="Pick start and end dates" />
                                 <input type="hidden" name="start_date" id="start_date-friday" />
                                 <input type="hidden" name="cancellation" id="cancellation-friday" />
+                                <span id="error-date-friday"
+                                    style="color: red; font-size: 13px; display: block; margin-top: 3px;"></span>
                             </div>
 
                             <!-- Stripe Card Element -->
@@ -863,13 +735,25 @@
                                 <div id="card-element-friday" class="text-input"></div>
                                 <div id="card-errors-friday" role="alert" style="color: red; margin-top: 5px;">
                                 </div>
+                                <span id="error-card-friday"
+                                    style="color: red; font-size: 13px; display: block; margin-top: 3px;"></span>
                             </div>
-                            <div class="form-group" style="grid-column: 1 / -1;">
-                                <label for="gift-aid-friday">Gift Aid</label>
-                                <input type="checkbox" name="gift_aid" id="gift-aid-friday" value="yes" />
-                                <input type="text" name="address" id="address-friday" class="text-input"
-                                    style="display: none"
-                                    value="<?php echo e(auth()->user()->address ? auth()->user()->address : ''); ?>" />
+                            <div class="form-group"
+                                style="grid-column: 1 / -1; display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+                                <label for="gift-aid-friday"
+                                    style="display: flex; align-items: center; gap: 6px; white-space: nowrap; margin-top: 6px;">
+                                    Gift Aid
+                                    <input type="checkbox" name="gift_aid" id="gift-aid-friday"
+                                        data-target="address-friday" value="yes" />
+                                </label>
+
+                                <div style="flex: 1; min-width: 200px; display: flex; flex-direction: column;">
+                                    <input type="text" name="address" id="address-friday" class="text-input"
+                                        style="display: none; width: 100%;" placeholder="Enter your address"
+                                        value="<?php echo e(auth()->user()->address ? auth()->user()->address : ''); ?>" />
+                                    <span id="error-address-friday"
+                                        style="color: red; font-size: 13px; display: block; margin-top: 3px;"></span>
+                                </div>
                             </div>
                         </div>
 
@@ -880,7 +764,7 @@
             </div>
 
             <!-- Special Tab -->
-            <div id="special" class="tab-panel active">
+            <div id="special" class="tab-panel ">
                 <div class="donation-card">
                     <div class="card-header">
                         <div class="card-icon">
@@ -932,6 +816,19 @@
                                 <div id="card-errors-monthly" role="alert" style="color: red; margin-top: 5px;">
                                 </div>
                             </div>
+                            <div class="form-group"
+                                style="grid-column: 1 / -1; display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+                                <label for="gift-aid-monthly"
+                                    style="margin: 0; display: flex; align-items: center; gap: 6px;">
+                                    Gift Aid
+                                    <input type="checkbox" name="gift_aid" id="gift-aid-monthly"
+                                        data-target="address-monthly" value="yes" />
+                                </label>
+
+                                <input type="text" name="address_monthly" id="address-monthly" class="text-input"
+                                    style="display: none; flex: 1; min-width: 200px;" placeholder="Enter your address"
+                                    value="<?php echo e(auth()->user()->address ? auth()->user()->address : ''); ?>" />
+                            </div>
                         </div>
 
                         <button type="submit" class="donate-btn">Monthly Commitment</button>
@@ -947,10 +844,12 @@
     <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/index.js"></script>
     <?php echo \Livewire\Mechanisms\FrontendAssets\FrontendAssets::scripts(); ?>
 
-
     
     <script src="https://js.stripe.com/v3/"></script>
     <script>
+        // ------------------------------
+        // ✅ Tab Switching
+        // ------------------------------
         function openTab(evt, tabName) {
             var i, tabPanels, tabBtns;
             tabPanels = document.getElementsByClassName("tab-panel");
@@ -961,7 +860,9 @@
             evt.currentTarget.classList.add("active");
         }
 
-        // Card hover animations (unchanged)
+        // ------------------------------
+        // ✅ Card hover animations
+        // ------------------------------
         document.querySelectorAll('.donation-card').forEach(card => {
             card.addEventListener('mouseenter', function() {
                 this.style.transform = 'translateY(-10px) scale(1.02)';
@@ -971,167 +872,238 @@
             });
         });
 
-        // Date -> YYYY-MM-DD (single definition)
+        // ------------------------------
+        // ✅ Helper Functions
+        // ------------------------------
         function fmt(d) {
             const pad = n => String(n).padStart(2, '0');
-            return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+            return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
         }
 
-        // Helpers for monthly picker
-        const firstOfMonth = (y, m) => new Date(y, m, 1); // m = 0-based
+        const firstOfMonth = (y, m) => new Date(y, m, 1);
         const lastOfMonth = (y, m) => new Date(y, m + 1, 0);
 
-        // Generic daily/weekly day-range
-        function attachRangePicker(rangeId, startHiddenId, endHiddenId, formId) {
+        function addMonths(date, count) {
+            const d = new Date(date);
+            const day = d.getDate();
+            d.setMonth(d.getMonth() + count);
+            if (d.getDate() < day) {
+                d.setDate(0);
+            }
+            return d;
+        }
+
+        function fmt(d) {
+            const pad = n => String(n).padStart(2, '0');
+            return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+        }
+
+        function addMonths(date, count) {
+            const d = new Date(date);
+            const day = d.getDate();
+            d.setMonth(d.getMonth() + count);
+            if (d.getDate() < day) {
+                d.setDate(0);
+            }
+            return d;
+        }
+
+        // ------------------------------
+        // ✅ Daily/Weekly/Monthly Picker with Type
+        // ------------------------------
+        function attachRangePickerWithType(rangeId, startHiddenId, endHiddenId, typeId, formId) {
             const rangeEl = document.getElementById(rangeId);
             const startEl = document.getElementById(startHiddenId);
             const endEl = document.getElementById(endHiddenId);
-
-            flatpickr(rangeEl, {
-                mode: "range",
-                altInput: true,
-                altFormat: "F j, Y",
-                dateFormat: "Y-m-d",
-                minDate: "today",
-                onChange(selectedDates) {
-                    startEl.value = selectedDates[0] ? fmt(selectedDates[0]) : "";
-                    endEl.value = selectedDates[1] ? fmt(selectedDates[1]) : "";
-                }
-            });
-
+            const typeEl = document.getElementById(typeId);
             const form = document.getElementById(formId);
-            form.addEventListener('submit', function(e) {
-                if (!startEl.value || !endEl.value) {
-                    e.preventDefault();
-                    alert('Please select a start and end date.');
+
+            if (!rangeEl || !startEl || !endEl || !typeEl || !form) return;
+
+            // grab error spans
+            const amountError = form.querySelector('#error-amount-daily');
+            const dateError = form.querySelector('#error-date-daily');
+            const addressError = form.querySelector('#error-address-daily');
+
+            let fp = null;
+
+            function initFlatpickr() {
+                if (fp) fp.destroy();
+
+                rangeEl.value = "";
+                startEl.value = "";
+                endEl.value = "";
+
+                const type = typeEl.value;
+
+                fp = flatpickr(rangeEl, {
+                    mode: "range",
+                    altInput: true,
+                    altFormat: "F j, Y",
+                    dateFormat: "Y-m-d",
+                    minDate: "today",
+                    onClose(selected) {
+                        if (selected.length === 2) {
+                            const start = selected[0];
+                            const end = selected[1];
+                            const diffDays = (end - start) / (1000 * 60 * 60 * 24);
+
+                            if (type === "week" && diffDays < 7) {
+                                dateError.textContent = "Please select at least one full week (7 days).";
+                                fp.clear();
+                                startEl.value = "";
+                                endEl.value = "";
+                                return;
+                            }
+
+                            if (type === "month") {
+                                const minEnd = addMonths(start, 1);
+                                if (end < minEnd) {
+                                    dateError.textContent = `Please select at least one full month (${fmt(start)} → ${fmt(minEnd)} or later).`;
+                                    fp.clear();
+                                    startEl.value = "";
+                                    endEl.value = "";
+                                    return;
+                                }
+                            }
+
+                            dateError.textContent = "";
+                        }
+
+                        startEl.value = selected[0] ? fmt(selected[0]) : "";
+                        endEl.value = selected[1] ? fmt(selected[1]) : "";
+                    }
+                });
+            }
+
+            initFlatpickr();
+            typeEl.addEventListener("change", initFlatpickr);
+
+            // ✅ validation on submit
+            form.addEventListener("submit", function(e) {
+                const amount = form.querySelector('input[name="amount"]');
+                const giftAidCheckbox = form.querySelector('#gift-aid-daily');
+                const addressInput = form.querySelector('#address-daily');
+                let valid = true;
+
+                // Amount
+                if (!amount.value || parseFloat(amount.value) < 1) {
+                    amountError.textContent = 'Please enter a valid amount.';
+                    valid = false;
+                } else {
+                    amountError.textContent = '';
                 }
+
+                // Date range
+                if (!startEl.value || !endEl.value) {
+                    dateError.textContent = 'Please select a valid date range.';
+                    valid = false;
+                } else {
+                    dateError.textContent = '';
+                }
+
+                // Gift Aid
+                if (giftAidCheckbox.checked && addressInput.value.trim() === '') {
+                    addressError.textContent = 'Please enter your address for Gift Aid.';
+                    valid = false;
+                } else {
+                    addressError.textContent = '';
+                }
+
+                if (!valid) e.preventDefault();
             });
         }
-
-        // Friday-only day-range
-        // Friday: multiple selectable Fridays (today se aage)
+        // ------------------------------
+        // ✅ Friday Range Picker
+        // ------------------------------
         function attachRangePickerFridays(rangeId, startHiddenId, endHiddenId, formId) {
             const rangeEl = document.getElementById(rangeId);
             const startEl = document.getElementById(startHiddenId);
             const endEl = document.getElementById(endHiddenId);
             const form = document.getElementById(formId);
+            const dateError = document.getElementById('error-date-friday');
+
             if (!rangeEl || !startEl || !endEl || !form) return;
 
-            // helper: ensure a single hidden <input name="fridays"> exists
+            // hidden input for fridays list
             function ensureFridaysHidden() {
                 let h = form.querySelector('input[name="fridays"]');
                 if (!h) {
                     h = document.createElement('input');
                     h.type = 'hidden';
-                    h.name = 'fridays'; // CSV of all selected Fridays
+                    h.name = 'fridays';
                     h.id = rangeId + '-fridays';
                     form.appendChild(h);
                 }
                 return h;
             }
-
             const fridaysHidden = ensureFridaysHidden();
 
             flatpickr(rangeEl, {
-                mode: "multiple", // <-- multiple dates
+                mode: "range",
                 altInput: true,
                 altFormat: "F j, Y",
                 dateFormat: "Y-m-d",
                 minDate: "today",
-                // Sirf Friday clickable (0=Sun ... 5=Fri)
-                enable: [date => date.getDay() === 5],
                 onChange(selectedDates) {
-                    // sort just in case
-                    selectedDates.sort((a, b) => a - b);
+                    if (selectedDates.length === 2) {
+                        const start = selectedDates[0];
+                        const end = selectedDates[1];
+                        startEl.value = fmt(start);
+                        endEl.value = fmt(end);
 
-                    // first/last -> start/end hidden
-                    startEl.value = selectedDates[0] ? fmt(selectedDates[0]) : "";
-                    endEl.value = selectedDates.length ? fmt(selectedDates[selectedDates.length - 1]) : "";
+                        let fridays = [];
+                        let current = new Date(start);
+                        while (current <= end) {
+                            if (current.getDay() === 5) {
+                                fridays.push(fmt(new Date(current)));
+                            }
+                            current.setDate(current.getDate() + 1);
+                        }
 
-                    // CSV of all selected Fridays for backend
-                    fridaysHidden.value = selectedDates.map(d => fmt(d)).join(',');
-                }
-            });
+                        fridaysHidden.value = fridays.join(',');
 
-            // Validation: at least 1 Friday required
-            form.addEventListener('submit', function(e) {
-                if (!fridaysHidden.value) {
-                    e.preventDefault();
-                    alert('Please select at least one Friday.');
-                }
-            });
-        }
+                        // ✅ Inline error check
+                        if (fridays.length < 2) {
+                            dateError.textContent = "Please select a range that includes at least 2 Fridays.";
+                        } else {
+                            dateError.textContent = "";
+                        }
 
-        // INIT calls (unchanged except Friday uses updated function)
-        document.addEventListener('DOMContentLoaded', function() {
-            attachRangePicker('date-range-daily', 'start_date-daily', 'cancellation-daily', 'form-daily');
-            attachRangePickerFridays('date-range-friday', 'start_date-friday', 'cancellation-friday',
-                'form-friday');
-            attachRangePickerMonths('date-range-monthly', 'start_date-monthly', 'cancellation-monthly',
-                'form-monthly');
-        });
-
-        // Month range picker (maps to first/last day in hidden fields)
-        function attachRangePickerMonths(rangeId, startHiddenId, endHiddenId, formId) {
-            const rangeEl = document.getElementById(rangeId);
-            const startEl = document.getElementById(startHiddenId);
-            const endEl = document.getElementById(endHiddenId);
-
-            flatpickr(rangeEl, {
-                mode: "range",
-                dateFormat: "Y-m",
-                altInput: true,
-                altFormat: "F Y",
-                minDate: "today",
-                plugins: [new monthSelectPlugin({
-                    shorthand: true,
-                    dateFormat: "Y-m",
-                    altFormat: "F Y"
-                })],
-                onChange(selectedDates) {
-                    if (selectedDates[0]) {
-                        const s = firstOfMonth(selectedDates[0].getFullYear(), selectedDates[0].getMonth());
-                        startEl.value = fmt(s); // e.g. 2025-09-01
                     } else {
                         startEl.value = "";
-                    }
-                    if (selectedDates[1]) {
-                        const e = lastOfMonth(selectedDates[1].getFullYear(), selectedDates[1].getMonth());
-                        endEl.value = fmt(e); // e.g. 2025-12-31
-                    } else {
                         endEl.value = "";
+                        fridaysHidden.value = "";
+                        dateError.textContent = "Please select a valid date range.";
                     }
                 }
             });
 
-            const form = document.getElementById(formId);
+            // ✅ Final validation on submit
             form.addEventListener('submit', function(e) {
-                if (!startEl.value || !endEl.value) {
+                const fridaysArr = fridaysHidden.value ? fridaysHidden.value.split(',') : [];
+                if (fridaysArr.length < 2) {
                     e.preventDefault();
-                    alert('Please select a start and end month.');
+                    dateError.textContent = "Please select a range that includes at least 2 Fridays.";
+                } else {
+                    dateError.textContent = "";
                 }
             });
         }
 
-        // Initialize all three
-        document.addEventListener('DOMContentLoaded', function() {
-            // Daily/Weekly: normal day range
-            attachRangePicker('date-range-daily', 'start_date-daily', 'cancellation-daily', 'form-daily');
-
-            // Friday: only Fridays selectable
-            attachRangePickerFridays('date-range-friday', 'start_date-friday', 'cancellation-friday',
-                'form-friday');
-
-            // Monthly: month range (maps to first/last day)
-            attachRangePickerMonths('date-range-monthly', 'start_date-monthly', 'cancellation-monthly',
-                'form-monthly');
+        // ------------------------------
+        // ✅ INIT Flatpickr
+        // ------------------------------
+        document.addEventListener("DOMContentLoaded", function() {
+            attachRangePickerWithType("date-range-daily", "start_date-daily", "cancellation-daily", "type-daily",
+                "form-daily");
+            attachRangePickerFridays("date-range-friday", "start_date-friday", "cancellation-friday",
+                "form-friday");
         });
-    </script>
 
-    
-    <script src="https://js.stripe.com/v3/"></script>
-    <script src="https://js.stripe.com/v3/"></script>
-    <script>
+        // ------------------------------
+        // ✅ Stripe (Original Working Version)
+        // ------------------------------
         document.addEventListener("DOMContentLoaded", function() {
             const stripe = Stripe("<?php echo e(config('services.stripe.key')); ?>");
 
@@ -1197,43 +1169,35 @@
                 });
             }
 
-            // ✅ Attach to all three forms
             setupStripeForm("form-daily", "card-element", "card-errors");
             setupStripeForm("form-friday", "card-element-friday", "card-errors-friday");
             setupStripeForm("form-monthly", "card-element-monthly", "card-errors-monthly");
         });
-        document.getElementById('gift-aid-daily').addEventListener('change', function() {
-            const addressInput = document.getElementById('address-daily');
-            if (this.checked) {
-                addressInput.style.display = 'block';
-                addressInput.setAttribute('required', 'required');
-                addressInput.setAttribute('placeholder', 'Enter your address');
 
-            } else {
-                addressInput.style.display = 'none';
-                addressInput.removeAttribute('required');
-                addressInput.value = '';
-            }
-        });
-        document.getElementById('gift-aid-friday').addEventListener('change', function() {
-            const addressInput = document.getElementById('address-friday');
-            if (this.checked) {
-                addressInput.style.display = 'block';
-                addressInput.setAttribute('required', 'required');
-                addressInput.setAttribute('placeholder', 'Enter your address');
+        // ------------------------------
+        // ✅ Gift Aid Checkbox Toggle (Updated)
+        // ------------------------------
+        document.querySelectorAll('input[type="checkbox"][name="gift_aid"]').forEach((checkbox) => {
+            checkbox.addEventListener('change', function() {
+                const targetId = this.getAttribute('data-target');
+                const addressInput = document.getElementById(targetId);
+                const errorSpan = document.getElementById(`error-${targetId}`);
 
-            } else {
-                addressInput.style.display = 'none';
-                addressInput.removeAttribute('required');
-                addressInput.value = '';
-            }
+                if (this.checked) {
+                    addressInput.style.display = 'block';
+                    addressInput.setAttribute('placeholder', 'Enter your address');
+                } else {
+                    addressInput.style.display = 'none';
+                    addressInput.value = '';
+                    if (errorSpan) {
+                        errorSpan.textContent = '';
+                    }
+                }
+            });
         });
     </script>
 
 
-
-
 </body>
 
-</html>
-<?php /**PATH D:\Laravel\Softic-Era\Current Projects\GiftAidly\resources\views/donation/index.blade.php ENDPATH**/ ?>
+</html><?php /**PATH D:\Laravel\Softic-Era\Current Projects\GiftAidly\resources\views/donation/index.blade.php ENDPATH**/ ?>
