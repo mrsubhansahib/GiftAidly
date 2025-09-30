@@ -842,7 +842,7 @@
                             </div>
                         </div>
 
-                        <button type="submit" class="donate-btn">Monthly Commitment</button>
+                        <button type="submit" class="donate-btn">Donate Now</button>
                     </form>
                 </div>
             </div>

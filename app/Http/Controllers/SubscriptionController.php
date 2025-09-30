@@ -365,7 +365,7 @@ class SubscriptionController extends Controller
         $request->validate([
             'special' => 'required|exists:special_donations,id',
             'amount' => 'required|numeric|min:1',
-            'currency' => 'required|in:gbp,usd,eur',
+            'currency' => 'required|in:GBP,USD,EUR',
             'gift_aid' => 'nullable|in:yes,no',
             'address' => 'required_if:gift_aid,yes|max:500',
             'stripeToken' => 'required|string',
