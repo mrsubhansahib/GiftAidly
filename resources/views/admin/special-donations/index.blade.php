@@ -2,6 +2,7 @@
 
 @section('content')
     @include('layouts.partials.page-title', ['title' => 'Special Donations', 'subtitle' => 'List'])
+    <!-- @include('layouts.partials.alert'); -->
     <livewire:admin.special-donations />
 @endsection
 @push('scripts')

@@ -110,14 +110,6 @@ $updated = function ($property) {
                         <p class="card-text text-center text-muted mb-4">
                             Update your password for enhanced security.
                         </p>
-
-                        {{-- NOTE: Aapko apne main layout mein session flash messages ko display karne ka code add karna hoga. --}}
-                        {{-- Example:
-                        @if (session('success'))
-                            <div class="alert alert-success">{{ session('success') }}</div>
-                        @endif
-                        --}}
-
                         <form wire:submit.prevent="changePassword">
                             <div class="row">
                                 <!-- Old Password -->
