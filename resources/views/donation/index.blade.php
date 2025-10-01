@@ -781,7 +781,7 @@
                     </div>
 
                     <!-- Monthly -->
-                    <form id="form-monthly" action="{{route('donation.special')}}" method="POST">
+                    <form id="form-monthly" action="{{ route('donation.special') }}" method="POST">
                         @csrf
                         <div class="form-grid">
                             @php
@@ -803,8 +803,10 @@
 
                             <div class="form-group">
                                 <label for="pay-amount">Amount</label>
-                                <input type="number" name="amount" placeholder="100.00" readonly id="pay-amount" class="text-input"
-                                   />
+                                <input type="number" name="amount" placeholder="100.00" readonly id="pay-amount"
+                                    class="text-input" />
+                                <span id="error-amount-special"
+                                    style="color: red; font-size: 13px; display: block; margin-top: 3px;"></span>
                             </div>
 
                             <div class="form-group">
@@ -817,9 +819,11 @@
                                         </option>
                                     @endforeach
                                 </select>
+                                <span id="error-product-special"
+                                    style="color: red; font-size: 13px; display: block; margin-top: 3px;"></span>
                             </div>
 
-                            
+
                             <!-- Stripe Card Element -->
                             <div class="form-group" style="grid-column: 1 / -1;">
                                 <label for="card-element-monthly">Card Details</label>
@@ -830,15 +834,19 @@
                             <div class="form-group"
                                 style="grid-column: 1 / -1; display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
                                 <label for="gift-aid-monthly"
-                                    style="margin: 0; display: flex; align-items: center; gap: 6px;">
+                                    style="display: flex; align-items: center; gap: 6px; white-space: nowrap; margin-top: 6px;">
                                     Gift Aid
                                     <input type="checkbox" name="gift_aid" id="gift-aid-monthly"
                                         data-target="address-monthly" value="yes" />
                                 </label>
 
-                                <input type="text" name="address" id="address-monthly" class="text-input"
-                                    style="display: none; flex: 1; min-width: 200px;" placeholder="Enter your address"
-                                    value="{{ auth()->user()->address ? auth()->user()->address : '' }}" />
+                                <div style="flex: 1; min-width: 200px; display: flex; flex-direction: column;">
+                                    <input type="text" name="address" id="address-monthly" class="text-input"
+                                        style="display: none; width: 100%;" placeholder="Enter your address"
+                                        value="{{ auth()->user()->address ? auth()->user()->address : '' }}" />
+                                    <span id="error-address-special"
+                                        style="color: red; font-size: 13px; display: block; margin-top: 3px;"></span>
+                                </div>
                             </div>
                         </div>
 
@@ -1053,7 +1061,10 @@
                 form.appendChild(fridaysHidden);
             }
 
+            // error spans
             const dateError = form.querySelector('#error-date-friday');
+            const amountError = form.querySelector('#error-amount-friday');
+            const addressError = form.querySelector('#error-address-friday');
 
             const fp = flatpickr(rangeEl, {
                 mode: "range",
@@ -1087,9 +1098,7 @@
                         // ✅ update UI (highlight Fridays, disable others)
                         highlightFridays(instance, start, end);
 
-                        dateError.textContent = (fridays.length < 1) ?
-                            "No Fridays found in selected range." :
-                            "";
+                        dateError.textContent = (fridays.length < 1) ? "No Fridays found in selected range." : "";
                     }
                 },
 
@@ -1101,7 +1110,6 @@
                 }
             });
 
-            // highlight helper
             function highlightFridays(instance, start, end) {
                 setTimeout(() => {
                     instance.calendarContainer.querySelectorAll(".flatpickr-day").forEach(el => {
@@ -1126,9 +1134,106 @@
                 const pad = n => String(n).padStart(2, '0');
                 return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
             }
+
+            // ✅ Friday Form Validation (NEW)
+            form.addEventListener("submit", function(e) {
+                const amount = form.querySelector('input[name="amount"]');
+                const giftAidCheckbox = form.querySelector('#gift-aid-friday');
+                const addressInput = form.querySelector('#address-friday');
+                let valid = true;
+
+                // Amount check
+                if (!amount.value || parseFloat(amount.value) < 1) {
+                    amountError.textContent = 'Please enter a valid amount.';
+                    valid = false;
+                } else {
+                    amountError.textContent = '';
+                }
+
+                // Date range check
+                if (!startEl.value || !endEl.value) {
+                    dateError.textContent = 'Please select a valid date range.';
+                    valid = false;
+                } else {
+                    dateError.textContent = '';
+                }
+
+                // Gift Aid check
+                if (giftAidCheckbox.checked && addressInput.value.trim() === '') {
+                    addressError.textContent = 'Please enter your address for Gift Aid.';
+                    valid = false;
+                } else {
+                    addressError.textContent = '';
+                }
+
+                if (!valid) e.preventDefault();
+            });
         }
 
+        // ------------------------------
+        // ✅ Special Donations Form Validation
+        // ------------------------------
+        document.addEventListener("DOMContentLoaded", function() {
+            const form = document.getElementById("form-monthly");
+            if (!form) return;
 
+            const specialSelect = form.querySelector("#pay-special");
+            const amountInput = form.querySelector("#pay-amount");
+            const giftAidCheckbox = form.querySelector("#gift-aid-monthly");
+            const addressInput = form.querySelector("#address-monthly");
+
+            const productError = document.getElementById("error-product-special");
+            const amountError = document.getElementById("error-amount-special");
+            const addressError = document.getElementById("error-address-special");
+
+            // Auto fill amount on select
+            specialSelect.addEventListener("change", function() {
+                const price = this.selectedOptions[0].getAttribute("data-price");
+                amountInput.value = price ? price : "";
+                productError.textContent = "";
+                amountError.textContent = "";
+            });
+
+            // ✅ Gift Aid Checkbox Toggle — Clear error on uncheck
+            giftAidCheckbox.addEventListener("change", function() {
+                if (!this.checked) {
+                    addressInput.style.display = 'none';
+                    addressInput.value = '';
+                    addressError.textContent = ''; // 👈 important line
+                } else {
+                    addressInput.style.display = 'block';
+                    addressInput.setAttribute('placeholder', 'Enter your address');
+                }
+            });
+
+            // Validate on submit
+            form.addEventListener("submit", function(e) {
+                let valid = true;
+
+                if (!specialSelect.value) {
+                    productError.textContent = "Please select a special donation.";
+                    valid = false;
+                } else {
+                    productError.textContent = "";
+                }
+
+                if (!amountInput.value || parseFloat(amountInput.value) <= 0) {
+                    amountError.textContent = "Please select a valid amount.";
+                    valid = false;
+                } else {
+                    amountError.textContent = "";
+                }
+
+                if (giftAidCheckbox.checked && addressInput.value.trim() === "") {
+                    addressError.textContent = "Please enter your address for Gift Aid.";
+                    valid = false;
+                } else {
+                    addressError.textContent = "";
+                }
+
+                if (!valid) e.preventDefault();
+            });
+        });
         // ------------------------------
         // ✅ INIT Flatpickr
         // ------------------------------
