@@ -19,6 +19,7 @@ state([
                                 <tr>
                                     <th>Donation Type</th>
                                     <th>Amount</th>
+                                    <th>Currency</th>
                                     <th>Status</th>
                                     <th>Start Date</th>
                                     <th>End Date</th>
@@ -28,8 +29,11 @@ state([
                             <tbody>
                                 @foreach ($subscriptions as $subscription)
                                     <tr>
-                                        <td>{{ ucfirst($subscription['type']) }}</td>
-                                        <td>{{ $subscription['price'] . ' ' . ucfirst($subscription['currency']) }}</td>
+                                        <td>
+                                            {{ $subscription['type'] == 'day' ? 'Daily' : ($subscription['type'] == 'week' ? 'Weekly' : ($subscription['type'] == 'month' ? 'Monthly' : ucfirst($subscription['type']))) }}
+                                        </td>
+                                        <td>{{ $subscription['price'] }}</td>
+                                        <td>{{ strtoupper($subscription['currency']) }}</td>
                                         <td>
                                             <span
                                                 class="badge {{ $subscription['status'] === 'active' ? 'bg-success' : 'bg-danger' }}">
