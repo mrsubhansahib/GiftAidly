@@ -46,7 +46,17 @@ state([
                                         </td>
                                         <td>{{ number_format($subscription->price ?? 0) }}</td>
                                         <td>{{ strtoupper($subscription->currency ?? 'PKR') }}</td>
-                                        <td>{{ ucfirst($subscription->type ?? '-') }}</td>
+                                        <td>
+                                            {{ $subscription->type === 'day'
+                                                ? 'Daily'
+                                                : ($subscription->type === 'week'
+                                                    ? 'Weekly'
+                                                    : ($subscription->type === 'month'
+                                                        ? 'Monthly'
+                                                        : ($subscription->type
+                                                            ? ucfirst($subscription->type)
+                                                            : '-'))) }}
+                                        </td>
                                         <td>
                                             <a href="{{ route('admin.donations.detail', $subscription->id) }}"
                                                 class="btn btn-sm btn-primary">

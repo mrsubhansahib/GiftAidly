@@ -21,7 +21,7 @@ state([
                                     <th>Email</th>
                                     <th>Donation Type</th>
                                     <th>Amount</th>
-                                    {{-- <th>Status</th> --}}
+                                    <th>Currency</th>
                                     <th>Invoice Date</th>
                                     <th class="text-center">Action</th>
                                 </tr>
@@ -30,9 +30,19 @@ state([
                                 @foreach ($this->invoices as $invoice)
                                     <tr>
                                         <td>{{ $invoice->subscription->user->email ?? '-' }}</td>
-                                        <td>{{ ucfirst($invoice->subscription->type) }}</td>
-                                        <td>{{ $invoice->subscription->price . ' ' . ucfirst($invoice->currency) }}</td>
-                                        {{-- <td>{{ $invoice->paid_at ? \Carbon\Carbon::parse($invoice->paid_at)->format('Y-m-d') : '-' }}</td> --}}
+                                        <td>
+                                            {{ $invoice->subscription->type === 'day'
+                                                ? 'Daily'
+                                                : ($invoice->subscription->type === 'week'
+                                                    ? 'Weekly'
+                                                    : ($invoice->subscription->type === 'month'
+                                                        ? 'Monthly'
+                                                        : ($invoice->subscription->type
+                                                            ? ucfirst($invoice->subscription->type)
+                                                            : '-'))) }}
+                                        </td>
+                                        <td>{{ $invoice->subscription->price}}</td>
+                                        <td>{{ ucfirst($invoice->currency) }}</td>
                                         <td>{{ $invoice->invoice_date ? \Carbon\Carbon::parse($invoice->invoice_date)->format('Y-m-d') : '-' }}
                                         </td>
                                         <td class="text-center">
@@ -82,7 +92,7 @@ state([
 
                                                     <!-- Amount Section -->
                                                     <div class="row mb-4">
-                                                        <div class="col-6">
+                                                        <div class="col-12">
                                                             <div class="text-center p-4 bg-light rounded-3">
                                                                 <h6 class="text-muted mb-2">Amount</h6>
                                                                 <h3 class="text-dark fw-bold mb-0">
@@ -91,32 +101,11 @@ state([
                                                                     class="text-muted">{{ strtoupper($invoice->currency ?? 'PKR') }}</small>
                                                             </div>
                                                         </div>
-                                                        <div class="col-6">
-                                                            <div class="text-center p-4 bg-light rounded-3">
-                                                                <h6 class="text-muted mb-2">Date</h6>
-                                                                <p class="fw-semibold mb-1">
-                                                                    {{ $invoice->invoice_date ? \Carbon\Carbon::parse($invoice->invoice_date)->format('M d, Y') : 'Not set' }}
-                                                                </p>
-                                                                <small class="text-muted">Invoice Date</small>
-                                                            </div>
-                                                        </div>
                                                     </div>
 
                                                     <!-- Details Section -->
                                                     <div class="border-top pt-4">
-                                                        <h5 class="text-muted mb-4 fw-semibold">Transaction Details</h5>
-
                                                         <div class="row g-4">
-                                                            <div class="col-sm-6">
-                                                                <label
-                                                                    class="form-label text-muted mb-2 fw-semibold">Subscription
-                                                                    ID</label>
-                                                                <input type="text"
-                                                                    class="form-control bg-light border-0 fs-6 py-2"
-                                                                    value="{{ $invoice->subscription_id ?? '-' }}"
-                                                                    readonly>
-                                                            </div>
-
                                                             <div class="col-sm-6">
                                                                 <label
                                                                     class="form-label text-muted mb-2 fw-semibold">Stripe
