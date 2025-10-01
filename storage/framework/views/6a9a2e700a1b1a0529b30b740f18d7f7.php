@@ -75,7 +75,7 @@
                 url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 300"><defs><pattern id="grid" width="50" height="50" patternUnits="userSpaceOnUse"><path d="M 50 0 L 0 0 0 50" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/></pattern></defs><rect width="100%" height="100%" fill="url(%23grid)"/></svg>');
             color: white;
             text-align: center;
-            padding: 80px 20px;
+            padding: 40px 20px;
             position: relative;
         }
 
@@ -517,6 +517,19 @@
                 grid-template-columns: 1fr;
             }
         }
+
+        .friday-highlight {
+            background: #3b82f6 !important;
+            /* blue circle */
+            color: #fff !important;
+            border-radius: 50% !important;
+            font-weight: bold;
+        }
+
+        .flatpickr-disabled {
+            opacity: 0.4 !important;
+            pointer-events: none !important;
+        }
     </style>
     <?php echo \Livewire\Mechanisms\FrontendAssets\FrontendAssets::styles(); ?>
 
@@ -567,13 +580,13 @@
 
     <div class="tab-container">
         <div class="tab-header">
-            <button class="tab-btn active " onclick="openTab(event, 'daily-weekly-monthly')">Daily / Weekly / Monthly</button>
+            <button class="tab-btn  active" onclick="openTab(event, 'daily-weekly-monthly')">Daily / Weekly / Monthly</button>
             <button class="tab-btn" onclick="openTab(event, 'friday')">Friday Special</button>
-            <button class="tab-btn " onclick="openTab(event, 'special')">Donate Special</button>
+            <button class="tab-btn" onclick="openTab(event, 'special')">Donate Special</button>
         </div>
 
         <div class="tab-content">
-            <div id="daily-weekly-monthly" class="tab-panel active">
+            <div id="daily-weekly-monthly" class="tab-panel active ">
                 <div class="donation-card">
                     <div class="card-header">
                         <div class="card-icon">
@@ -589,27 +602,21 @@
                         <?php echo csrf_field(); ?>
                         <div class="form-grid">
                             <?php
-                            $userCurrency = auth()->check()
-                            ? auth()
-                            ->user()
-                            ->subscriptions()
-                            ->where('status', 'active')
-                            ->pluck('currency')
-                            ->unique()
-                            ->first()
-                            : null;
-                            $currencies = ['gbp' => '£', 'usd' => '$', 'eur' => '€'];
+                                $userCurrency = auth()->check()
+                                    ? auth()->user()->subscriptions()->pluck('currency')->unique()->first()
+                                    : null;
+                                $currencies = ['gbp' => '£', 'usd' => '$', 'eur' => '€'];
                             ?>
                             <div class="form-group">
                                 <label for="currency">Currency</label>
                                 <select name="currency" id="currency" required class="select-input">
                                     <?php $__currentLoopData = $currencies; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $code => $symbol): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                    <option value="<?php echo e($code); ?>" <?php if($userCurrency===$code): echo 'selected'; endif; ?>
-                                        <?php if($userCurrency && $userCurrency !==$code): echo 'disabled'; endif; ?>
-                                        title="<?php echo e($userCurrency && $userCurrency !== $code ? 'You cannot select this currency because your previous donations were in ' . strtoupper($userCurrency) . '.' : ''); ?>">
-                                        <?php echo e($symbol); ?>
+                                        <option value="<?php echo e($code); ?>" <?php if($userCurrency === $code): echo 'selected'; endif; ?>
+                                            <?php if($userCurrency && $userCurrency !== $code): echo 'disabled'; endif; ?>
+                                            title="<?php echo e($userCurrency && $userCurrency !== $code ? 'You cannot select this currency because your previous donations were in ' . strtoupper($userCurrency) . '.' : ''); ?>">
+                                            <?php echo e($symbol); ?>
 
-                                    </option>
+                                        </option>
                                     <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                 </select>
                             </div>
@@ -682,7 +689,7 @@
                         <div class="card-icon">
                             <span class="iconify" data-icon="mdi:mosque" data-width="40" data-height="40"></span>
                         </div>
-                        <h2 class="card-title">Friday Special Donation</h2>
+                        <h2 class="card-title">Friday Giving</h2>
                         <p class="card-subtitle">Make your Fridays more meaningful with special charitable
                             contributions.</p>
                     </div>
@@ -695,12 +702,12 @@
                                 <label for="currency-friday">Currency</label>
                                 <select name="currency" id="currency-friday" class="select-input">
                                     <?php $__currentLoopData = $currencies; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $code => $symbol): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                    <option value="<?php echo e($code); ?>" <?php if($userCurrency===$code): echo 'selected'; endif; ?>
-                                        <?php if($userCurrency && $userCurrency !==$code): echo 'disabled'; endif; ?>
-                                        title="<?php echo e($userCurrency && $userCurrency !== $code ? 'You cannot select this currency because your previous donations were in ' . strtoupper($userCurrency) . '.' : ''); ?>">
-                                        <?php echo e($symbol); ?>
+                                        <option value="<?php echo e($code); ?>" <?php if($userCurrency === $code): echo 'selected'; endif; ?>
+                                            <?php if($userCurrency && $userCurrency !== $code): echo 'disabled'; endif; ?>
+                                            title="<?php echo e($userCurrency && $userCurrency !== $code ? 'You cannot select this currency because your previous donations were in ' . strtoupper($userCurrency) . '.' : ''); ?>">
+                                            <?php echo e($symbol); ?>
 
-                                    </option>
+                                        </option>
                                     <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                 </select>
                             </div>
@@ -771,44 +778,52 @@
                             <span class="iconify" data-icon="mdi:chart-line" data-width="40"
                                 data-height="40"></span>
                         </div>
-                        <h2 class="card-title">Special Donation Plan</h2>
+                        <h2 class="card-title">Special Donations</h2>
                         <p class="card-subtitle">Sustain long-term change with monthly contributions. Maximum impact,
                             consistent support.</p>
                     </div>
 
                     <!-- Monthly -->
-                    <form id="form-monthly" action="#" method="POST">
+                    <form id="form-monthly" action="<?php echo e(route('donation.special')); ?>" method="POST">
+                        <?php echo csrf_field(); ?>
                         <div class="form-grid">
+                            <?php
+                                use App\Models\SpecialDonation;
+                                $specials = SpecialDonation::all();
+                            ?>
+
                             <div class="form-group">
                                 <label for="currency-monthly">Currency</label>
                                 <select name="currency" id="currency-monthly" class="select-input">
-                                    <option value="gbp">£</option>
-                                    <option value="usd">$</option>
-                                    <option value="eur">€</option>
+                                    <option value="GBP" <?php echo e(old('currency', 'GBP') == 'GBP' ? 'selected' : ''); ?>>£
+                                    </option>
+                                    <option value="USD" <?php echo e(old('currency') == 'USD' ? 'selected' : ''); ?>>$
+                                    </option>
+                                    <option value="EUR" <?php echo e(old('currency') == 'EUR' ? 'selected' : ''); ?>>€
+                                    </option>
                                 </select>
                             </div>
 
                             <div class="form-group">
-                                <label for="amount-monthly">Amount</label>
-                                <input type="number" name="amount" id="amount-monthly" class="text-input"
-                                    min="1" />
+                                <label for="pay-amount">Amount</label>
+                                <input type="number" name="amount" placeholder="100.00" readonly id="pay-amount" class="text-input"
+                                   />
                             </div>
 
                             <div class="form-group">
-                                <label for="type-monthly">Type</label>
-                                <input type="text" id="type-monthly" value="Monthly" name="type"
-                                    class="text-input" readonly />
+                                <label for="pay-special">Pay Special</label>
+                                <select name="special" id="pay-special" class="select-input">
+                                    <option value="">-- Select Special --</option>
+                                    <?php $__currentLoopData = $specials; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $special): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                        <option value="<?php echo e($special->id); ?>" data-price="<?php echo e($special->price); ?>">
+                                            <?php echo e($special->name); ?>
+
+                                        </option>
+                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                </select>
                             </div>
 
-                            <!-- Single Range Picker -->
-                            <div class="form-group" style="grid-column: 1 / -1;">
-                                <label for="date-range-monthly">Select Date Range</label>
-                                <input type="text" id="date-range-monthly" class="text-input"
-                                    placeholder="Pick start and end dates" />
-                                <input type="hidden" name="start_date" id="start_date-monthly" />
-                                <input type="hidden" name="cancellation" id="cancellation-monthly" />
-                            </div>
-
+                            
                             <!-- Stripe Card Element -->
                             <div class="form-group" style="grid-column: 1 / -1;">
                                 <label for="card-element-monthly">Card Details</label>
@@ -825,13 +840,13 @@
                                         data-target="address-monthly" value="yes" />
                                 </label>
 
-                                <input type="text" name="address_monthly" id="address-monthly" class="text-input"
+                                <input type="text" name="address" id="address-monthly" class="text-input"
                                     style="display: none; flex: 1; min-width: 200px;" placeholder="Enter your address"
                                     value="<?php echo e(auth()->user()->address ? auth()->user()->address : ''); ?>" />
                             </div>
                         </div>
 
-                        <button type="submit" class="donate-btn">Monthly Commitment</button>
+                        <button type="submit" class="donate-btn">Donate Now</button>
                     </form>
                 </div>
             </div>
@@ -839,7 +854,7 @@
     </div>
 
 
-
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/index.js"></script>
     <?php echo \Livewire\Mechanisms\FrontendAssets\FrontendAssets::scripts(); ?>
@@ -959,7 +974,8 @@
                             if (type === "month") {
                                 const minEnd = addMonths(start, 1);
                                 if (end < minEnd) {
-                                    dateError.textContent = `Please select at least one full month (${fmt(start)} → ${fmt(minEnd)} or later).`;
+                                    dateError.textContent =
+                                        `Please select at least one full month (${fmt(start)} → ${fmt(minEnd)} or later).`;
                                     fp.clear();
                                     startEl.value = "";
                                     endEl.value = "";
@@ -1016,80 +1032,107 @@
         // ------------------------------
         // ✅ Friday Range Picker
         // ------------------------------
+        document.addEventListener("DOMContentLoaded", function() {
+            attachRangePickerFridays(
+                "date-range-friday", // range input
+                "start_date-friday", // hidden start
+                "cancellation-friday", // hidden end
+                "form-friday" // form
+            );
+        });
+
         function attachRangePickerFridays(rangeId, startHiddenId, endHiddenId, formId) {
             const rangeEl = document.getElementById(rangeId);
             const startEl = document.getElementById(startHiddenId);
             const endEl = document.getElementById(endHiddenId);
             const form = document.getElementById(formId);
-            const dateError = document.getElementById('error-date-friday');
 
             if (!rangeEl || !startEl || !endEl || !form) return;
 
-            // hidden input for fridays list
-            function ensureFridaysHidden() {
-                let h = form.querySelector('input[name="fridays"]');
-                if (!h) {
-                    h = document.createElement('input');
-                    h.type = 'hidden';
-                    h.name = 'fridays';
-                    h.id = rangeId + '-fridays';
-                    form.appendChild(h);
-                }
-                return h;
+            // hidden input for CSV of Fridays
+            let fridaysHidden = form.querySelector('input[name="fridays"]');
+            if (!fridaysHidden) {
+                fridaysHidden = document.createElement('input');
+                fridaysHidden.type = 'hidden';
+                fridaysHidden.name = 'fridays';
+                form.appendChild(fridaysHidden);
             }
-            const fridaysHidden = ensureFridaysHidden();
 
-            flatpickr(rangeEl, {
+            const dateError = form.querySelector('#error-date-friday');
+
+            const fp = flatpickr(rangeEl, {
                 mode: "range",
                 altInput: true,
                 altFormat: "F j, Y",
                 dateFormat: "Y-m-d",
                 minDate: "today",
-                onChange(selectedDates) {
+
+                onChange(selectedDates, dateStr, instance) {
                     if (selectedDates.length === 2) {
                         const start = selectedDates[0];
                         const end = selectedDates[1];
-                        startEl.value = fmt(start);
-                        endEl.value = fmt(end);
 
+                        // ✅ get all Fridays
                         let fridays = [];
                         let current = new Date(start);
                         while (current <= end) {
-                            if (current.getDay() === 5) {
-                                fridays.push(fmt(new Date(current)));
-                            }
+                            if (current.getDay() === 5) fridays.push(fmt(current));
                             current.setDate(current.getDate() + 1);
                         }
 
-                        fridaysHidden.value = fridays.join(',');
+                        // ✅ backend hidden fields
+                        startEl.value = fridays.length ? fridays[0] : "";
+                        endEl.value = fridays.length ? fridays[fridays.length - 1] : "";
+                        fridaysHidden.value = fridays.join(",");
 
-                        // ✅ Inline error check
-                        if (fridays.length < 2) {
-                            dateError.textContent = "Please select a range that includes at least 2 Fridays.";
-                        } else {
-                            dateError.textContent = "";
-                        }
+                        // ✅ input me sirf range show
+                        instance._input.value =
+                            `${instance.formatDate(start, "F j, Y")} → ${instance.formatDate(end, "F j, Y")}`;
 
-                    } else {
-                        startEl.value = "";
-                        endEl.value = "";
-                        fridaysHidden.value = "";
-                        dateError.textContent = "Please select a valid date range.";
+                        // ✅ update UI (highlight Fridays, disable others)
+                        highlightFridays(instance, start, end);
+
+                        dateError.textContent = (fridays.length < 1) ?
+                            "No Fridays found in selected range." :
+                            "";
                     }
+                },
+
+                onMonthChange: (sel, str, inst) => {
+                    if (sel.length === 2) highlightFridays(inst, sel[0], sel[1]);
+                },
+                onYearChange: (sel, str, inst) => {
+                    if (sel.length === 2) highlightFridays(inst, sel[0], sel[1]);
                 }
             });
 
-            // ✅ Final validation on submit
-            form.addEventListener('submit', function(e) {
-                const fridaysArr = fridaysHidden.value ? fridaysHidden.value.split(',') : [];
-                if (fridaysArr.length < 2) {
-                    e.preventDefault();
-                    dateError.textContent = "Please select a range that includes at least 2 Fridays.";
-                } else {
-                    dateError.textContent = "";
-                }
-            });
+            // highlight helper
+            function highlightFridays(instance, start, end) {
+                setTimeout(() => {
+                    instance.calendarContainer.querySelectorAll(".flatpickr-day").forEach(el => {
+                        const date = el.dateObj;
+                        if (date >= start && date <= end) {
+                            if (date.getDay() === 5) {
+                                el.classList.add("friday-highlight");
+                                el.classList.remove("flatpickr-disabled");
+                            } else {
+                                el.classList.add("flatpickr-disabled");
+                                el.classList.remove("friday-highlight");
+                            }
+                        } else {
+                            el.classList.remove("friday-highlight");
+                            el.classList.remove("flatpickr-disabled");
+                        }
+                    });
+                });
+            }
+
+            function fmt(d) {
+                const pad = n => String(n).padStart(2, '0');
+                return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+            }
         }
+
 
         // ------------------------------
         // ✅ INIT Flatpickr
@@ -1196,7 +1239,54 @@
             });
         });
     </script>
+    
+    <script>
+        $(document).ready(function() {
+            const apiKey = 'd8be31378397f36afc09fc2d0b1b1d6c';
+            let rates = {}; // cache conversion rates
+            // Fetch rates once on page load
+            $.get('https://api.exchangerate.host/live', {
+                access_key: apiKey,
+                source: 'GBP',
+                currencies: 'USD,EUR',
+                format: 1
+            }, function(data) {
+                if (data.success) {
+                    rates = data.quotes; // e.g. { gbpUSD: 1.26, gbpEUR: 1.15 }
+                    updateAmount(); // update if something already selected
+                } else {
+                    console.error('Currency API error');
+                }
+            }).fail(function() {
+                console.error('Failed to fetch rates');
+            });
 
+            function updateAmount() {
+                const selectedSpecial = $('#pay-special').find(':selected');
+                const basePrice = parseFloat(selectedSpecial.data('price')) || 0;
+                const targetCurrency = $('#currency-monthly').val();
+                if (!basePrice || !targetCurrency) {
+                    $('#pay-amount').val('');
+                    return;
+                }
+                if (targetCurrency === 'GBP') {
+                    $('#pay-amount').val(basePrice.toFixed(2));
+                    return;
+                }
+                // Use cached rates for instant conversion
+                const rate = rates['GBP' + targetCurrency];
+                if (rate) {
+                    const converted = (basePrice * rate).toFixed(2);
+                    $('#pay-amount').val(converted);
+                } else {
+                    $('#pay-amount').val('');
+                }
+            }
+            // Events
+            $('#pay-special').on('change', updateAmount);
+            $('#currency-monthly').on('change', updateAmount);
+        });
+    </script>
 
 </body>
 
