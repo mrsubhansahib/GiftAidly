@@ -8,6 +8,7 @@ state([
         $q->where('user_id', Auth::id());
     })
         ->with('subscription.user')
+        ->latest()
         ->get(),
 ]);
 
@@ -30,9 +31,9 @@ state([
                             <tbody>
                                 @foreach ($invoices as $invoice)
                                     <tr>
-                                        <td>{{ $invoice['name'] }}</td>
-                                        <td>{{ $invoice['email'] }}</td>
-                                        <td>{{ $invoice['currency'] }}</td>
+                                        <td>{{ $invoice->subscription->user->name }}</td>
+                                        <td>{{ $invoice->subscription->user->email }}</td>
+                                        <td>{{ ucfirst($invoice['currency']) }}</td>
                                         <td class="text-center">
                                             <button class="btn btn-sm btn-primary" data-bs-toggle="modal"
                                                 data-bs-target="#invoiceModal{{ $invoice['id'] }}">
@@ -66,9 +67,9 @@ state([
                                                         <div>
                                                             <h6 class="text-muted mb-1">Customer</h6>
                                                             <p class="mb-0 fw-medium">
-                                                                {{ $invoice['name'] ?? 'Guest User' }}</p>
+                                                                {{ $invoice->subscription->user->name ?? 'N/A' }}</p>
                                                             <small
-                                                                class="text-muted">{{ $invoice['email'] ?? '-' }}</small>
+                                                                class="text-muted">{{ $invoice->subscription->user->email ?? '-' }}</small>
                                                         </div>
                                                         <div class="text-end">
                                                             <span
@@ -80,7 +81,7 @@ state([
 
                                                     <!-- Amount & Date Section -->
                                                     <div class="row mb-4">
-                                                        <div class="col-6">
+                                                        <div class="col-12">
                                                             <div class="text-center p-4 bg-light rounded-3">
                                                                 <h6 class="text-muted mb-2">Amount</h6>
                                                                 <h3 class="text-dark fw-bold mb-0">
@@ -90,42 +91,11 @@ state([
                                                                     class="text-muted">{{ strtoupper($invoice['currency'] ?? 'PKR') }}</small>
                                                             </div>
                                                         </div>
-                                                        <div class="col-6">
-                                                            <div class="text-center p-4 bg-light rounded-3">
-                                                                <h6 class="text-muted mb-2">Date</h6>
-                                                                <p class="fw-semibold mb-1">
-                                                                    {{ $invoice['invoice_date'] ? \Carbon\Carbon::parse($invoice['invoice_date'])->format('M d, Y') : 'Not set' }}
-                                                                </p>
-                                                                <small class="text-muted">Invoice Date</small>
-                                                            </div>
-                                                        </div>
                                                     </div>
 
                                                     <!-- Details Section -->
                                                     <div class="border-top pt-4">
-                                                        <h5 class="text-muted mb-4 fw-semibold">Invoice Details</h5>
-
                                                         <div class="row g-4">
-                                                            <div class="col-sm-6">
-                                                                <label
-                                                                    class="form-label text-muted mb-2 fw-semibold">Subscription
-                                                                    ID</label>
-                                                                <input type="text"
-                                                                    class="form-control bg-light border-0 fs-6 py-2"
-                                                                    value="{{ $invoice['subscription_id'] ?? '-' }}"
-                                                                    readonly>
-                                                            </div>
-
-                                                            <div class="col-sm-6">
-                                                                <label
-                                                                    class="form-label text-muted mb-2 fw-semibold">Stripe
-                                                                    Invoice ID</label>
-                                                                <input type="text"
-                                                                    class="form-control bg-light border-0 fs-6 py-2"
-                                                                    value="{{ $invoice['stripe_invoice_id'] ?? '-' }}"
-                                                                    readonly>
-                                                            </div>
-
                                                             @if ($invoice['paid_at'])
                                                                 <div class="col-sm-6">
                                                                     <label
