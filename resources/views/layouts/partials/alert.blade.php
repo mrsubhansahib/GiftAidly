@@ -107,30 +107,37 @@
         window.AppToast = {
             show
         };
+        window.addEventListener('toast', event => {
+            AppToast.show(event.detail.type, event.detail.message);
+        });
+
     })();
 </script>
 
 {{-- Flash session bridge --}}
 @php
-    $flashes = [];
-    foreach (['success', 'info', 'warning'] as $t) {
-        if (session($t)) {
-            $flashes[] = ['type' => $t, 'msg' => session($t)];
-        }
-    }
-    if ($errors->any()) {
-        foreach ($errors->all() as $key => $value) {
-            $flashes[] = ['type' => 'danger', 'msg' => "There is a problem! $value"];
-        }
-    }
+$flashes = [];
+foreach (['success', 'info', 'warning'] as $t) {
+if (session($t)) {
+$flashes[] = ['type' => $t, 'msg' => session($t)];
+}
+}
+if ($errors->any()) {
+foreach ($errors->all() as $key => $value) {
+$flashes[] = ['type' => 'danger', 'msg' => "There is a problem! $value"];
+}
+}
 @endphp
 
 @if ($flashes)
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            @foreach ($flashes as $f)
-                AppToast.show('{{ $f['type'] }}', {!! json_encode($f['msg']) !!});
-            @endforeach
-        });
-    </script>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        @foreach($flashes as $f)
+        AppToast.show('{{ $f['
+            type '] }}', {
+                !!json_encode($f['msg']) !!
+            });
+        @endforeach
+    });
+</script>
 @endif
