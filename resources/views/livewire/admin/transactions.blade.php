@@ -21,6 +21,7 @@ state([
                                     <th>Email</th>
                                     <th>Donation Type</th>
                                     <th>Amount</th>
+                                    <th>Currency</th>
                                     <th>Status</th>
                                     <th>Date</th>
                                     <th class="text-center">Action</th>
@@ -30,9 +31,19 @@ state([
                                 @foreach ($transactions as $transaction)
                                     <tr>
                                         <td>{{ $transaction->invoice->subscription->user->email ?? '-' }}</td>
-                                        <td>{{ ucfirst($transaction->invoice->subscription->type ?? '-') }}</td>
-                                        <td>{{ number_format($transaction->invoice->subscription->price) }}
-                                            {{ strtoupper($transaction->invoice->currency ?? 'PKR') }}</td>
+                                        <td>
+                                            {{ $transaction->invoice->subscription->type === 'day'
+                                                ? 'Daily'
+                                                : ($transaction->invoice->subscription->type === 'week'
+                                                    ? 'Weekly'
+                                                    : ($transaction->invoice->subscription->type === 'month'
+                                                        ? 'Monthly'
+                                                        : ($transaction->invoice->subscription->type
+                                                            ? ucfirst($transaction->invoice->subscription->type)
+                                                            : '-'))) }}
+                                        </td>
+                                        <td>{{ number_format($transaction->invoice->subscription->price) }}</td>
+                                        <td>{{ strtoupper($transaction->invoice->currency ?? 'N/A') }}</td>
                                         <td>
                                             @if ($transaction->status === 'paid' || $transaction->status === 'completed')
                                                 <span class="badge bg-success">Paid</span>
@@ -62,7 +73,7 @@ state([
                                         <div class="modal-dialog modal-lg modal-dialog-centered">
                                             <div class="modal-content border-0 rounded-4 shadow-lg">
 
-                                                <!-- Minimal Header -->
+                                                <!-- Header -->
                                                 <div class="modal-header border-0 pb-0">
                                                     <h4 class="modal-title text-dark fw-semibold"
                                                         id="transactionModalLabel{{ $transaction->id }}">
@@ -73,10 +84,10 @@ state([
                                                         data-bs-dismiss="modal"></button>
                                                 </div>
 
-                                                <!-- Modal Body -->
+                                                <!-- Body -->
                                                 <div class="modal-body px-4 pb-4">
 
-                                                    <!-- Customer & Status Row -->
+                                                    <!-- Customer & Status -->
                                                     <div class="d-flex justify-content-between align-items-center mb-4">
                                                         <div>
                                                             <h6 class="text-muted mb-1">Customer</h6>
@@ -91,20 +102,34 @@ state([
                                                             <span
                                                                 class="badge 
                             @if ($transaction->status === 'paid' || $transaction->status === 'completed') bg-success bg-opacity-10 text-success border border-success
-                            @elseif($transaction->status === 'failed') 
-                                bg-danger bg-opacity-10 text-danger border border-danger
-                            @elseif($transaction->status === 'pending') 
-                                bg-warning bg-opacity-10 text-warning border border-warning
-                            @else 
-                                bg-secondary bg-opacity-10 text-secondary border border-secondary @endif px-3 py-2 rounded-3">
+                            @elseif($transaction->status === 'failed') bg-danger bg-opacity-10 text-danger border border-danger
+                            @elseif($transaction->status === 'pending') bg-warning bg-opacity-10 text-warning border border-warning
+                            @else bg-secondary bg-opacity-10 text-secondary border border-secondary @endif
+                            px-3 py-2 rounded-3">
                                                                 {{ ucfirst($transaction->status ?? 'N/A') }}
                                                             </span>
                                                         </div>
                                                     </div>
 
-                                                    <!-- Amount & Date Section -->
+                                                    <!-- Invoice & Transaction IDs -->
                                                     <div class="row mb-4">
-                                                        <div class="col-6">
+                                                        <div class="col-sm-6">
+                                                            <h6 class="text-muted mb-1">Invoice ID</h6>
+                                                            <p class="fw-medium mb-0">
+                                                                {{ $transaction->invoice->stripe_invoice_id ?? ($transaction->invoice_id ?? '-') }}
+                                                            </p>
+                                                        </div>
+                                                        <div class="col-sm-6 text-sm-end">
+                                                            <h6 class="text-muted mb-1">Transaction ID</h6>
+                                                            <p class="fw-medium mb-0">
+                                                                {{ $transaction->stripe_transaction_id ?? '-' }}
+                                                            </p>
+                                                        </div>
+                                                    </div>
+
+                                                    <!-- Amount Section -->
+                                                    <div class="row mb-4">
+                                                        <div class="col-12">
                                                             <div class="text-center p-4 bg-light rounded-3">
                                                                 <h6 class="text-muted mb-2">Amount</h6>
                                                                 <h3 class="text-dark fw-bold mb-0">
@@ -115,58 +140,28 @@ state([
                                                                 </small>
                                                             </div>
                                                         </div>
-                                                        <div class="col-6">
-                                                            <div class="text-center p-4 bg-light rounded-3">
-                                                                <h6 class="text-muted mb-2">Date</h6>
-                                                                <p class="fw-semibold mb-1">
-                                                                    {{ $transaction->paid_at ? \Carbon\Carbon::parse($transaction->paid_at)->format('M d, Y') : 'Not set' }}
-                                                                </p>
-                                                                <small class="text-muted">Payment Date</small>
-                                                            </div>
-                                                        </div>
                                                     </div>
 
                                                     <!-- Details Section -->
                                                     <div class="border-top pt-4">
-                                                        <h5 class="text-muted mb-4 fw-semibold">Transaction Details</h5>
-
                                                         <div class="row g-4">
                                                             <div class="col-sm-6">
                                                                 <label
+                                                                    class="form-label text-muted mb-2 fw-semibold">Paid
+                                                                    At</label>
+                                                                <input type="text"
+                                                                    class="form-control bg-light border-0 fs-6 py-2"
+                                                                    value="{{ $transaction->paid_at ? \Carbon\Carbon::parse($transaction->paid_at)->format('M d, Y') : 'Not set' }}"
+                                                                    readonly>
+                                                            </div>
+
+                                                            <div class="col-sm-6">
+                                                                <label
                                                                     class="form-label text-muted mb-2 fw-semibold">Invoice
-                                                                    ID</label>
+                                                                    Date</label>
                                                                 <input type="text"
                                                                     class="form-control bg-light border-0 fs-6 py-2"
-                                                                    value="{{ $transaction->invoice_id ?? '-' }}"
-                                                                    readonly>
-                                                            </div>
-
-                                                            <div class="col-sm-6">
-                                                                <label
-                                                                    class="form-label text-muted mb-2 fw-semibold">Stripe
-                                                                    Transaction ID</label>
-                                                                <input type="text"
-                                                                    class="form-control bg-light border-0 fs-6 py-2"
-                                                                    value="{{ $transaction->stripe_transaction_id ?? '-' }}"
-                                                                    readonly>
-                                                            </div>
-
-                                                            <div class="col-sm-6">
-                                                                <label
-                                                                    class="form-label text-muted mb-2 fw-semibold">Donation
-                                                                    Type</label>
-                                                                <input type="text"
-                                                                    class="form-control bg-light border-0 fs-6 py-2"
-                                                                    value="{{ ucfirst($transaction->invoice->subscription->type ?? '-') }}"
-                                                                    readonly>
-                                                            </div>
-
-                                                            <div class="col-sm-6">
-                                                                <label
-                                                                    class="form-label text-muted mb-2 fw-semibold">Status</label>
-                                                                <input type="text"
-                                                                    class="form-control bg-light border-0 fs-6 py-2"
-                                                                    value="{{ ucfirst($transaction->status ?? 'N/A') }}"
+                                                                    value="{{ $transaction->invoice->invoice_date ? \Carbon\Carbon::parse($transaction->invoice->invoice_date)->format('M d, Y') : '-' }}"
                                                                     readonly>
                                                             </div>
                                                         </div>
