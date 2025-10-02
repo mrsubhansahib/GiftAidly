@@ -2,6 +2,9 @@
 
 namespace App\Mail;
 
+
+use App\Models\User;
+use App\Models\Subscription;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
@@ -13,12 +16,15 @@ class SubscriptionStartedMail extends Mailable
 {
     use Queueable, SerializesModels;
 
+    public $user;
+    public $subscription;
     /**
      * Create a new message instance.
      */
-    public function __construct()
+    public function __construct(User $user, Subscription $subscription)
     {
-        //
+        $this->user = $user;
+        $this->subscription = $subscription;
     }
 
     /**
@@ -27,7 +33,7 @@ class SubscriptionStartedMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Subscription Started Mail',
+            subject: '🎉 Thank You for Your Donation to GiftAidly!',
         );
     }
 

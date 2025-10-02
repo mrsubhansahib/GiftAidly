@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\InvoicePaidMail;
+use App\Mail\SubscriptionScheduledMail;
 use App\Models\Invoice;
 use App\Models\ProductCatalog;
 use App\Models\SpecialDonation;
@@ -10,6 +12,8 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Stripe;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\SubscriptionStartedMail;
 
 class SubscriptionController extends Controller
 {
@@ -179,17 +183,29 @@ class SubscriptionController extends Controller
                 'canceled_at' => $request->type == 'day' ? $endDate->subDay() : ($request->type == 'week' ? ($endDate->copy()->subDays(7)) : ($request->type == 'month' ? $endDate->copy()->subMonth() : $endDate)),
             ]);
             if ($invoice !== null && $invoice->status === 'paid') {
-                Invoice::create([
+                $savedInvoice = Invoice::create([
                     'subscription_id' => $subscription->id,
                     'stripe_invoice_id' => $invoice->id,
-                    'amount_due' => $invoice->amount_due / 100, // convert from cents
+                    'amount_due' => $invoice->amount_due / 100,
                     'currency' => $invoice->currency,
                     'invoice_date' => Carbon::createFromTimestamp($invoice->created),
                     'paid_at' => Carbon::createFromTimestamp($invoice->status_transitions->paid_at ?? now()),
                 ]);
+
+                DB::afterCommit(function () use ($savedInvoice) {
+                    Mail::to(auth()->user()->email)
+                        ->send(new InvoicePaidMail(auth()->user(), $savedInvoice));
+                });
             }
 
             DB::commit();
+            if ($startIsFuture && !$forceChargeNow) {
+                Mail::to(auth()->user()->email)
+                    ->send(new SubscriptionScheduledMail(auth()->user(), $subscription));
+            } else {
+                Mail::to(auth()->user()->email)
+                    ->send(new SubscriptionStartedMail(auth()->user(), $subscription));
+            }
             $msg = $forceChargeNow || !$startIsFuture
                 ? 'Donation successful! Invoice finalized & paid immediately.'
                 : 'Subscription scheduled. Billing will start on your selected start date.';
@@ -336,16 +352,29 @@ class SubscriptionController extends Controller
             ]);
 
             if ($invoice !== null && $invoice->status === 'paid') {
-                Invoice::create([
+                $savedInvoice = Invoice::create([
                     'subscription_id' => $subscription->id,
                     'stripe_invoice_id' => $invoice->id,
-                    'amount_due' => $invoice->amount_due / 100, // convert from cents
+                    'amount_due' => $invoice->amount_due / 100,
                     'currency' => $invoice->currency,
                     'invoice_date' => Carbon::createFromTimestamp($invoice->created),
                     'paid_at' => Carbon::createFromTimestamp($invoice->status_transitions->paid_at ?? now()),
                 ]);
+
+                DB::afterCommit(function () use ($savedInvoice) {
+                    Mail::to(auth()->user()->email)
+                        ->send(new InvoicePaidMail(auth()->user(), $savedInvoice));
+                });
             }
             DB::commit();
+
+            if ($startIsFuture && !$forceChargeNow) {
+                Mail::to(auth()->user()->email)
+                    ->send(new SubscriptionScheduledMail(auth()->user(), $subscription));
+            } else {
+                Mail::to(auth()->user()->email)
+                    ->send(new SubscriptionStartedMail(auth()->user(), $subscription));
+            }
 
             $msg = $forceChargeNow || !$startIsFuture
                 ? 'Donation successful! Invoice finalized & paid immediately.'
@@ -469,7 +498,13 @@ class SubscriptionController extends Controller
             ]);
 
             DB::commit();
+            DB::afterCommit(function () use ($subscription, $invoice) {
+                Mail::to(auth()->user()->email)
+                    ->send(new SubscriptionStartedMail(auth()->user(), $subscription));
 
+                Mail::to(auth()->user()->email)
+                    ->send(new InvoicePaidMail(auth()->user(), $invoice));
+            });
             return redirect()->back()->with('success', 'Special donation successful! Invoice finalized & paid immediately.');
         } catch (\Stripe\Exception\CardException $e) {
             DB::rollBack();
