@@ -2,7 +2,6 @@
 
 namespace App\Mail;
 
-
 use App\Models\User;
 use App\Models\Subscription;
 use Illuminate\Bus\Queueable;
@@ -15,15 +14,19 @@ use Illuminate\Queue\SerializesModels;
 class SubscriptionScheduledMail extends Mailable
 {
     use Queueable, SerializesModels;
+
     public $user;
     public $subscription;
+    public $isAdmin;
+
     /**
      * Create a new message instance.
      */
-    public function __construct(User $user, Subscription $subscription)
+    public function __construct(User $user, Subscription $subscription, $isAdmin = false)
     {
         $this->user = $user;
         $this->subscription = $subscription;
+        $this->isAdmin = $isAdmin;
     }
 
     /**
@@ -32,7 +35,9 @@ class SubscriptionScheduledMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: '🎯 Your Donation Subscription Has Been Scheduled',
+            subject: $this->isAdmin
+                ? '📝 New Scheduled Donation - GiftAidly'
+                : '🎯 Your Donation Subscription Has Been Scheduled',
         );
     }
 
@@ -43,6 +48,11 @@ class SubscriptionScheduledMail extends Mailable
     {
         return new Content(
             markdown: 'email.user.subscrption.scheduled',
+            with: [
+                'user' => $this->user,
+                'subscription' => $this->subscription,
+                'isAdmin' => $this->isAdmin,
+            ],
         );
     }
 

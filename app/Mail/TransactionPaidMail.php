@@ -14,15 +14,19 @@ use Illuminate\Queue\SerializesModels;
 class TransactionPaidMail extends Mailable
 {
     use Queueable, SerializesModels;
+
     public $user;
     public $transaction;
+    public $isAdmin;
+
     /**
      * Create a new message instance.
      */
-    public function __construct($user, Transaction $transaction)
+    public function __construct(User $user, Transaction $transaction, $isAdmin = false)
     {
         $this->user = $user;
         $this->transaction = $transaction;
+        $this->isAdmin = $isAdmin;
     }
 
     /**
@@ -31,7 +35,9 @@ class TransactionPaidMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: '💳 Transaction Paid - GiftAidly',
+            subject: $this->isAdmin
+                ? '🧾 New Transaction Paid - GiftAidly'
+                : '💳 Transaction Paid - GiftAidly',
         );
     }
 
@@ -42,6 +48,11 @@ class TransactionPaidMail extends Mailable
     {
         return new Content(
             markdown: 'email.user.transaction.paid',
+            with: [
+                'user' => $this->user,
+                'transaction' => $this->transaction,
+                'isAdmin' => $this->isAdmin,
+            ],
         );
     }
 

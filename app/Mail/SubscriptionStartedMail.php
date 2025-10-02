@@ -2,7 +2,6 @@
 
 namespace App\Mail;
 
-
 use App\Models\User;
 use App\Models\Subscription;
 use Illuminate\Bus\Queueable;
@@ -18,13 +17,16 @@ class SubscriptionStartedMail extends Mailable
 
     public $user;
     public $subscription;
+    public $isAdmin;
+
     /**
      * Create a new message instance.
      */
-    public function __construct(User $user, Subscription $subscription)
+    public function __construct($user, $subscription, $isAdmin = false)
     {
         $this->user = $user;
         $this->subscription = $subscription;
+        $this->isAdmin = $isAdmin;
     }
 
     /**
@@ -33,7 +35,9 @@ class SubscriptionStartedMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: '🎉 Thank You for Your Donation to GiftAidly!',
+            subject: $this->isAdmin
+                ? '📝 New Donation Received - GiftAidly'
+                : '🎉 Thank You for Your Donation to GiftAidly!',
         );
     }
 
@@ -44,6 +48,11 @@ class SubscriptionStartedMail extends Mailable
     {
         return new Content(
             markdown: 'email.user.subscrption.started',
+            with: [
+                'user' => $this->user,
+                'subscription' => $this->subscription,
+                'isAdmin' => $this->isAdmin,
+            ],
         );
     }
 
