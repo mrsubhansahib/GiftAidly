@@ -2,6 +2,8 @@
 
 namespace App\Mail;
 
+use App\Models\User;
+use App\Models\Transaction;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
@@ -12,13 +14,15 @@ use Illuminate\Queue\SerializesModels;
 class TransactionPaidMail extends Mailable
 {
     use Queueable, SerializesModels;
-
+    public $user;
+    public $transaction;
     /**
      * Create a new message instance.
      */
-    public function __construct()
+    public function __construct($user, Transaction $transaction)
     {
-        //
+        $this->user = $user;
+        $this->transaction = $transaction;
     }
 
     /**
@@ -27,7 +31,7 @@ class TransactionPaidMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Transaction Paid Mail',
+            subject: '💳 Transaction Paid - GiftAidly',
         );
     }
 

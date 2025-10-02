@@ -40,7 +40,13 @@ Your support means the world to us and helps us continue our mission to make a d
 **Amount:** {{ strtoupper($subscription->currency) }} {{ number_format($subscription->price, 2) }}  
 **Frequency:** {{ $frequency }}  
 **Gift Aid:** {{ $subscription->gift_aid === 'yes' ? '✅ Applied' : '❌ Not Applied' }}  
-**Donated at:** {{ $startDate }}  
+@if (Str::startsWith($subscription->type, 'special'))
+**Donated At:** {{ $startDate }}
+@else
+**Start Date:** {{ $startDate }}  
+**End Date:** {{ $endDate }}  
+**Status:** {{ ucfirst($subscription->status) }}
+@endif
 
 @if ($subscription->gift_aid === 'yes')
 ---

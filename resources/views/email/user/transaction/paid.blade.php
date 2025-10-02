@@ -1,12 +1,30 @@
+@php
+    use Carbon\Carbon;
+    $formattedDate = Carbon::parse($transaction->paid_at)->format('d M Y H:i');
+@endphp
+
 <x-mail::message>
-# Introduction
+# Dear {{ $user->name }},
 
-The body of your message.
+Thank you for your generous support to **GiftAidly**.  
+Your transaction has been **successfully processed** ✅
 
-<x-mail::button :url="''">
-Button Text
+---
+
+## 💳 Transaction Details
+
+**Amount:** {{ strtoupper($transaction->invoice->currency) }} {{ number_format($transaction->invoice->amount_due, 2) }}  
+**Date:** {{ $formattedDate }}  
+**Status:** {{ ucfirst($transaction->status) }}
+
+---
+
+<x-mail::button :url="url('/user/donations/index')">
+    View My Donations
 </x-mail::button>
 
-Thanks,<br>
-{{ config('app.name') }}
+Thank you again for your generosity 💚
+
+Warm regards,  
+**The GiftAidly Team**
 </x-mail::message>

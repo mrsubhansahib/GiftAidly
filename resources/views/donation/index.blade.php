@@ -245,26 +245,27 @@
                         consistent support.</p>
                 </div>
 
-                <!-- Monthly -->
-                <form id="form-monthly" action="{{ route('donation.special') }}" method="POST">
-                    @csrf
-                    <div class="form-grid">
-                        @php
-                        use App\Models\SpecialDonation;
-                        $specials = SpecialDonation::all();
-                        @endphp
+                    <!-- Monthly -->
+                    <form id="form-monthly" action="{{ route('donation.special') }}" method="POST">
+                        @csrf
+                        <div class="form-grid">
+                            @php
+                                use App\Models\SpecialDonation;
+                                $specials = SpecialDonation::all();
+                            @endphp
 
-                        <div class="form-group">
-                            <label for="currency-monthly">Currency</label>
-                            <select name="currency" id="currency-monthly" class="select-input">
-                                <option value="GBP" {{ old('currency', 'GBP') == 'GBP' ? 'selected' : '' }}>£
-                                </option>
-                                <option value="USD" {{ old('currency') == 'USD' ? 'selected' : '' }}>$
-                                </option>
-                                <option value="EUR" {{ old('currency') == 'EUR' ? 'selected' : '' }}>€
-                                </option>
-                            </select>
-                        </div>
+                            <div class="form-group">
+                                <label for="currency-monthly">Currency</label>
+                                <select name="currency" id="currency-monthly" class="select-input" required>
+                                    @foreach ($currencies as $code => $symbol)
+                                        <option value="{{ strtoupper($code) }}" @selected($userCurrency === $code)
+                                            @disabled($userCurrency && $userCurrency !== $code)
+                                            title="{{ $userCurrency && $userCurrency !== $code ? 'You cannot select this currency because your previous donations were in ' . strtoupper($userCurrency) . '.' : '' }}">
+                                            {{ $symbol }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
 
                         <div class="form-group">
                             <label for="pay-amount">Amount</label>

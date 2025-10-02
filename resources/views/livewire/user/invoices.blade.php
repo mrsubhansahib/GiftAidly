@@ -24,7 +24,8 @@ state([
                                 <tr>
                                     <th>Name</th>
                                     <th>Email</th>
-                                    <th>Currency</th>
+                                    <th>Amount Due</th>
+                                    <th>Paid At</th>
                                     <th class="text-center">Action</th>
                                 </tr>
                             </thead>
@@ -33,7 +34,17 @@ state([
                                     <tr>
                                         <td>{{ $invoice->subscription->user->name }}</td>
                                         <td>{{ $invoice->subscription->user->email }}</td>
-                                        <td>{{ ucfirst($invoice['currency']) }}</td>
+                                        <td>
+                                            {{ number_format($invoice['amount_due'], 2) }}
+                                            {{ match (strtoupper($invoice['currency'])) {
+                                                'USD' => '$',
+                                                'GBP' => '£',
+                                                'EUR' => '€',
+                                            } }}
+                                        </td>
+                                        <td>
+                                            {{ \Carbon\Carbon::parse($invoice->paid_at)->format('Y-m-d') }}
+                                        </td>
                                         <td class="text-center">
                                             <button class="btn btn-sm btn-primary" data-bs-toggle="modal"
                                                 data-bs-target="#invoiceModal{{ $invoice['id'] }}">
