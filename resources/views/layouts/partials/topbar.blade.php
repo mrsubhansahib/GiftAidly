@@ -59,110 +59,64 @@
                         id="page-header-notifications-dropdown" data-bs-toggle="dropdown" aria-haspopup="true"
                         aria-expanded="false">
                         <iconify-icon icon="solar:bell-bing-outline" class="fs-22 align-middle"></iconify-icon>
-                        <span
-                            class="position-absolute topbar-badge fs-10 translate-middle badge bg-danger rounded-pill">5<span
-                                class="visually-hidden">unread messages</span></span>
+                        @if(auth()->user()->unreadNotifications->count() > 0)
+                        <span class="position-absolute topbar-badge fs-10 translate-middle badge bg-danger rounded-pill">
+                            {{ auth()->user()->unreadNotifications->count() }}
+                        </span>
+                        @endif
                     </button>
+
                     <div class="dropdown-menu py-0 dropdown-lg dropdown-menu-end"
                         aria-labelledby="page-header-notifications-dropdown">
                         <div class="p-2 border-bottom bg-light bg-opacity-50">
                             <div class="row align-items-center">
                                 <div class="col">
-                                    <h6 class="m-0 fs-16 fw-semibold"> Notifications (5)</h6>
+                                    <h6 class="m-0 fs-16 fw-semibold">
+                                        Notifications ({{ auth()->user()->notifications->count() }})
+                                    </h6>
                                 </div>
                                 <div class="col-auto">
-                                    <a href="javascript: void(0);" class="text-dark text-decoration-underline">
-                                        <small>Clear All</small>
-                                    </a>
+                                    <form action="{{ route('notifications.clear') }}" method="POST">
+                                        @csrf
+                                        <button type="submit" class="btn btn-link text-dark p-0 text-decoration-underline">
+                                            <small>Clear All</small>
+                                        </button>
+                                    </form>
                                 </div>
                             </div>
                         </div>
+
                         <div data-simplebar style="max-height: 250px;">
-                            <!-- Item -->
-                            <a href="javascript:void(0);" class="dropdown-item p-2 border-bottom text-wrap">
-                                <div class="d-flex">
-                                    <div class="flex-shrink-0">
-                                        <img src="/images/users/avatar-1.jpg"
-                                            class="img-fluid me-2 avatar-sm rounded-circle" alt="avatar-1" />
-                                    </div>
-                                    <div class="flex-grow-1">
-                                        <p class="mb-0"><span class="fw-medium">Sally Bieber </span>started
-                                            following you. Check out their profile!"</span></p>
-                                    </div>
-                                </div>
-                            </a>
-                            <!-- Item -->
-                            <a href="javascript:void(0);" class="dropdown-item p-2 border-bottom">
+                            @forelse(auth()->user()->notifications()->latest()->take(5)->get() as $notification)
+                            <a href="javascript:void(0);" class="dropdown-item p-2 border-bottom text-wrap {{ $notification->read_at ? '' : 'bg-light' }}">
                                 <div class="d-flex">
                                     <div class="flex-shrink-0">
                                         <div class="avatar-sm me-2">
-                                            <span class="avatar-title text-bg-info fw-semibold fs-20 rounded-circle">
-                                                G
+                                            <span class="avatar-title bg-soft-primary text-primary fs-20 rounded-circle">
+                                                <i class="bx bx-bell"></i>
                                             </span>
                                         </div>
                                     </div>
                                     <div class="flex-grow-1">
-                                        <p class="mb-0 fw-medium">Gloria Chambers</p>
-                                        <p class="mb-0 text-wrap">
-                                            mentioned you in a comment: '@admin, check this out!
-                                        </p>
+                                        <p class="mb-0 fw-medium">{{ $notification->data['title'] }}</p>
+                                        <p class="mb-0 text-wrap">{{ $notification->data['message'] }}</p>
+                                        <small class="text-muted">{{ \Carbon\Carbon::parse($notification->created_at)->diffForHumans() }}</small>
                                     </div>
                                 </div>
                             </a>
-                            <!-- Item -->
-                            <a href="javascript:void(0);" class="dropdown-item p-2 border-bottom">
-                                <div class="d-flex">
-                                    <div class="flex-shrink-0">
-                                        <img src="/images/users/avatar-3.jpg"
-                                            class="img-fluid me-2 avatar-sm rounded-circle" alt="avatar-3" />
-                                    </div>
-                                    <div class="flex-grow-1">
-                                        <p class="mb-0 fw-medium">Jacob Gines</p>
-                                        <p class="mb-0 text-wrap">
-                                            Answered to your comment on the cash flow forecast's graph 🔔.
-                                        </p>
-                                    </div>
-                                </div>
-                            </a>
-                            <!-- Item -->
-                            <a href="javascript:void(0);" class="dropdown-item p-2 border-bottom">
-                                <div class="d-flex">
-                                    <div class="flex-shrink-0">
-                                        <div class="avatar-sm me-2">
-                                            <span
-                                                class="avatar-title bg-soft-warning text-warning fs-20 rounded-circle">
-                                                <iconify-icon icon="solar:leaf-outline"></iconify-icon>
-                                            </span>
-                                        </div>
-                                    </div>
-                                    <div class="flex-grow-1">
-                                        <p class="mb-0 fw-medium text-wrap">A new system update is available.
-                                            Update now for the latest features.</p>
-                                    </div>
-                                </div>
-                            </a>
-                            <!-- Item -->
-                            <a href="javascript:void(0);" class="dropdown-item p-2 border-bottom">
-                                <div class="d-flex">
-                                    <div class="flex-shrink-0">
-                                        <img src="/images/users/avatar-5.jpg"
-                                            class="img-fluid me-2 avatar-sm rounded-circle" alt="avatar-5" />
-                                    </div>
-                                    <div class="flex-grow-1">
-                                        <p class="mb-0 fw-medium">Shawn Bunch</p>
-                                        <p class="mb-0 text-wrap">
-                                            commented on your post: 'Great photo!
-                                        </p>
-                                    </div>
-                                </div>
-                            </a>
+                            @empty
+                            <div class="text-center p-3 text-muted">No notifications found</div>
+                            @endforelse
                         </div>
+
                         <div class="text-center p-2">
-                            <a href="javascript:void(0);" class="btn btn-primary btn-sm">View All Notification <i
-                                    class="bx bx-right-arrow-alt ms-1"></i></a>
+                            <a href="{{ url('/all-notifications') }}" class="btn btn-primary btn-sm">
+                                View All Notification <i class="bx bx-right-arrow-alt ms-1"></i>
+                            </a>
                         </div>
                     </div>
                 </div>
+
 
                 <!-- User -->
                 <div class="dropdown topbar-item">
@@ -202,9 +156,9 @@
                                 class="align-middle me-2 fs-18"></iconify-icon><span class="align-middle">Help</span>
                         </a> --}}
                         {{-- <a class="dropdown-item" href="{{ route('second', ['auth', 'lock-screen']) }}">
-                            <iconify-icon icon="solar:lock-keyhole-outline"
-                                class="align-middle me-2 fs-18"></iconify-icon><span class="align-middle">Lock
-                                screen</span>
+                        <iconify-icon icon="solar:lock-keyhole-outline"
+                            class="align-middle me-2 fs-18"></iconify-icon><span class="align-middle">Lock
+                            screen</span>
                         </a> --}}
 
                         <div class="dropdown-divider my-1"></div>
