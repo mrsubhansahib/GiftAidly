@@ -2,6 +2,8 @@
 
 namespace App\Mail;
 
+use App\Models\Invoice;
+use App\Models\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
@@ -13,12 +15,15 @@ class InvoicePaidMail extends Mailable
 {
     use Queueable, SerializesModels;
 
+    public $user;
+    public $invoice;
     /**
      * Create a new message instance.
      */
-    public function __construct()
+    public function __construct(User $user, Invoice $invoice)
     {
-        //
+        $this->user = $user;
+        $this->invoice = $invoice;
     }
 
     /**
@@ -27,7 +32,7 @@ class InvoicePaidMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Invoice Paid Mail',
+            subject: '✅ Payment Confirmed — Donation Invoice Paid',
         );
     }
 
