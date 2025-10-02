@@ -5,7 +5,7 @@
             <div class="form-group">
                 <label for="currency-friday">Currency</label>
                 <select wire:model="currency" id="currency-friday" class="select-input">
-                    <option value="gbp">£</option>
+                    <option value="GBP">£</option>
                     <option value="usd">$</option>
                     <option value="eur">€</option>
                 </select>
