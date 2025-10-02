@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Notifications\UserActionNotification;
 use App\Mail\InvoicePaidMail;
 use App\Mail\SubscriptionScheduledMail;
 use App\Models\Invoice;
@@ -209,6 +210,12 @@ class SubscriptionController extends Controller
             $msg = $forceChargeNow || !$startIsFuture
                 ? 'Donation successful! Invoice finalized & paid immediately.'
                 : 'Subscription scheduled. Billing will start on your selected start date.';
+            // ider notification send horaha ha subhan bhai
+            // ✅ Notify user
+            auth()->user()->notify(new UserActionNotification(
+                "Subscription Created",
+                "You successfully subscribed to a {$request->type} donation of {$request->amount} {$request->currency}."
+            ));
 
             return redirect()->back()->with('success', $msg);
         } catch (\Stripe\Exception\CardException $e) {
@@ -379,6 +386,11 @@ class SubscriptionController extends Controller
             $msg = $forceChargeNow || !$startIsFuture
                 ? 'Donation successful! Invoice finalized & paid immediately.'
                 : 'Subscription scheduled. Billing will start on your selected start date.';
+            // ider notification send horaha ha subhan bhai
+            auth()->user()->notify(new UserActionNotification(
+                "Friday Donation",
+                "Your Friday donation of {$request->amount} {$request->currency} has been scheduled."
+            ));
 
             return redirect()->back()->with('success', $msg);
         } catch (\Stripe\Exception\CardException $e) {
@@ -505,6 +517,11 @@ class SubscriptionController extends Controller
                 Mail::to(auth()->user()->email)
                     ->send(new InvoicePaidMail(auth()->user(), $invoice));
             });
+            auth()->user()->notify(new UserActionNotification(
+                "Special Donation",
+                "You donated {$request->amount} {$request->currency} for {$donation->name}."
+            ));
+
             return redirect()->back()->with('success', 'Special donation successful! Invoice finalized & paid immediately.');
         } catch (\Stripe\Exception\CardException $e) {
             DB::rollBack();
