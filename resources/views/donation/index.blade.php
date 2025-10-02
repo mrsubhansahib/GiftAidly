@@ -1173,67 +1173,7 @@
         // ------------------------------
         // ✅ Special Donations Form Validation
         // ------------------------------
-        document.addEventListener("DOMContentLoaded", function() {
-            const form = document.getElementById("form-monthly");
-            if (!form) return;
 
-            const specialSelect = form.querySelector("#pay-special");
-            const amountInput = form.querySelector("#pay-amount");
-            const giftAidCheckbox = form.querySelector("#gift-aid-monthly");
-            const addressInput = form.querySelector("#address-monthly");
-
-            const productError = document.getElementById("error-product-special");
-            const amountError = document.getElementById("error-amount-special");
-            const addressError = document.getElementById("error-address-special");
-
-            // Auto fill amount on select
-            specialSelect.addEventListener("change", function() {
-                const price = this.selectedOptions[0].getAttribute("data-price");
-                amountInput.value = price ? price : "";
-                productError.textContent = "";
-                amountError.textContent = "";
-            });
-
-            // ✅ Gift Aid Checkbox Toggle — Clear error on uncheck
-            giftAidCheckbox.addEventListener("change", function() {
-                if (!this.checked) {
-                    addressInput.style.display = 'none';
-                    addressInput.value = '';
-                    addressError.textContent = ''; // 👈 important line
-                } else {
-                    addressInput.style.display = 'block';
-                    addressInput.setAttribute('placeholder', 'Enter your address');
-                }
-            });
-
-            // Validate on submit
-            form.addEventListener("submit", function(e) {
-                let valid = true;
-
-                if (!specialSelect.value) {
-                    productError.textContent = "Please select a special donation.";
-                    valid = false;
-                } else {
-                    productError.textContent = "";
-                }
-
-                if (!amountInput.value || parseFloat(amountInput.value) <= 0) {
-                    amountError.textContent = "Please select a valid amount.";
-                    valid = false;
-                } else {
-                    amountError.textContent = "";
-                }
-
-                if (giftAidCheckbox.checked && addressInput.value.trim() === "") {
-                    addressError.textContent = "Please enter your address for Gift Aid.";
-                    valid = false;
-                } else {
-                    addressError.textContent = "";
-                }
-
-                if (!valid) e.preventDefault();
-            });
-        });
         // ------------------------------
         // ✅ INIT Flatpickr
         // ------------------------------
@@ -1342,6 +1282,7 @@
     {{-- Jquery Script --}}
     <script>
         $(document).ready(function() {
+            $('#currency-monthly').val('GBP');
             const apiKey = 'd8be31378397f36afc09fc2d0b1b1d6c';
             let rates = {}; // cache conversion rates
             // Fetch rates once on page load
@@ -1352,7 +1293,7 @@
                 format: 1
             }, function(data) {
                 if (data.success) {
-                    rates = data.quotes; // e.g. { gbpUSD: 1.26, gbpEUR: 1.15 }
+                    rates = data.quotes; // e.g. { GBPUSD: 1.26, GBPEUR: 1.15 }
                     updateAmount(); // update if something already selected
                 } else {
                     console.error('Currency API error');

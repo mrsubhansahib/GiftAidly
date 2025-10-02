@@ -133,10 +133,7 @@ $flashes[] = ['type' => 'danger', 'msg' => "There is a problem! $value"];
 <script>
     document.addEventListener('DOMContentLoaded', () => {
         @foreach($flashes as $f)
-        AppToast.show('{{ $f['
-            type '] }}', {
-                !!json_encode($f['msg']) !!
-            });
+            AppToast.show('{{ $f['type'] }}', {!! json_encode($f['msg']) !!});
         @endforeach
     });
 </script>
