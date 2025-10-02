@@ -21,7 +21,6 @@ state([
                                     <th>Email</th>
                                     <th>Donation Type</th>
                                     <th>Amount</th>
-                                    <th>Currency</th>
                                     <th>Invoice Date</th>
                                     <th class="text-center">Action</th>
                                 </tr>
@@ -41,8 +40,14 @@ state([
                                                             ? ucfirst($invoice->subscription->type)
                                                             : '-'))) }}
                                         </td>
-                                        <td>{{ $invoice->subscription->price}}</td>
-                                        <td>{{ ucfirst($invoice->currency) }}</td>
+                                        <td>
+                                            {{ number_format($invoice->subscription->price, 2) }}
+                                            {{ match (strtoupper($invoice->currency)) {
+                                                'USD' => '$',
+                                                'GBP' => '£',
+                                                'EUR' => '€',
+                                            } }}
+                                        </td>
                                         <td>{{ $invoice->invoice_date ? \Carbon\Carbon::parse($invoice->invoice_date)->format('Y-m-d') : '-' }}
                                         </td>
                                         <td class="text-center">
@@ -96,9 +101,13 @@ state([
                                                             <div class="text-center p-4 bg-light rounded-3">
                                                                 <h6 class="text-muted mb-2">Amount</h6>
                                                                 <h3 class="text-dark fw-bold mb-0">
-                                                                    {{ number_format($invoice->amount_due ?? 0) }}</h3>
-                                                                <small
-                                                                    class="text-muted">{{ strtoupper($invoice->currency ?? 'PKR') }}</small>
+                                                                    {{ number_format($invoice->amount_due ?? 0, 2) }}
+                                                                    {{ match (strtoupper($invoice->currency)) {
+                                                                        'USD' => '$',
+                                                                        'GBP' => '£',
+                                                                        'EUR' => '€',
+                                                                    } }}
+                                                                </h3>
                                                             </div>
                                                         </div>
                                                     </div>

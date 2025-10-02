@@ -62,8 +62,26 @@ mount(function ($id) {
                 <tbody>
                     @foreach ($user->subscriptions as $sub)
                         <tr>
-                            <td>{{ ucfirst($sub->type) }}</td>
-                            <td>{{ $sub->price }}</td>
+                            <td>
+                                {{ $sub->type === 'day'
+                                    ? 'Daily'
+                                    : ($sub->type === 'week'
+                                        ? 'Weekly'
+                                        : ($sub->type === 'month'
+                                            ? 'Monthly'
+                                            : ($sub->type
+                                                ? ucfirst($sub->type)
+                                                : '-'))) }}
+                            </td>
+                            <td>
+                                {{ number_format($sub->price, 2) }}
+                                {{ match (strtoupper($sub->currency)) {
+                                    'USD' => '$',
+                                    'GBP' => '£',
+                                    'EUR' => '€',
+                                    default => '',
+                                } }}
+                            </td>
                             <td>
                                 <span class="badge {{ $sub->status === 'active' ? 'bg-success' : 'bg-danger' }}">
                                     {{ ucfirst($sub->status) }}
@@ -103,8 +121,26 @@ mount(function ($id) {
                 <tbody>
                     @foreach ($user->subscriptions->flatMap->invoices as $invoice)
                         <tr>
-                            <td>{{ ucfirst($invoice->subscription->type) }}</td>
-                            <td>{{ $invoice->amount_due }}</td>
+                            <td>
+                                {{ $invoice->subscription->type === 'day'
+                                    ? 'Daily'
+                                    : ($invoice->subscription->type === 'week'
+                                        ? 'Weekly'
+                                        : ($invoice->subscription->type === 'month'
+                                            ? 'Monthly'
+                                            : ($invoice->subscription->type
+                                                ? ucfirst($invoice->subscription->type)
+                                                : '-'))) }}
+                            </td>
+                            <td>
+                                {{ number_format($invoice->amount_due, 2) }}
+                                {{ match (strtoupper($invoice->currency)) {
+                                    'USD' => '$',
+                                    'GBP' => '£',
+                                    'EUR' => '€',
+                                } }}
+                            </td>
+
                             <td>
                                 <span
                                     class="badge {{ $invoice->subscription->status === 'active' ? 'bg-success' : 'bg-danger' }}">
@@ -163,10 +199,13 @@ mount(function ($id) {
                                                 <div class="text-center p-4 bg-light rounded-3">
                                                     <h6 class="text-muted mb-2">Amount</h6>
                                                     <h3 class="text-dark fw-bold mb-0">
-                                                        {{ number_format($invoice->amount_due ?? 0) }}
+                                                        {{ number_format($invoice->amount_due ?? 0, 2) }}
+                                                        {{ match (strtoupper($invoice->currency)) {
+                                                            'USD' => '$',
+                                                            'GBP' => '£',
+                                                            'EUR' => '€',
+                                                        } }}
                                                     </h3>
-                                                    <small
-                                                        class="text-muted">{{ strtoupper($invoice->currency ?? 'PKR') }}</small>
                                                 </div>
                                             </div>
                                         </div>
@@ -223,12 +262,29 @@ mount(function ($id) {
                 <tbody>
                     @foreach ($user->subscriptions->flatMap->invoices->flatMap->transactions as $txn)
                         <tr>
-                            <td>{{ ucfirst($txn->invoice->subscription->type) }}</td>
-                            <td>{{ $txn->invoice->subscription->price }}</td>
+                            <td>
+                                {{ $txn->invoice->subscription->type === 'day'
+                                    ? 'Daily'
+                                    : ($txn->invoice->subscription->type === 'week'
+                                        ? 'Weekly'
+                                        : ($txn->invoice->subscription->type === 'month'
+                                            ? 'Monthly'
+                                            : ($txn->invoice->subscription->type
+                                                ? ucfirst($txn->invoice->subscription->type)
+                                                : '-'))) }}
+                            </td>
+                            <td>
+                                {{ number_format($txn->invoice->subscription->price, 2) }}
+                                {{ match (strtoupper($txn->invoice->currency)) {
+                                    'USD' => '$',
+                                    'GBP' => '£',
+                                    'EUR' => '€',
+                                } }}
+                            </td>
                             <td>
                                 <span
                                     class="badge 
-                                    {{ $txn->status === 'completed' ? 'bg-success' : ($txn->status === 'pending' ? 'bg-warning text-dark' : 'bg-danger') }}">
+                                    {{ $txn->status === 'paid' ? 'bg-success' : ($txn->status === 'pending' ? 'bg-warning text-dark' : 'bg-danger') }}">
                                     {{ ucfirst($txn->status) }}
                                 </span>
                             </td>
@@ -305,11 +361,13 @@ mount(function ($id) {
                                                 <div class="text-center p-4 bg-light rounded-3">
                                                     <h6 class="text-muted mb-2">Amount</h6>
                                                     <h3 class="text-dark fw-bold mb-0">
-                                                        {{ number_format($txn->invoice->subscription->price ?? 0) }}
+                                                        {{ number_format($txn->invoice->subscription->price ?? 0, 2) }}
+                                                        {{ match (strtoupper($txn->invoice->currency)) {
+                                                            'USD' => '$',
+                                                            'GBP' => '£',
+                                                            'EUR' => '€',
+                                                        } }}
                                                     </h3>
-                                                    <small class="text-muted">
-                                                        {{ strtoupper($txn->invoice->currency ?? 'PKR') }}
-                                                    </small>
                                                 </div>
                                             </div>
                                         </div>
