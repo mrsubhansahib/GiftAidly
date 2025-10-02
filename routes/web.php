@@ -2,10 +2,11 @@
 
 use App\Http\Controllers\RoutingController;
 use App\Http\Controllers\SubscriptionController;
+use App\Http\Controllers\WebhookController;
 use Illuminate\Support\Facades\Route;
 
 require __DIR__ . '/auth.php';
-
+require __DIR__ . '/api.php';
 
 Route::group(['prefix' => '/', 'middleware' => ['auth', 'verified']], function () {
 
