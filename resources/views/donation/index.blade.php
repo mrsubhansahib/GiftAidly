@@ -579,7 +579,8 @@
 
     <div class="tab-container">
         <div class="tab-header">
-            <button class="tab-btn  active" onclick="openTab(event, 'daily-weekly-monthly')">Daily / Weekly / Monthly</button>
+            <button class="tab-btn  active" onclick="openTab(event, 'daily-weekly-monthly')">Daily / Weekly /
+                Monthly</button>
             <button class="tab-btn" onclick="openTab(event, 'friday')">Friday Special</button>
             <button class="tab-btn" onclick="openTab(event, 'special')">Donate Special</button>
         </div>
@@ -791,13 +792,14 @@
 
                             <div class="form-group">
                                 <label for="currency-monthly">Currency</label>
-                                <select name="currency" id="currency-monthly" class="select-input">
-                                    <option value="GBP" {{ old('currency', 'GBP') == 'GBP' ? 'selected' : '' }}>£
-                                    </option>
-                                    <option value="USD" {{ old('currency') == 'USD' ? 'selected' : '' }}>$
-                                    </option>
-                                    <option value="EUR" {{ old('currency') == 'EUR' ? 'selected' : '' }}>€
-                                    </option>
+                                <select name="currency" id="currency-monthly" class="select-input" required>
+                                    @foreach ($currencies as $code => $symbol)
+                                        <option value="{{ strtoupper($code) }}" @selected($userCurrency === $code)
+                                            @disabled($userCurrency && $userCurrency !== $code)
+                                            title="{{ $userCurrency && $userCurrency !== $code ? 'You cannot select this currency because your previous donations were in ' . strtoupper($userCurrency) . '.' : '' }}">
+                                            {{ $symbol }}
+                                        </option>
+                                    @endforeach
                                 </select>
                             </div>
 
@@ -1282,7 +1284,9 @@
     {{-- Jquery Script --}}
     <script>
         $(document).ready(function() {
-            $('#currency-monthly').val('GBP');
+            @if (!$userCurrency)
+                $('#currency-monthly').val('GBP');
+            @endif
             const apiKey = 'd8be31378397f36afc09fc2d0b1b1d6c';
             let rates = {}; // cache conversion rates
             // Fetch rates once on page load

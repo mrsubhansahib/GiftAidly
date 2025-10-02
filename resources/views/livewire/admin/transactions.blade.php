@@ -21,7 +21,6 @@ state([
                                     <th>Email</th>
                                     <th>Donation Type</th>
                                     <th>Amount</th>
-                                    <th>Currency</th>
                                     <th>Status</th>
                                     <th>Date</th>
                                     <th class="text-center">Action</th>
@@ -42,8 +41,14 @@ state([
                                                             ? ucfirst($transaction->invoice->subscription->type)
                                                             : '-'))) }}
                                         </td>
-                                        <td>{{ number_format($transaction->invoice->subscription->price) }}</td>
-                                        <td>{{ strtoupper($transaction->invoice->currency ?? 'N/A') }}</td>
+                                        <td>
+                                            {{ number_format($transaction->invoice->subscription->price, 2) }}
+                                            {{ match (strtoupper($transaction->invoice->currency)) {
+                                                'USD' => '$',
+                                                'GBP' => '£',
+                                                'EUR' => '€',
+                                            } }}
+                                        </td>
                                         <td>
                                             @if ($transaction->status === 'paid' || $transaction->status === 'completed')
                                                 <span class="badge bg-success">Paid</span>
@@ -133,11 +138,13 @@ state([
                                                             <div class="text-center p-4 bg-light rounded-3">
                                                                 <h6 class="text-muted mb-2">Amount</h6>
                                                                 <h3 class="text-dark fw-bold mb-0">
-                                                                    {{ number_format($transaction->invoice->subscription->price ?? 0) }}
+                                                                    {{ number_format($transaction->invoice->subscription->price ?? 0, 2) }}
+                                                                    {{ match (strtoupper($transaction->invoice->currency)) {
+                                                                        'USD' => '$',
+                                                                        'GBP' => '£',
+                                                                        'EUR' => '€',
+                                                                    } }}
                                                                 </h3>
-                                                                <small class="text-muted">
-                                                                    {{ strtoupper($transaction->invoice->currency ?? 'PKR') }}
-                                                                </small>
                                                             </div>
                                                         </div>
                                                     </div>
