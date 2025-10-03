@@ -74,13 +74,12 @@ mount(function ($id) {
                                                 : '-'))) }}
                             </td>
                             <td>
-                                {{ number_format($sub->price, 2) }}
                                 {{ match (strtoupper($sub->currency)) {
                                     'USD' => '$',
                                     'GBP' => '£',
                                     'EUR' => '€',
-                                    default => '',
                                 } }}
+                                {{ number_format($sub->price, 2) }}
                             </td>
                             <td>
                                 <span class="badge {{ $sub->status === 'active' ? 'bg-success' : 'bg-danger' }}">
@@ -133,12 +132,12 @@ mount(function ($id) {
                                                 : '-'))) }}
                             </td>
                             <td>
-                                {{ number_format($invoice->amount_due, 2) }}
                                 {{ match (strtoupper($invoice->currency)) {
                                     'USD' => '$',
                                     'GBP' => '£',
                                     'EUR' => '€',
                                 } }}
+                                {{ number_format($invoice->amount_due, 2) }}
                             </td>
 
                             <td>
@@ -199,12 +198,12 @@ mount(function ($id) {
                                                 <div class="text-center p-4 bg-light rounded-3">
                                                     <h6 class="text-muted mb-2">Amount</h6>
                                                     <h3 class="text-dark fw-bold mb-0">
-                                                        {{ number_format($invoice->amount_due ?? 0, 2) }}
                                                         {{ match (strtoupper($invoice->currency)) {
                                                             'USD' => '$',
                                                             'GBP' => '£',
                                                             'EUR' => '€',
                                                         } }}
+                                                        {{ number_format($invoice->amount_due ?? 0, 2) }}
                                                     </h3>
                                                 </div>
                                             </div>
@@ -274,12 +273,12 @@ mount(function ($id) {
                                                 : '-'))) }}
                             </td>
                             <td>
-                                {{ number_format($txn->invoice->subscription->price, 2) }}
                                 {{ match (strtoupper($txn->invoice->currency)) {
                                     'USD' => '$',
                                     'GBP' => '£',
                                     'EUR' => '€',
                                 } }}
+                                {{ number_format($txn->invoice->subscription->price, 2) }}
                             </td>
                             <td>
                                 <span
@@ -361,12 +360,12 @@ mount(function ($id) {
                                                 <div class="text-center p-4 bg-light rounded-3">
                                                     <h6 class="text-muted mb-2">Amount</h6>
                                                     <h3 class="text-dark fw-bold mb-0">
-                                                        {{ number_format($txn->invoice->subscription->price ?? 0, 2) }}
                                                         {{ match (strtoupper($txn->invoice->currency)) {
                                                             'USD' => '$',
                                                             'GBP' => '£',
                                                             'EUR' => '€',
                                                         } }}
+                                                        {{ number_format($txn->invoice->subscription->price ?? 0, 2) }}
                                                     </h3>
                                                 </div>
                                             </div>

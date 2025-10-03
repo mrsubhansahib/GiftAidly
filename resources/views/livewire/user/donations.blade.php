@@ -32,16 +32,16 @@ state([
                                             {{ $subscription['type'] == 'day' ? 'Daily' : ($subscription['type'] == 'week' ? 'Weekly' : ($subscription['type'] == 'month' ? 'Monthly' : ucfirst($subscription['type']))) }}
                                         </td>
                                         <td>
-                                            {{ number_format($subscription['price'], 2) }}
                                             {{ match (strtoupper($subscription['currency'])) {
                                                 'USD' => '$',
                                                 'GBP' => '£',
                                                 'EUR' => '€',
                                             } }}
+                                            {{ number_format($subscription['price'], 2) }}
                                         </td>
                                         <td>
                                             <span
-                                                class="badge {{ $subscription['status'] === 'active' ? 'bg-success' : 'bg-danger' }}">
+                                                class="badge {{ $subscription['status'] === 'active' ? 'bg-success' : 'bg-secondary' }}">
                                                 {{ ucfirst($subscription['status']) }}
                                             </span>
                                         </td>
@@ -54,7 +54,8 @@ state([
                                                 View
                                             </a>
                                             <a href="{{ route('cancel.donation', $subscription->id) }}"
-                                                class="btn btn-sm btn-danger" {{ $subscription['status'] === 'active' ? '' : 'disabled' }}>
+                                                class="btn btn-sm btn-danger"
+                                                {{ $subscription['status'] === 'active' ? '' : 'disabled' }}>
                                                 Cancel
                                             </a>
                                         </td>

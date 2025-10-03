@@ -35,12 +35,12 @@ state([
                                         <td>{{ $invoice->subscription->user->name }}</td>
                                         <td>{{ $invoice->subscription->user->email }}</td>
                                         <td>
-                                            {{ number_format($invoice['amount_due'], 2) }}
                                             {{ match (strtoupper($invoice['currency'])) {
                                                 'USD' => '$',
                                                 'GBP' => '£',
                                                 'EUR' => '€',
                                             } }}
+                                            {{ number_format($invoice['amount_due'], 2) }}
                                         </td>
                                         <td>
                                             {{ \Carbon\Carbon::parse($invoice->paid_at)->format('Y-m-d') }}
@@ -96,10 +96,13 @@ state([
                                                             <div class="text-center p-4 bg-light rounded-3">
                                                                 <h6 class="text-muted mb-2">Amount</h6>
                                                                 <h3 class="text-dark fw-bold mb-0">
-                                                                    {{ number_format($invoice['amount_due'] ?? 0) }}
+                                                                    {{ match (strtoupper($invoice['currency'] )) {
+                                                                        'USD' => '$',
+                                                                        'GBP' => '£',
+                                                                        'EUR' => '€',
+                                                                    } }}
+                                                                    {{ number_format($invoice['amount_due'] ?? 0, 2) }}
                                                                 </h3>
-                                                                <small
-                                                                    class="text-muted">{{ strtoupper($invoice['currency'] ?? 'PKR') }}</small>
                                                             </div>
                                                         </div>
                                                     </div>

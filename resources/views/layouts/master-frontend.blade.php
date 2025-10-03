@@ -904,7 +904,8 @@
                             iconColor: "#fa755a"
                         }
                     },
-                    hidePostalCode: true
+                    hidePostalCode: true,
+                    disableLink: true
                 });
                 card.mount(`#${elementId}`);
 
@@ -974,24 +975,24 @@
     {{-- Jquery Script --}}
     <script>
         $(document).ready(function() {
-            $('#currency-monthly').val('GBP');
-            const apiKey = 'd8be31378397f36afc09fc2d0b1b1d6c';
+            @if (!$userCurrency)
+                $('#currency-monthly').val('GBP');
+            @endif
             let rates = {}; // cache conversion rates
-            // Fetch rates once on page load
-            $.get('https://api.exchangerate.host/live', {
-                access_key: apiKey,
-                source: 'GBP',
-                currencies: 'USD,EUR',
-                format: 1
+            // ✅ Fetch rates once on page load (Frankfurter API - no key required)
+            $.get('https://api.frankfurter.app/latest', {
+                from: 'GBP',
+                to: 'USD,EUR'
             }, function(data) {
-                if (data.success) {
-                    rates = data.quotes; // e.g. { GBPUSD: 1.26, GBPEUR: 1.15 }
-                    updateAmount(); // update if something already selected
+                if (data && data.rates) {
+                    // Example: { USD: 1.26, EUR: 1.15 }
+                    rates = data.rates;
+                    updateAmount(); // update if something is already selected
                 } else {
                     console.error('Currency API error');
                 }
             }).fail(function() {
-                console.error('Failed to fetch rates');
+                console.error('Failed to fetch currency rates');
             });
 
             function updateAmount() {
@@ -1006,8 +1007,7 @@
                     $('#pay-amount').val(basePrice.toFixed(2));
                     return;
                 }
-                // Use cached rates for instant conversion
-                const rate = rates['GBP' + targetCurrency];
+                const rate = rates[targetCurrency];
                 if (rate) {
                     const converted = (basePrice * rate).toFixed(2);
                     $('#pay-amount').val(converted);
@@ -1015,7 +1015,7 @@
                     $('#pay-amount').val('');
                 }
             }
-            // Events
+            // 🔄 Recalculate on change
             $('#pay-special').on('change', updateAmount);
             $('#currency-monthly').on('change', updateAmount);
         });

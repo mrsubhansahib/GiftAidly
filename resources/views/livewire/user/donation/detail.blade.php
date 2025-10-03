@@ -35,12 +35,12 @@ mount(function ($id) {
                 <tr>
                     <th>Price</th>
                     <td>
-                        {{ number_format($subscription->price, 2) }}
                         {{ match (strtoupper($subscription->currency)) {
                             'USD' => '$',
                             'GBP' => '£',
                             'EUR' => '€',
                         } }}
+                        {{ number_format($subscription->price, 2) }}
                     </td>
                 </tr>
                 <tr>
@@ -78,7 +78,7 @@ mount(function ($id) {
                 <thead>
                     <tr>
                         <th>Donation type</th>
-                        <th>Amount</th>
+                        <th>Amount Due</th>
                         <th>Status</th>
                         <th>Invoice Date</th>
                         <th>Action</th>
@@ -99,12 +99,12 @@ mount(function ($id) {
                                                 : '-'))) }}
                             </td>
                             <td>
-                                {{ number_format($invoice->amount_due, 2) }}
                                 {{ match (strtoupper($invoice->currency)) {
                                     'USD' => '$',
                                     'GBP' => '£',
                                     'EUR' => '€',
                                 } }}
+                                {{ number_format($invoice->amount_due, 2) }}
                             </td>
                             <td>
                                 <span
@@ -164,12 +164,12 @@ mount(function ($id) {
                                                 <div class="text-center p-4 bg-light rounded-3">
                                                     <h6 class="text-muted mb-2">Amount</h6>
                                                     <h3 class="text-dark fw-bold mb-0">
-                                                        {{ number_format($invoice->amount_due ?? 0, 2) }}
                                                         {{ match (strtoupper($invoice->currency)) {
                                                             'USD' => '$',
                                                             'GBP' => '£',
                                                             'EUR' => '€',
                                                         } }}
+                                                        {{ number_format($invoice->amount_due ?? 0, 2) }}
                                                     </h3>
                                                 </div>
                                             </div>
