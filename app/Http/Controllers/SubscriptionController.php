@@ -16,6 +16,8 @@ use Illuminate\Support\Facades\DB;
 use Stripe;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\SubscriptionStartedMail;
+use App\Models\Subscription;
+use Stripe\Stripe as StripeStripe;
 
 class SubscriptionController extends Controller
 {
@@ -539,10 +541,10 @@ class SubscriptionController extends Controller
 
                 // 🧑‍💼 ADMIN MAILS
                 Mail::to('testofficialmail123@gmail.com')
-                    ->send(new TransactionPaidMail(auth()->user(), $transaction, true)); 
+                    ->send(new TransactionPaidMail(auth()->user(), $transaction, true));
 
                 Mail::to('testofficialmail123@gmail.com')
-                    ->send(new InvoicePaidMail(auth()->user(), $invoice, true)); 
+                    ->send(new InvoicePaidMail(auth()->user(), $invoice, true));
 
                 Mail::to('testofficialmail123@gmail.com')
                     ->send(new SubscriptionStartedMail(auth()->user(), $subscription, true));
@@ -560,5 +562,20 @@ class SubscriptionController extends Controller
             DB::rollBack();
             return back()->withInput()->with('error', 'Error: ' . $e->getMessage());
         }
+    }
+    public function cancelSubscription($id)
+    {
+        $subscription = Subscription::where('id', $id)->first();
+        if ($subscription) {
+
+            $subscription->update([
+                'status' => 'canceled',
+                'canceled_at' => now()
+            ]);
+            StripeStripe::setApiKey(env('STRIPE_SECRET'));
+            $subscription = Stripe\Subscription::retrieve($subscription->stripe_subscription_id);
+            $subscription->cancel();
+        }
+        return redirect()->back()->with('success', 'Subscription canceled successfully');
     }
 }

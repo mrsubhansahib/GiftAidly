@@ -107,7 +107,7 @@ class WebhookController extends Controller
 
     private function onSubscriptionDeleted($sub)
     {
-        DB::transaction(function () use ($sub) {
+        DB::transaction(function () use ($sub) { 
             $local = Subscription::where('stripe_subscription_id', $sub->id)->first();
             if ($local) {
                 $local->status      = 'canceled';

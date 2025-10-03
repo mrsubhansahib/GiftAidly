@@ -53,6 +53,10 @@ state([
                                                 class="btn btn-sm btn-primary">
                                                 View
                                             </a>
+                                            <a href="{{ route('cancel.donation', $subscription->id) }}"
+                                                class="btn btn-sm btn-danger" {{ $subscription['status'] === 'active' ? '' : 'disabled' }}>
+                                                Cancel
+                                            </a>
                                         </td>
                                     </tr>
                                 @endforeach

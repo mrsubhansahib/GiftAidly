@@ -20,6 +20,7 @@ Route::group(['prefix' => '/', 'middleware' => ['auth', 'verified']], function (
     Route::post('donate/daily-weekly-monthly', [SubscriptionController::class, 'donateDailyWeeklyMonthly'])->name('donation.daily_weekly_monthly');
     Route::post('donate/friday', [SubscriptionController::class, 'donateFriday'])->name('donation.friday');
     Route::post('donate/special', [SubscriptionController::class, 'donateSpecial'])->name('donation.special');
+    Route::get('cancel/donation/{id}', [SubscriptionController::class, 'cancelSubscription'])->name('cancel.donation');
     // User detail only for admin
     Route::get('/admin/donor/{id}', function ($id) {
         return view('admin.donors.detail', ['id' => $id]);
