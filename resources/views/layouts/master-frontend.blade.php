@@ -974,7 +974,9 @@
     {{-- Jquery Script --}}
     <script>
         $(document).ready(function() {
-            $('#currency-monthly').val('GBP');
+            @if (!$userCurrency)
+                $('#currency-monthly').val('GBP');
+            @endif
             const apiKey = 'd8be31378397f36afc09fc2d0b1b1d6c';
             let rates = {}; // cache conversion rates
             // Fetch rates once on page load
