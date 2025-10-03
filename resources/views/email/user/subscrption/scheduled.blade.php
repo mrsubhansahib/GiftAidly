@@ -27,6 +27,36 @@
 @endphp
 
 <x-mail::message>
+@if($isAdmin)
+# 📝 New Scheduled Donation Received
+
+A new donation subscription has been **scheduled** on GiftAidly.  
+Here are the details:
+
+---
+
+## 👤 **Donor Information**
+**Name:** {{ $user->name }}  
+**Email:** {{ $user->email }}
+
+---
+
+## 💰 **Donation Details**
+**Donation Type:** {{ $frequency }}  
+**Amount:** {{ strtoupper($subscription->currency) }} {{ number_format($subscription->price, 2) }}  
+**Frequency:** {{ $frequency }}  
+**Gift Aid:** {{ $subscription->gift_aid === 'yes' ? '✅ Applied' : '❌ Not Applied' }}  
+**Start Date:** {{ $startDateFormatted }}  
+**End Date:** {{ $endDateFormatted }}  
+**Status:** {{ ucfirst($subscription->status) }}
+
+@if ($subscription->gift_aid === 'yes')
+---
+💡 **Gift Aid Applied**  
+This donation includes Gift Aid, increasing its value by **25%**.
+@endif
+
+@else
 # Dear {{ $user->name }},
 
 Thank you for scheduling your **{{ $frequency }} donation** to **GiftAidly**.  
@@ -61,4 +91,5 @@ We’re honoured to have you as part of our donor family.
 
 Warm regards,  
 **The GiftAidly Team**
+@endif
 </x-mail::message>

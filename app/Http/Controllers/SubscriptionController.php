@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Notifications\UserActionNotification;
 use App\Mail\InvoicePaidMail;
 use App\Mail\SubscriptionScheduledMail;
+use App\Mail\TransactionPaidMail;
 use App\Models\Invoice;
 use App\Models\ProductCatalog;
 use App\Models\SpecialDonation;
@@ -196,6 +197,9 @@ class SubscriptionController extends Controller
                 DB::afterCommit(function () use ($savedInvoice) {
                     Mail::to(auth()->user()->email)
                         ->send(new InvoicePaidMail(auth()->user(), $savedInvoice));
+                    // Admin Mail
+                    Mail::to('testofficialmail123@gmail.com')
+                        ->send(new InvoicePaidMail(auth()->user(), $savedInvoice, true));
                 });
             }
 
@@ -203,9 +207,15 @@ class SubscriptionController extends Controller
             if ($startIsFuture && !$forceChargeNow) {
                 Mail::to(auth()->user()->email)
                     ->send(new SubscriptionScheduledMail(auth()->user(), $subscription));
+                // Admin Mail
+                Mail::to('testofficialmail123@gmail.com')
+                    ->send(new SubscriptionScheduledMail(auth()->user(), $subscription, true));
             } else {
                 Mail::to(auth()->user()->email)
                     ->send(new SubscriptionStartedMail(auth()->user(), $subscription));
+                // Admin Mail
+                Mail::to('testofficialmail123@gmail.com')
+                    ->send(new SubscriptionStartedMail(auth()->user(), $subscription, true));
             }
             $msg = $forceChargeNow || !$startIsFuture
                 ? 'Donation successful! Invoice finalized & paid immediately.'
@@ -371,6 +381,9 @@ class SubscriptionController extends Controller
                 DB::afterCommit(function () use ($savedInvoice) {
                     Mail::to(auth()->user()->email)
                         ->send(new InvoicePaidMail(auth()->user(), $savedInvoice));
+                    // ✅ Admin mail
+                    Mail::to('testofficialmail123@gmail.com')
+                        ->send(new InvoicePaidMail(auth()->user(), $savedInvoice, true));
                 });
             }
             DB::commit();
@@ -378,9 +391,15 @@ class SubscriptionController extends Controller
             if ($startIsFuture && !$forceChargeNow) {
                 Mail::to(auth()->user()->email)
                     ->send(new SubscriptionScheduledMail(auth()->user(), $subscription));
+                // ✅ Admin mail
+                Mail::to('testofficialmail123@gmail.com')
+                    ->send(new SubscriptionScheduledMail(auth()->user(), $subscription, true));
             } else {
                 Mail::to(auth()->user()->email)
                     ->send(new SubscriptionStartedMail(auth()->user(), $subscription));
+                // ✅ Admin mail
+                Mail::to('testofficialmail123@gmail.com')
+                    ->send(new SubscriptionStartedMail(auth()->user(), $subscription, true));
             }
 
             $msg = $forceChargeNow || !$startIsFuture
@@ -502,7 +521,7 @@ class SubscriptionController extends Controller
             ]);
 
             // ✅ Save local transaction
-            Transaction::create([
+            $transaction = Transaction::create([
                 'invoice_id'            => $invoice->id,
                 'stripe_transaction_id' => $paymentIntent->charges->data[0]->id ?? $paymentIntent->id,
                 'paid_at'               => now(),
@@ -510,12 +529,23 @@ class SubscriptionController extends Controller
             ]);
 
             DB::commit();
-            DB::afterCommit(function () use ($subscription, $invoice) {
+            DB::afterCommit(function () use ($subscription, $invoice, $transaction) {
+                // ✅ USER MAILS
                 Mail::to(auth()->user()->email)
                     ->send(new SubscriptionStartedMail(auth()->user(), $subscription));
 
                 Mail::to(auth()->user()->email)
                     ->send(new InvoicePaidMail(auth()->user(), $invoice));
+
+                // 🧑‍💼 ADMIN MAILS
+                Mail::to('testofficialmail123@gmail.com')
+                    ->send(new TransactionPaidMail(auth()->user(), $transaction, true)); 
+
+                Mail::to('testofficialmail123@gmail.com')
+                    ->send(new InvoicePaidMail(auth()->user(), $invoice, true)); 
+
+                Mail::to('testofficialmail123@gmail.com')
+                    ->send(new SubscriptionStartedMail(auth()->user(), $subscription, true));
             });
             auth()->user()->notify(new UserActionNotification(
                 "Special Donation",

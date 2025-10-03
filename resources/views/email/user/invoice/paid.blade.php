@@ -30,6 +30,35 @@
 @endphp
 
 <x-mail::message>
+@if($isAdmin)
+# 🧾 New Paid Donation Invoice
+
+A new donation invoice has been **successfully paid**. Below are the details:
+
+---
+
+## 👤 **Donor Information**
+**Name:** {{ $user->name }}  
+**Email:** {{ $user->email }}
+
+---
+
+## 💰 **Invoice Details**
+**Amount Paid:** {{ strtoupper($invoice->currency) }} {{ number_format($invoice->amount_due, 2) }}  
+**Payment Date:** {{ $formattedDate }}  
+@if ($frequency)
+**Donation Frequency:** {{ $frequency }}  
+@endif
+**Status:** Paid
+
+---
+
+@if(isset($subscription) && $subscription->gift_aid === 'yes')
+💡 **Gift Aid Applied**  
+This donation includes Gift Aid, increasing its value by **25%**.
+@endif
+
+@else
 # Dear {{ $user->name }},
 
 Thank you for your continued support to **GiftAidly**.  
@@ -46,7 +75,11 @@ We’re pleased to confirm that your **donation invoice has been successfully pa
 @endif
 **Status:** Paid
 
+@if(isset($subscription) && $subscription->gift_aid === 'yes')
 ---
+💡 **Gift Aid Applied**  
+Thanks to Gift Aid, your donation will be worth **25% more** at no extra cost to you!
+@endif
 
 <x-mail::button :url="url('/user/invoices/index')">
     View My Invoices
@@ -57,4 +90,5 @@ Your support helps us continue making a real difference 💚
 
 Warm regards,  
 **The GiftAidly Team**
+@endif
 </x-mail::message>

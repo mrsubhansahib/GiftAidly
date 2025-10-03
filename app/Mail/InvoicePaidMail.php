@@ -17,13 +17,16 @@ class InvoicePaidMail extends Mailable
 
     public $user;
     public $invoice;
+    public $isAdmin;
+
     /**
      * Create a new message instance.
      */
-    public function __construct(User $user, Invoice $invoice)
+    public function __construct(User $user, Invoice $invoice, $isAdmin = false)
     {
         $this->user = $user;
         $this->invoice = $invoice;
+        $this->isAdmin = $isAdmin;
     }
 
     /**
@@ -32,7 +35,9 @@ class InvoicePaidMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: '✅ Payment Confirmed — Donation Invoice Paid',
+            subject: $this->isAdmin
+                ? '🧾 New Paid Donation Invoice - GiftAidly'
+                : '✅ Payment Confirmed — Donation Invoice Paid',
         );
     }
 
@@ -43,6 +48,11 @@ class InvoicePaidMail extends Mailable
     {
         return new Content(
             markdown: 'email.user.invoice.paid',
+            with: [
+                'user' => $this->user,
+                'invoice' => $this->invoice,
+                'isAdmin' => $this->isAdmin,
+            ],
         );
     }
 
