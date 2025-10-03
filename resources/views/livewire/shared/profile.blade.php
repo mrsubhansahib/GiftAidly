@@ -31,8 +31,9 @@ $updateProfile = function () {
 <div class="card">
     <div class="card-header d-flex justify-content-between align-items-center">
         <h4 class="modal-title text-dark fw-semibold">Account Information</h4>
-        <a href="#" class="fs-5 btn btn-primary" data-bs-toggle="modal" data-bs-target="#editProfileModal">
-            <i class="bx bx-edit"></i> Edit
+        <a href="#" class="btn text-light fs-5 d-flex align-items-center" style="background-color:#0B539B;"
+            data-bs-toggle="modal" data-bs-target="#editProfileModal">
+            <i class="bx bx-edit me-1"></i> Edit
         </a>
     </div>
 

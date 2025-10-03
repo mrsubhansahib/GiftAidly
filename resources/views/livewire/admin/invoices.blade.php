@@ -20,7 +20,7 @@ state([
                                 <tr>
                                     <th>Email</th>
                                     <th>Donation Type</th>
-                                    <th>Amount</th>
+                                    <th>Amount Due</th>
                                     <th>Invoice Date</th>
                                     <th class="text-center">Action</th>
                                 </tr>
@@ -41,12 +41,12 @@ state([
                                                             : '-'))) }}
                                         </td>
                                         <td>
-                                            {{ number_format($invoice->subscription->price, 2) }}
                                             {{ match (strtoupper($invoice->currency)) {
                                                 'USD' => '$',
                                                 'GBP' => '£',
                                                 'EUR' => '€',
                                             } }}
+                                            {{ number_format($invoice->amount_due, 2) }}
                                         </td>
                                         <td>{{ $invoice->invoice_date ? \Carbon\Carbon::parse($invoice->invoice_date)->format('Y-m-d') : '-' }}
                                         </td>
@@ -101,12 +101,12 @@ state([
                                                             <div class="text-center p-4 bg-light rounded-3">
                                                                 <h6 class="text-muted mb-2">Amount</h6>
                                                                 <h3 class="text-dark fw-bold mb-0">
-                                                                    {{ number_format($invoice->amount_due ?? 0, 2) }}
                                                                     {{ match (strtoupper($invoice->currency)) {
                                                                         'USD' => '$',
                                                                         'GBP' => '£',
                                                                         'EUR' => '€',
                                                                     } }}
+                                                                    {{ number_format($invoice->amount_due ?? 0, 2) }}
                                                                 </h3>
                                                             </div>
                                                         </div>

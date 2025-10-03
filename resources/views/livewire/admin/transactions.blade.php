@@ -42,12 +42,12 @@ state([
                                                             : '-'))) }}
                                         </td>
                                         <td>
-                                            {{ number_format($transaction->invoice->subscription->price, 2) }}
                                             {{ match (strtoupper($transaction->invoice->currency)) {
                                                 'USD' => '$',
                                                 'GBP' => '£',
                                                 'EUR' => '€',
                                             } }}
+                                            {{ number_format($transaction->invoice->subscription->price, 2) }}
                                         </td>
                                         <td>
                                             @if ($transaction->status === 'paid' || $transaction->status === 'completed')
@@ -138,12 +138,12 @@ state([
                                                             <div class="text-center p-4 bg-light rounded-3">
                                                                 <h6 class="text-muted mb-2">Amount</h6>
                                                                 <h3 class="text-dark fw-bold mb-0">
-                                                                    {{ number_format($transaction->invoice->subscription->price ?? 0, 2) }}
                                                                     {{ match (strtoupper($transaction->invoice->currency)) {
                                                                         'USD' => '$',
                                                                         'GBP' => '£',
                                                                         'EUR' => '€',
                                                                     } }}
+                                                                    {{ number_format($transaction->invoice->subscription->price ?? 0, 2) }}
                                                                 </h3>
                                                             </div>
                                                         </div>
