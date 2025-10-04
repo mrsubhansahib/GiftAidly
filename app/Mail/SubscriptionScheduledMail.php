@@ -37,7 +37,7 @@ class SubscriptionScheduledMail extends Mailable
         return new Envelope(
             subject: $this->isAdmin
                 ? '📝 New Scheduled Donation - GiftAidly'
-                : '🎯 Your Donation Subscription Has Been Scheduled',
+                : '🎯 Your Donation Has Been Scheduled',
         );
     }
 
