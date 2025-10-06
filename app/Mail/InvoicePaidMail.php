@@ -36,8 +36,8 @@ class InvoicePaidMail extends Mailable
     {
         return new Envelope(
             subject: $this->isAdmin
-                ? '🧾 New Paid Donation Invoice - GiftAidly'
-                : '✅ Payment Confirmed — Donation Invoice Paid',
+                ? '🧾 New Invoice Paid - GiftAidly'
+                : '✅ Donation Invoice Paid - GiftAidly',
         );
     }
 

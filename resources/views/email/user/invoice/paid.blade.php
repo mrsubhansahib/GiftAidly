@@ -27,11 +27,18 @@
                 break;
         }
     }
+    $currencySymbols = [
+        'USD' => '$',
+        'EUR' => '€',
+        'GBP' => '£',
+    ];
+    $currencyCode = strtoupper($invoice->currency);
+    $currencySymbol = $currencySymbols[$currencyCode] ?? $currencyCode;
 @endphp
 
 <x-mail::message>
 @if($isAdmin)
-# 🧾 New Paid Donation Invoice
+# 🧾 New Invoice Paid
 
 A new donation invoice has been **successfully paid**. Below are the details:
 
@@ -44,7 +51,7 @@ A new donation invoice has been **successfully paid**. Below are the details:
 ---
 
 ## 💰 **Invoice Details**
-**Amount Paid:** {{ strtoupper($invoice->currency) }} {{ number_format($invoice->amount_due, 2) }}  
+**Amount Paid:** {{ $currencySymbol }} {{ number_format($invoice->amount_due, 2) }}  
 **Payment Date:** {{ $formattedDate }}  
 @if ($frequency)
 **Donation Frequency:** {{ $frequency }}  
@@ -68,7 +75,7 @@ We’re pleased to confirm that your **donation invoice has been successfully pa
 
 ## 🧾 Invoice Summary
 
-**Amount Paid:** {{ strtoupper($invoice->currency) }} {{ number_format($invoice->amount_due, 2) }}  
+**Amount Paid:** {{ $currencySymbol }} {{ number_format($invoice->amount_due, 2) }}  
 **Payment Date:** {{ $formattedDate }}  
 @if ($frequency)
 **Donation Frequency:** {{ $frequency }}  

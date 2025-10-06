@@ -24,6 +24,14 @@
 
     $startDateFormatted = Carbon::parse($subscription->start_date)->format('d M Y');
     $endDateFormatted = Carbon::parse($subscription->end_date)->format('d M Y');
+
+    $currencySymbols = [
+        'USD' => '$',
+        'EUR' => '€',
+        'GBP' => '£',
+    ];
+    $currencyCode = strtoupper($subscription->currency);
+    $currencySymbol = $currencySymbols[$currencyCode] ?? $currencyCode;
 @endphp
 
 <x-mail::message>
@@ -43,7 +51,7 @@ Here are the details:
 
 ## 💰 **Donation Details**
 **Donation Type:** {{ $frequency }}  
-**Amount:** {{ strtoupper($subscription->currency) }} {{ number_format($subscription->price, 2) }}  
+**Amount:** {{ $currencySymbol }} {{ number_format($subscription->price, 2) }}  
 **Frequency:** {{ $frequency }}  
 **Gift Aid:** {{ $subscription->gift_aid === 'yes' ? '✅ Applied' : '❌ Not Applied' }}  
 **Start Date:** {{ $startDateFormatted }}  
@@ -69,7 +77,7 @@ Your support means the world to us and helps us continue our mission to make a d
 ## 🧾 Donation Schedule Summary
 
 **Donation Type:** {{ $frequency }}  
-**Amount:** {{ strtoupper($subscription->currency) }} {{ number_format($subscription->price, 2) }}  
+**Amount:** {{ $currencySymbol }} {{ number_format($subscription->price, 2) }}  
 **Frequency:** {{ $frequency }}  
 **Gift Aid:** {{ $subscription->gift_aid === 'yes' ? '✅ Applied' : '❌ Not Applied' }}  
 **Start Date:** {{ $startDateFormatted }}  
