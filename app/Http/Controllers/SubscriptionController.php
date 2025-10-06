@@ -21,7 +21,7 @@ use Stripe\Stripe as StripeStripe;
 
 class SubscriptionController extends Controller
 {
-    private string $adminEmail = 'testofficialmail123@gmail.com';
+    private string $adminEmail = 'wasibutt5276@gmail.com';
     public function donateDailyWeeklyMonthly(Request $request)
     {
         $request->validate([
