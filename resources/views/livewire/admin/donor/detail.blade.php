@@ -8,8 +8,13 @@ state([
 ]);
 
 mount(function ($id) {
-    $this->user = User::with(['subscriptions.invoices.transactions'])->findOrFail($id);
+    $this->user = User::with([
+        'subscriptions' => fn($q) => $q->latest(), // subscriptions newest first
+        'subscriptions.invoices' => fn($q) => $q->latest(), // invoices newest first
+        'subscriptions.invoices.transactions' => fn($q) => $q->latest(), // transactions newest first
+    ])->findOrFail($id);
 });
+
 
 ?>
 <div class="container">
@@ -118,7 +123,7 @@ mount(function ($id) {
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach ($user->subscriptions->flatMap->invoices as $invoice)
+                    @foreach ($user->subscriptions->flatMap->invoices->sortByDesc('invoice_date') as $invoice)
                         <tr>
                             <td>
                                 {{ $invoice->subscription->type === 'day'
@@ -259,7 +264,7 @@ mount(function ($id) {
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach ($user->subscriptions->flatMap->invoices->flatMap->transactions as $txn)
+                    @foreach ($user->subscriptions->flatMap->invoices->flatMap->transactions->sortByDesc('paid_at') as $txn)
                         <tr>
                             <td>
                                 {{ $txn->invoice->subscription->type === 'day'

@@ -59,9 +59,16 @@
                         id="page-header-notifications-dropdown" data-bs-toggle="dropdown" aria-haspopup="true"
                         aria-expanded="false">
                         <iconify-icon icon="solar:bell-bing-outline" class="fs-22 align-middle"></iconify-icon>
-                        @if(auth()->user()->unreadNotifications->count() > 0)
+
+                        @php
+                        $notificationCount = auth()->user()->role === 'admin'
+                        ? \DB::table('notifications')->whereNull('read_at')->count()
+                        : auth()->user()->unreadNotifications->count();
+                        @endphp
+
+                        @if($notificationCount > 0)
                         <span class="position-absolute topbar-badge fs-10 translate-middle badge bg-danger rounded-pill">
-                            {{ auth()->user()->unreadNotifications->count() }}
+                            {{ $notificationCount }}
                         </span>
                         @endif
                     </button>
@@ -72,7 +79,7 @@
                             <div class="row align-items-center">
                                 <div class="col">
                                     <h6 class="m-0 fs-16 fw-semibold">
-                                        Notifications ({{ auth()->user()->notifications->count() }})
+                                        Notifications ({{ $notificationCount }})
                                     </h6>
                                 </div>
                                 <div class="col-auto">
@@ -87,35 +94,45 @@
                         </div>
 
                         <div data-simplebar style="max-height: 250px;">
-                            @forelse(auth()->user()->notifications()->latest()->take(5)->get() as $notification)
-                            <a href="javascript:void(0);" class="dropdown-item p-2 border-bottom text-wrap {{ $notification->read_at ? '' : 'bg-light' }}">
-                                <div class="d-flex">
-                                    <div class="flex-shrink-0">
-                                        <div class="avatar-sm me-2">
-                                            <span class="avatar-title bg-soft-primary text-primary fs-20 rounded-circle">
-                                                <i class="bx bx-bell"></i>
-                                            </span>
+                            @php
+                            $notifications = auth()->user()->role === 'admin'
+                            ? \DB::table('notifications')->orderBy('created_at','desc')->take(5)->get()
+                            : auth()->user()->notifications()->latest()->take(5)->get();
+                            @endphp
+
+                            @forelse($notifications as $notification)
+                            @php
+                            $data = is_array($notification->data ?? null)
+                            ? $notification->data
+                            : json_decode($notification->data ?? "{}", true);
+                            @endphp
+
+                            <form action="{{ route('notifications.read', $notification->id) }}" method="POST">
+                                @csrf
+                                <button type="submit" class="dropdown-item w-100 text-start p-2 border-bottom text-wrap {{ isset($notification->read_at) && $notification->read_at ? '' : 'bg-light' }}">
+                                    <div class="d-flex">
+                                        <div class="flex-shrink-0">
+                                            <div class="avatar-sm me-2">
+                                                <span class="avatar-title bg-soft-primary text-primary fs-20 rounded-circle">
+                                                    <i class="bx bx-bell"></i>
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <p class="mb-0 fw-medium">{{ $data['title'] ?? 'Notification' }}</p>
+                                            <p class="mb-0 text-wrap">{{ $data['message'] ?? '' }}</p>
+                                            <small class="text-muted">{{ \Carbon\Carbon::parse($notification->created_at)->diffForHumans() }}</small>
                                         </div>
                                     </div>
-                                    <div class="flex-grow-1">
-                                        <p class="mb-0 fw-medium">{{ $notification->data['title'] }}</p>
-                                        <p class="mb-0 text-wrap">{{ $notification->data['message'] }}</p>
-                                        <small class="text-muted">{{ \Carbon\Carbon::parse($notification->created_at)->diffForHumans() }}</small>
-                                    </div>
-                                </div>
-                            </a>
+                                </button>
+                            </form>
                             @empty
                             <div class="text-center p-3 text-muted">No notifications found</div>
                             @endforelse
                         </div>
-
-                        <div class="text-center p-2">
-                            <a href="{{ url('/all-notifications') }}" class="btn btn-primary btn-sm">
-                                View All Notification <i class="bx bx-right-arrow-alt ms-1"></i>
-                            </a>
-                        </div>
                     </div>
                 </div>
+
 
 
                 <!-- User -->
