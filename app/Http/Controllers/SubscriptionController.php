@@ -221,11 +221,6 @@ class SubscriptionController extends Controller
                     Mail::to($adminEmail)
                         ->send(new InvoicePaidMail(auth()->user(), $savedInvoice, true));
                 }
-                // 3) Transaction Notification
-                auth()->user()->notify(new UserActionNotification(
-                    "Subscription Created",
-                    "You successfully subscribed to a {$request->type} donation of {$request->amount} {$request->currency}."
-                ));
             });
             $msg = $forceChargeNow || !$startIsFuture
                 ? 'Donation successful! Invoice finalized & paid immediately.'
