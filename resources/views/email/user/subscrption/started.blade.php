@@ -35,7 +35,7 @@
 
 <x-mail::message>
 @if($isAdmin)
-# 📝 New Donation Received
+# 📥 New Donation Received
 
 A new donation has been made on **GiftAidly**. Below are the details:
 

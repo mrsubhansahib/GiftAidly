@@ -36,7 +36,7 @@ class SubscriptionStartedMail extends Mailable
     {
         return new Envelope(
             subject: $this->isAdmin
-                ? '📝 New Donation Received - GiftAidly'
+                ? '📥 New Donation Received - GiftAidly'
                 : '🎉 Thank You for Your Donation to GiftAidly!',
         );
     }
