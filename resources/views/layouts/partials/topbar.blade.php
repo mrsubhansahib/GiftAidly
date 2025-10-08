@@ -61,9 +61,17 @@
                         <iconify-icon icon="solar:bell-bing-outline" class="fs-22 align-middle"></iconify-icon>
 
                         @php
-                        $notificationCount = auth()->user()->role === 'admin'
-                        ? \DB::table('notifications')->whereNull('read_at')->count()
-                        : auth()->user()->unreadNotifications->count();
+                        if (auth()->user()->role === 'admin') {
+                        $notificationCount = auth()->user()
+                        ->unreadNotifications()
+                        ->whereJsonContains('data->type', 'admin')
+                        ->count();
+                        } else {
+                        $notificationCount = auth()->user()
+                        ->unreadNotifications()
+                        ->whereJsonContains('data->type', 'user')
+                        ->count();
+                        }
                         @endphp
 
                         @if($notificationCount > 0)
@@ -95,12 +103,23 @@
 
                         <div data-simplebar style="max-height: 250px;">
                             @php
-                                $notifications = auth()
-                                    ->user()
-                                    ->notifications()
-                                    ->whereJsonContains('data->type', 'admin')
-                                    ->latest()
-                                    ->get();
+                            if (auth()->user()->role === 'admin') {
+                            // Admin ko sirf admin-type notifications dikhani hain
+                            $notifications = auth()
+                            ->user()
+                            ->notifications()
+                            ->whereJsonContains('data->type', 'admin')
+                            ->latest()
+                            ->get();
+                            } else {
+                            // User ko sirf user-type notifications dikhani hain
+                            $notifications = auth()
+                            ->user()
+                            ->notifications()
+                            ->whereJsonContains('data->type', 'user')
+                            ->latest()
+                            ->get();
+                            }
                             @endphp
 
                             @forelse($notifications as $notification)

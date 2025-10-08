@@ -8,11 +8,10 @@ use Illuminate\Support\Facades\Route;
 
 require __DIR__ . '/auth.php';
 
-Route::middleware(['auth'])->group(function () {
-    Route::post('/notifications/clear', [NotificationController::class, 'clearAll'])->name('notifications.clear');
-    Route::post('/notifications/read/{id}', [NotificationController::class, 'markAsRead'])->name('notifications.read');
-});
 require __DIR__ . '/api.php';
+
+Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
+Route::post('/notifications/clear', [NotificationController::class, 'clearAll'])->name('notifications.clear');
 
 Route::group(['prefix' => '/', 'middleware' => ['auth', 'verified']], function () {
 
