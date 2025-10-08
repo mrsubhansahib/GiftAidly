@@ -74,7 +74,7 @@ mount(function ($id) {
             <h4>Invoices</h4>
         </div>
         <div class="card-body table-responsive">
-            <table id="invoices-table" class="table table-striped table-bordered align-middle">
+            <table id="" class="datatable table table-striped table-bordered align-middle">
                 <thead>
                     <tr>
                         <th>Donation type</th>

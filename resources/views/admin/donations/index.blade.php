@@ -5,10 +5,3 @@
     <livewire:admin.donations />
 @endsection
 
-@section('scripts')
-    <script>
-        $(document).ready(function() {
-            $('#datatable').DataTable();
-        });
-    </script>
-@endsection

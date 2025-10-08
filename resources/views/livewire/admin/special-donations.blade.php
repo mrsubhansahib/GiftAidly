@@ -104,7 +104,7 @@ new class extends Component {
                     </div>
 
                     <div class="table-responsive">
-                        <table id="datatable" class="table table-striped table-bordered align-middle">
+                        <table id="" class="datatable table table-striped table-bordered align-middle">
                             <thead>
                                 <tr>
                                     <th>Name</th>
@@ -114,7 +114,7 @@ new class extends Component {
                                 </tr>
                             </thead>
                             <tbody>
-                                @forelse ($donations as $donation)
+                                @foreach ($donations as $donation)
                                     <tr>
                                         <td>{{ $donation['name'] }}</td>
                                         <td>{{ number_format($donation['price']) }}</td>
@@ -131,11 +131,7 @@ new class extends Component {
                                             </button>
                                         </td>
                                     </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="4" class="text-center text-muted">No donations found</td>
-                                    </tr>
-                                @endforelse
+                                @endforeach
                             </tbody>
                         </table>
                     </div>

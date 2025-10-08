@@ -5,10 +5,3 @@
     <livewire:user.invoices />
 @endsection
 
-@section('scripts')
-    <script>
-        $(document).ready(function() {
-            $('#datatable').DataTable();
-        });
-    </script>
-@endsection

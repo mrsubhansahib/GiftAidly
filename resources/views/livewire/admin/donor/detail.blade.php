@@ -52,7 +52,7 @@ mount(function ($id) {
             <h4>Donations</h4>
         </div>
         <div class="card-body table-responsive">
-            <table id="subscriptions-table" class="table table-striped table-bordered align-middle">
+            <table id="" class="datatable table table-striped table-bordered align-middle">
                 <thead>
                     <tr>
                         <th>Donation Type</th>
@@ -112,7 +112,7 @@ mount(function ($id) {
             <h4>Invoices</h4>
         </div>
         <div class="card-body table-responsive">
-            <table id="invoices-table" class="table table-striped table-bordered align-middle">
+            <table id="" class="datatable table table-striped table-bordered align-middle">
                 <thead>
                     <tr>
                         <th>Donation type</th>
@@ -253,7 +253,7 @@ mount(function ($id) {
             <h4>Transactions</h4>
         </div>
         <div class="card-body table-responsive">
-            <table id="transactions-table" class="table table-striped table-bordered align-middle">
+            <table id="" class="datatable table table-striped table-bordered align-middle">
                 <thead>
                     <tr>
                         <th>Donation Type</th>

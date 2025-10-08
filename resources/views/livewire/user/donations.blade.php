@@ -4,7 +4,7 @@ use function Livewire\Volt\state;
 use App\Models\Subscription;
 
 state([
-    'subscriptions' => fn() => Subscription::where('user_id', Auth::id())->get(),
+    'subscriptions' => fn() => Subscription::where('user_id', Auth::id())->latest()->get(),
 ]);
 
 ?>
@@ -14,7 +14,7 @@ state([
             <div class="card shadow-sm">
                 <div class="card-body">
                     <div class="table-responsive">
-                        <table id="datatable" class="table table-striped table-bordered align-middle">
+                        <table id="" class="datatable table table-striped table-bordered align-middle">
                             <thead>
                                 <tr>
                                     <th>Donation Type</th>
@@ -53,11 +53,14 @@ state([
                                                 class="btn btn-sm btn-primary">
                                                 View
                                             </a>
-                                            <a href="{{ route('cancel.donation', $subscription->id) }}"
-                                                class="btn btn-sm btn-danger"
-                                                {{ $subscription['status'] === 'active' ? '' : 'disabled' }}>
-                                                Cancel
-                                            </a>
+                                            @if ($subscription['status'] === 'active')
+                                                <button
+                                                    onclick="window.location.href='{{ route('cancel.donation', $subscription->id) }}'"
+                                                    class="btn btn-sm btn-danger"
+                                                    {{ $subscription['status'] === 'active' ? '' : 'disabled' }}>
+                                                    Cancel
+                                                </button>
+                                            @endif
                                         </td>
                                     </tr>
                                 @endforeach

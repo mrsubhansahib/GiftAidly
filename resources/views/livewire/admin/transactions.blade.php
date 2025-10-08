@@ -4,7 +4,7 @@ use App\Models\Transaction;
 use function Livewire\Volt\{state};
 
 state([
-    'transactions' => fn() => Transaction::all(),
+    'transactions' => fn() => Transaction::latest()->get(),
 ]);
 
 ?>
@@ -15,7 +15,7 @@ state([
             <div class="card shadow-sm">
                 <div class="card-body">
                     <div class="table-responsive">
-                        <table id="datatable" class="table table-striped table-bordered align-middle">
+                        <table id="" class="datatable table table-striped table-bordered align-middle">
                             <thead>
                                 <tr>
                                     <th>Email</th>
@@ -107,7 +107,7 @@ state([
                                                             <span
                                                                 class="badge 
                             @if ($transaction->status === 'paid' || $transaction->status === 'completed') bg-success bg-opacity-10 text-success border border-success
-                            @elseif($transaction->status === 'failed') bg-danger bg-opacity-10 text-danger border border-danger
+                            @elseif($transaction->statFus === 'failed') bg-danger bg-opacity-10 text-danger border border-danger
                             @elseif($transaction->status === 'pending') bg-warning bg-opacity-10 text-warning border border-warning
                             @else bg-secondary bg-opacity-10 text-secondary border border-secondary @endif
                             px-3 py-2 rounded-3">

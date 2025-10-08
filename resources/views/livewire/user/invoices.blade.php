@@ -19,7 +19,7 @@ state([
             <div class="card shadow-sm">
                 <div class="card-body">
                     <div class="table-responsive">
-                        <table id="datatable" class="table table-striped table-bordered align-middle">
+                        <table id="" class="datatable table table-striped table-bordered align-middle">
                             <thead>
                                 <tr>
                                     <th>Name</th>
