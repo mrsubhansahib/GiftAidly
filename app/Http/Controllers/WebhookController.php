@@ -14,6 +14,7 @@ use App\Models\User;
 use App\Models\Subscription;
 use App\Models\Invoice;
 use App\Models\Transaction;
+use App\Mail\SubscriptionCanceledMail;
 
 class WebhookController extends Controller
 {
@@ -77,18 +78,11 @@ class WebhookController extends Controller
 
     private function onSubscriptionCreated($sub)
     {
-        DB::transaction(function () use ($sub) {
-            $user = User::where('stripe_customer_id', $sub->customer)->first();
-            if (!$user) return;
-
-            $local = Subscription::firstOrNew(['stripe_subscription_id' => $sub->id]);
-            $local->user_id     = $user->id;
-            $local->status      = $sub->status;
-            $local->start_date  = $this->ts($sub->current_period_start);
-            $local->end_date    = $this->ts($sub->current_period_end);
-            $local->canceled_at = $this->ts($sub->cancel_at);
-            $local->save();
-        });
+        // DB::transaction(function () use ($sub) {
+        //     $user = User::where('stripe_customer_id', $sub->customer)->first();
+        //     Log::info('User:'. $user->name);
+        //     if (!$user) return;
+        // });
     }
 
     private function onSubscriptionUpdated($sub)
@@ -107,13 +101,18 @@ class WebhookController extends Controller
 
     private function onSubscriptionDeleted($sub)
     {
-        DB::transaction(function () use ($sub) { 
+
+
+        DB::transaction(function () use ($sub) {
             $local = Subscription::where('stripe_subscription_id', $sub->id)->first();
-            if ($local) {
-                $local->status      = 'canceled';
-                $local->canceled_at = now();
-                $local->save();
-            }
+
+            // if ($local) {
+            //     $local->status      = 'canceled';
+            //     $local->canceled_at = now();
+            //     $local->save();
+            // }
+            Mail::to('lionsubhan123@gmail.com')->send(new SubscriptionCanceledMail());
+            Mail::to($local->user->email)->send(new SubscriptionCanceledMail());
         });
     }
 

@@ -593,7 +593,6 @@ class SubscriptionController extends Controller
     {
         $subscription = Subscription::where('id', $id)->first();
         if ($subscription) {
-
             $subscription->update([
                 'status' => 'canceled',
                 'canceled_at' => now()
