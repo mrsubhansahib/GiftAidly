@@ -17,6 +17,7 @@ use Stripe;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\SubscriptionStartedMail;
 use App\Models\Subscription;
+use App\Models\User;
 use Stripe\Stripe as StripeStripe;
 
 class SubscriptionController extends Controller
@@ -201,8 +202,8 @@ class SubscriptionController extends Controller
 
             DB::commit();
             $adminEmail = $this->adminEmail;
-            DB::afterCommit(function () use ($subscription, $savedInvoice, $startIsFuture, $forceChargeNow, $request, $adminEmail) {
-                // 1) Subscription Email
+            $admin = User::where('role','admin')->first();
+            DB::afterCommit(function () use ($subscription, $savedInvoice, $startIsFuture, $forceChargeNow, $request, $adminEmail, $admin) {
                 if ($startIsFuture && !$forceChargeNow) {
                     Mail::to(auth()->user()->email)
                         ->send(new SubscriptionScheduledMail(auth()->user(), $subscription));
@@ -214,24 +215,41 @@ class SubscriptionController extends Controller
                     Mail::to($adminEmail)
                         ->send(new SubscriptionStartedMail(auth()->user(), $subscription, true));
                 }
-                // 2) Invoice Email (agar pay ho chuka ho)
                 if ($savedInvoice) {
                     Mail::to(auth()->user()->email)
                         ->send(new InvoicePaidMail(auth()->user(), $savedInvoice));
                     Mail::to($adminEmail)
                         ->send(new InvoicePaidMail(auth()->user(), $savedInvoice, true));
                 }
+                // 2) 🧍 USER Notification
+                $userTitle = $startIsFuture && !$forceChargeNow
+                    ? "📅 Donation Subscription Scheduled"
+                    : "💝 Donation Subscription Started";
+                $userMessage = $startIsFuture && !$forceChargeNow
+                    ? "Your {$request->type} donation of {$request->amount} {$request->currency} has been scheduled successfully."
+                    : "Your {$request->type} donation of {$request->amount} {$request->currency} has started successfully.";
+
+                auth()->user()->notify(new UserActionNotification(
+                    $userTitle,
+                    $userMessage,
+                    'user'
+                ));
+                // 3) 🧑‍💼 ADMIN Notification
+                if ($admin) {
+                    $adminTitle = "💰 New {$request->type} Donation Received";
+                    $adminMessage = auth()->user()->name .
+                        " has started a {$request->type} donation of {$request->amount} {$request->currency}.";
+
+                    $admin->notify(new UserActionNotification(
+                        $adminTitle,
+                        $adminMessage,
+                        'admin'
+                    ));
+                }
             });
             $msg = $forceChargeNow || !$startIsFuture
                 ? 'Donation successful! Invoice finalized & paid immediately.'
                 : 'Subscription scheduled. Billing will start on your selected start date.';
-            // ider notification send horaha ha subhan bhai
-            // ✅ Notify user
-            auth()->user()->notify(new UserActionNotification(
-                "Subscription Created",
-                "You successfully subscribed to a {$request->type} donation of {$request->amount} {$request->currency}."
-            ));
-
             return redirect()->back()->with('success', $msg);
         } catch (\Stripe\Exception\CardException $e) {
             DB::rollBack();

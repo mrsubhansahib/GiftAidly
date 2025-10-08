@@ -95,9 +95,12 @@
 
                         <div data-simplebar style="max-height: 250px;">
                             @php
-                            $notifications = auth()->user()->role === 'admin'
-                            ? \DB::table('notifications')->orderBy('created_at','desc')->take(5)->get()
-                            : auth()->user()->notifications()->latest()->take(5)->get();
+                                $notifications = auth()
+                                    ->user()
+                                    ->notifications()
+                                    ->whereJsonContains('data->type', 'admin')
+                                    ->latest()
+                                    ->get();
                             @endphp
 
                             @forelse($notifications as $notification)

@@ -13,13 +13,14 @@ class UserActionNotification extends Notification
 
     protected $title;
     protected $message;
+    protected $type;
 
-    public function __construct($title, $message)
+    public function __construct($title, $message, $type = 'general')
     {
         $this->title = $title;
         $this->message = $message;
+        $this->type = $type;
     }
-
     public function via($notifiable)
     {
         return ['database'];
@@ -30,6 +31,7 @@ class UserActionNotification extends Notification
         return [
             'title'   => $this->title,
             'message' => $this->message,
+            'type'    => $this->type,
             'time'    => now()->toDateTimeString(),
         ];
     }
