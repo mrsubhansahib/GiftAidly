@@ -24,7 +24,6 @@ use Illuminate\Support\Str;
 
 class SubscriptionController extends Controller
 {
-    private string $adminEmail = 'testofficialmail123@gmail.com';
     public function donateDailyWeeklyMonthly(Request $request)
     {
         $request->validate([
@@ -203,7 +202,7 @@ class SubscriptionController extends Controller
             }
 
             DB::commit();
-            $adminEmail = $this->adminEmail;
+            $adminEmail = config('mail.admin_email');
             $admin = User::where('role', 'admin')->first();
             DB::afterCommit(function () use ($subscription, $savedInvoice, $startIsFuture, $forceChargeNow, $request, $adminEmail, $admin) {
                 if ($startIsFuture && !$forceChargeNow) {
@@ -419,7 +418,7 @@ class SubscriptionController extends Controller
                 ]);
             }
             DB::commit();
-            $adminEmail = $this->adminEmail;
+            $adminEmail = config('mail.admin_email');
             DB::afterCommit(function () use ($subscription, $savedInvoice, $startIsFuture, $forceChargeNow, $request) {
                 $admin = \App\Models\User::where('role', 'admin')->first();
 
@@ -614,7 +613,7 @@ class SubscriptionController extends Controller
             ]);
 
             DB::commit();
-            $adminEmail = $this->adminEmail;
+            $adminEmail = config('mail.admin_email');
             DB::afterCommit(function () use ($subscription, $invoice, $transaction) {
                 $admin = User::where('role', 'admin')->first();
 
