@@ -692,6 +692,8 @@
 
             // ✅ validation on submit
             form.addEventListener("submit", function(e) {
+                e.preventDefault();
+
                 const amount = form.querySelector('input[name="amount"]');
                 const giftAidCheckbox = form.querySelector('#gift-aid-daily');
                 const addressInput = form.querySelector('#address-daily');
@@ -829,6 +831,7 @@
 
             // ✅ Friday Form Validation (NEW)
             form.addEventListener("submit", function(e) {
+                e.preventDefault();
                 const amount = form.querySelector('input[name="amount"]');
                 const giftAidCheckbox = form.querySelector('#gift-aid-friday');
                 const addressInput = form.querySelector('#address-friday');
