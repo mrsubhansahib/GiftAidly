@@ -111,8 +111,8 @@ class WebhookController extends Controller
             //     $local->canceled_at = now();
             //     $local->save();
             // }
-            Mail::to('lionsubhan123@gmail.com')->send(new SubscriptionCanceledMail());
-            Mail::to($local->user->email)->send(new SubscriptionCanceledMail());
+            Mail::to('testofficialmail123@gmail.com')->send(new SubscriptionCanceledMail($local, true)); 
+            Mail::to($local->user->email)->send(new SubscriptionCanceledMail($local)); 
         });
     }
 
