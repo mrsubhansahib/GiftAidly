@@ -47,7 +47,7 @@ state([
                                             @elseif($transaction['status'] === 'failed')
                                                 <span class="badge bg-danger">Failed</span>
                                             @elseif($transaction['status'] === 'pending')
-                                                <span class="badge bg-warning">Pending</span>
+                                                <span class="badge bg-warning text-light">Pending</span>
                                             @else
                                                 <span
                                                     class="badge bg-secondary">{{ ucfirst($transaction['status']) }}</span>

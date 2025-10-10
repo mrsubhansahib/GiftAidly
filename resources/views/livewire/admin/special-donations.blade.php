@@ -64,7 +64,7 @@ new class extends Component {
                 'currency' => 'gbp',
             ]);
             session()->flash('success', 'Donation created successfully!');
-             $this->dispatch('toast', type: 'success', message: 'Donation created successfully!');
+            $this->dispatch('toast', type: 'success', message: 'Donation created successfully!');
         }
 
         $this->loadDonations();
@@ -77,8 +77,7 @@ new class extends Component {
         SpecialDonation::findOrFail($id)->delete();
         $this->loadDonations();
         session()->flash('success', 'Donation deleted successfully!');
-            $this->dispatch('toast', type: 'danger', message: 'Donation deleted successfully!');
-
+        $this->dispatch('toast', type: 'danger', message: 'Donation deleted successfully!');
     }
 
     private function resetForm()
@@ -109,28 +108,28 @@ new class extends Component {
                                 <tr>
                                     <th>Name</th>
                                     <th>Price</th>
-                                    <th>Currency</th>
+                                    <!-- <th>Currency</th> -->
                                     <th class="text-center">Action</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @foreach ($donations as $donation)
-                                    <tr>
-                                        <td>{{ $donation['name'] }}</td>
-                                        <td>{{ number_format($donation['price']) }}</td>
-                                        <td>{{ strtoupper($donation['currency']) }}</td>
-                                        <td class="text-center">
-                                            <button wire:click="edit({{ $donation['id'] }})"
-                                                class="btn btn-sm text-white"
-                                                style="background-color:#0B539B;">
-                                                Edit
-                                            </button>
-                                            <button wire:click="delete({{ $donation['id'] }})"
-                                                class="btn btn-sm btn-danger">
-                                                Delete
-                                            </button>
-                                        </td>
-                                    </tr>
+                                <tr>
+                                    <td>{{ $donation['name'] }}</td>
+                                    <td>£ {{ number_format($donation['price'], 2) }}</td>
+                                    <!-- <td>{{ strtoupper($donation['currency']) }}</td> -->
+                                    <td class="text-center">
+                                        <button wire:click="edit({{ $donation['id'] }})"
+                                            class="btn btn-sm text-white"
+                                            style="background-color:#0B539B;">
+                                            Edit
+                                        </button>
+                                        <button wire:click="delete({{ $donation['id'] }})"
+                                            class="btn btn-sm btn-danger">
+                                            Delete
+                                        </button>
+                                    </td>
+                                </tr>
                                 @endforeach
                             </tbody>
                         </table>
@@ -142,47 +141,46 @@ new class extends Component {
 
     <!-- ✅ Modal -->
     @if ($showModal)
-        <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,.5);">
-            <div class="modal-dialog modal-md modal-dialog-centered">
-                <div class="modal-content border-0 rounded-4 shadow-lg">
-                    <div class="modal-header border-0 pb-0">
-                        <h5 class="modal-title fw-semibold">
-                            {{ $editingId ? 'Edit Donation' : 'Add Donation' }}
-                        </h5>
-                        <button type="button" class="btn-close" wire:click="$set('showModal', false)"></button>
-                    </div>
-                    <div class="modal-body px-4 pb-4">
-                        <form wire:submit.prevent="save">
-                            <div class="mb-3">
-                                <label class="form-label">Name</label>
-                                <input type="text" wire:model="name" class="form-control">
-                                @error('name') <div class="text-danger small">{{ $message }}</div> @enderror
-                            </div>
+    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,.5);">
+        <div class="modal-dialog modal-md modal-dialog-centered">
+            <div class="modal-content border-0 rounded-4 shadow-lg">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-semibold">
+                        {{ $editingId ? 'Edit Donation' : 'Add Donation' }}
+                    </h5>
+                    <button type="button" class="btn-close" wire:click="$set('showModal', false)"></button>
+                </div>
+                <div class="modal-body px-4 pb-4">
+                    <form wire:submit.prevent="save">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Name</label>
+                            <input type="text" wire:model="name" class="form-control" placeholder="Enter donation name">
+                            @error('name') <div class="text-danger small">{{ $message }}</div> @enderror
+                        </div>
 
-                            <div class="mb-3">
-                                <label class="form-label">Price</label>
-                                <input type="number" wire:model="price" class="form-control">
-                                @error('price') <div class="text-danger small">{{ $message }}</div> @enderror
+                        <!-- ✅ Price input with £ symbol -->
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Price</label>
+                            <div class="input-group">
+                                <span class="input-group-text fw-bold" style="background-color:#f1f1f1;">£</span>
+                                <input type="number" wire:model="price" step="0.01" min="0" class="form-control" placeholder="Enter amount">
                             </div>
+                            @error('price') <div class="text-danger small">{{ $message }}</div> @enderror
+                        </div>
 
-                            <!-- ✅ Currency always GBP -->
-                            <div class="mb-3">
-                                <label class="form-label">Currency</label>
-                                <input type="text" class="form-control" value="GBP" disabled>
-                            </div>
-
-                            <div class="d-flex justify-content-end gap-2">
-                                <button type="button" class="btn btn-secondary" wire:click="$set('showModal', false)">
-                                    Cancel
-                                </button>
-                                <button type="submit" class="btn text-light" style="background-color:#0B539B;">
-                                    Save
-                                </button>
-                            </div>
-                        </form>
-                    </div>
+                        <div class="d-flex justify-content-end gap-2 mt-4">
+                            <button type="button" class="btn btn-secondary" wire:click="$set('showModal', false)">
+                                Cancel
+                            </button>
+                            <button type="submit" class="btn text-light" style="background-color:#0B539B;">
+                                Save
+                            </button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
+    </div>
     @endif
+
 </div>
