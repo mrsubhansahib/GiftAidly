@@ -27,42 +27,53 @@ state([
                             </thead>
                             <tbody>
                                 @foreach ($subscriptions as $subscription)
-                                    <tr>
-                                        <td>
-                                            {{ $subscription['type'] == 'day' ? 'Daily' : ($subscription['type'] == 'week' ? 'Weekly' : ($subscription['type'] == 'month' ? 'Monthly' : ucfirst($subscription['type']))) }}
-                                        </td>
-                                        <td>
-                                            {{ match (strtoupper($subscription['currency'])) {
+                                <tr>
+                                    <td>
+                                        {{ $subscription['type'] == 'day' ? 'Daily' : ($subscription['type'] == 'week' ? 'Weekly' : ($subscription['type'] == 'month' ? 'Monthly' : ucfirst($subscription['type']))) }}
+                                    </td>
+                                    <td>
+                                        {{ match (strtoupper($subscription['currency'])) {
                                                 'USD' => '$',
                                                 'GBP' => '£',
                                                 'EUR' => '€',
                                             } }}
-                                            {{ number_format($subscription['price'], 2) }}
-                                        </td>
-                                        <td>
-                                            <span
-                                                class="badge {{ $subscription['status'] === 'active' ? 'bg-success' : 'bg-secondary' }}">
-                                                {{ ucfirst($subscription['status']) }}
-                                            </span>
-                                        </td>
-                                        <td>{{ \Carbon\Carbon::parse($subscription['start_date'])->format('Y-m-d') }}
-                                        </td>
-                                        <td>{{ \Carbon\Carbon::parse($subscription['end_date'])->format('Y-m-d') }}</td>
-                                        <td>
-                                            <a href="{{ route('user.donations.detail', $subscription->id) }}"
-                                                class="btn btn-sm btn-primary">
-                                                View
-                                            </a>
-                                            @if ($subscription['status'] === 'active')
-                                                <button
-                                                    onclick="window.location.href='{{ route('cancel.donation', $subscription->id) }}'"
-                                                    class="btn btn-sm btn-danger"
-                                                    {{ $subscription['status'] === 'active' ? '' : 'disabled' }}>
-                                                    Cancel
-                                                </button>
-                                            @endif
-                                        </td>
-                                    </tr>
+                                        {{ number_format($subscription['price'], 2) }}
+                                    </td>
+                                    <td>
+                                        @php
+                                        $statusClass = match($subscription['status']) {
+                                        'active' => 'bg-success',
+                                        'canceled' => 'bg-danger',
+                                        'pending' => 'bg-warning',
+                                        'ended' => 'bg-secondary',
+                                        'trialing' => 'bg-primary',
+                                        default => 'bg-info',
+                                        };
+                                        @endphp
+
+                                        <span class="badge {{ $statusClass }}">
+                                            {{ ucfirst($subscription['status'] ?? 'N/A') }}
+                                        </span>
+                                    </td>
+
+                                    <td>{{ \Carbon\Carbon::parse($subscription['start_date'])->format('Y-m-d') }}
+                                    </td>
+                                    <td>{{ \Carbon\Carbon::parse($subscription['end_date'])->format('Y-m-d') }}</td>
+                                    <td>
+                                        <a href="{{ route('user.donations.detail', $subscription->id) }}"
+                                            class="btn btn-sm btn-primary">
+                                            View
+                                        </a>
+                                        @if ($subscription['status'] === 'active')
+                                        <button
+                                            onclick="window.location.href='{{ route('cancel.donation', $subscription->id) }}'"
+                                            class="btn btn-sm btn-danger"
+                                            {{ $subscription['status'] === 'active' ? '' : 'disabled' }}>
+                                            Cancel
+                                        </button>
+                                        @endif
+                                    </td>
+                                </tr>
                                 @endforeach
                             </tbody>
                         </table>
