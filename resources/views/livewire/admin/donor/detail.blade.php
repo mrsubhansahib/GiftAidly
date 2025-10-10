@@ -288,7 +288,7 @@ mount(function ($id) {
                             <td>
                                 <span
                                     class="badge 
-                                    {{ $txn->status === 'paid' ? 'bg-success' : ($txn->status === 'pending' ? 'bg-warning text-dark' : 'bg-danger') }}">
+                                    {{ $txn->status === 'paid' ? 'bg-success' : ($txn->status === 'pending' ? 'bg-warning text-light' : 'bg-danger') }}">
                                     {{ ucfirst($txn->status) }}
                                 </span>
                             </td>

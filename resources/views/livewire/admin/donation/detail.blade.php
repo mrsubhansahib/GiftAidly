@@ -113,7 +113,7 @@ mount(function ($id) {
 
                             <td>
                                 <span
-                                    class="badge {{ $subscription->status === 'active' ? 'bg-success' : 'bg-danger' }}">
+                                    class="badge {{ $subscription->status === 'paid' ? 'bg-success' : 'bg-danger' }}">
                                     {{ ucfirst($subscription->status) }}
                                 </span>
                             </td>
@@ -251,7 +251,7 @@ mount(function ($id) {
                             </td>
                             <td>
                                 <span
-                                    class="badge {{ $txn->status === 'completed' ? 'bg-success' : ($txn->status === 'pending' ? 'bg-warning text-dark' : 'bg-danger') }}">
+                                    class="badge {{ $txn->status === 'completed' ? 'bg-success' : ($txn->status === 'pending' ? 'bg-warning text-light' : 'bg-danger') }}">
                                     {{ ucfirst($txn->status) }}
                                 </span>
                             </td>

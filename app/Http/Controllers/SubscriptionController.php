@@ -466,7 +466,7 @@ class SubscriptionController extends Controller
                     ? "Your {$typeReadable} donation of {$currencySymbol}{$request->amount} has been scheduled successfully."
                     : "Your {$typeReadable} donation of {$currencySymbol}{$request->amount} has started successfully.";
 
-                auth()->user()->notify(new \App\Notifications\UserActionNotification(
+                auth()->user()->notify(new UserActionNotification(
                     $userTitle,
                     $userMessage,
                     'user'
@@ -477,7 +477,7 @@ class SubscriptionController extends Controller
                     $adminTitle = "💰 New {$typeReadable} Donation Received";
                     $adminMessage = "{$userName} has started a {$typeReadable} donation of {$currencySymbol}{$request->amount}.";
 
-                    $admin->notify(new \App\Notifications\UserActionNotification(
+                    $admin->notify(new UserActionNotification(
                         $adminTitle,
                         $adminMessage,
                         'admin'
@@ -652,7 +652,7 @@ class SubscriptionController extends Controller
                 $userTitle = "💝 {$typeReadable} Successful";
                 $userMessage = "You donated {$currencySymbol}{$subscription->price} towards {$subscription->type}.";
 
-                auth()->user()->notify(new \App\Notifications\UserActionNotification(
+                auth()->user()->notify(new UserActionNotification(
                     $userTitle,
                     $userMessage,
                     'user'
@@ -663,7 +663,7 @@ class SubscriptionController extends Controller
                     $adminTitle = "💰 New {$typeReadable} Received";
                     $adminMessage = "{$userName} donated {$currencySymbol}{$subscription->price} towards {$subscription->type}.";
 
-                    $admin->notify(new \App\Notifications\UserActionNotification(
+                    $admin->notify(new UserActionNotification(
                         $adminTitle,
                         $adminMessage,
                         'admin'
@@ -728,7 +728,7 @@ class SubscriptionController extends Controller
                 $userTitle = "🚫 {$typeReadable} Donation Canceled";
                 $userMessage = "Your {$typeReadable} donation of {$currencySymbol}{$amount} has been canceled successfully.";
 
-                $subscription->user?->notify(new \App\Notifications\UserActionNotification(
+                $subscription->user?->notify(new UserActionNotification(
                     $userTitle,
                     $userMessage,
                     'user'
@@ -739,7 +739,7 @@ class SubscriptionController extends Controller
                     $adminTitle = "❌ {$typeReadable} Donation Canceled";
                     $adminMessage = "{$userName} has canceled their {$typeReadable} donation of {$currencySymbol}{$amount}.";
 
-                    $admin->notify(new \App\Notifications\UserActionNotification(
+                    $admin->notify(new UserActionNotification(
                         $adminTitle,
                         $adminMessage,
                         'admin'
