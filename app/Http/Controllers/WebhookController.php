@@ -15,6 +15,8 @@ use App\Models\Subscription;
 use App\Models\Invoice;
 use App\Models\Transaction;
 use App\Mail\SubscriptionCanceledMail;
+use App\Mail\TransactionPaidMail;
+use Stripe\Charge;
 
 class WebhookController extends Controller
 {
@@ -54,7 +56,9 @@ class WebhookController extends Controller
                 case 'invoice.payment_failed':
                     $this->onInvoicePaymentFailed($event->data->object);
                     break;
-
+                case 'charge.succeeded':
+                    $this->onChargeSucceeded($event->data->object);
+                    break;
                 case 'payment_intent.succeeded':
                     $this->onPaymentIntentSucceeded($event->data->object);
                     break;
@@ -101,56 +105,69 @@ class WebhookController extends Controller
 
     private function onSubscriptionDeleted($sub)
     {
-
-
         DB::transaction(function () use ($sub) {
             $local = Subscription::where('stripe_subscription_id', $sub->id)->first();
+            // Log::info('Subscription was:'. $local->user->name);
 
-            // if ($local) {
-            //     $local->status      = 'canceled';
-            //     $local->canceled_at = now();
-            //     $local->save();
-            // }
-            Mail::to('testofficialmail123@gmail.com')->send(new SubscriptionCanceledMail($local, true)); 
-            Mail::to($local->user->email)->send(new SubscriptionCanceledMail($local)); 
+            Mail::to('lionsubhan123@gmail.com')->send(new SubscriptionCanceledMail($local->user));
+            Mail::to($local->user->email)->send(new SubscriptionCanceledMail($local->user));
         });
     }
 
     /* ---------- INVOICE EVENTS ---------- */
 
+
+
     private function onInvoicePaymentSucceeded($inv)
     {
-        DB::transaction(function () use ($inv) {
-            $subscription = Subscription::where('stripe_subscription_id', $inv->subscription)->first();
-            if (!$subscription) return;
+        $invoice = Invoice::where('stripe_invoice_id', $inv->id)->first();
 
-            $invoice = Invoice::firstOrNew(['stripe_invoice_id' => $inv->id]);
-            $invoice->subscription_id = $subscription->id;
-            $invoice->amount_due      = $this->amount($inv->amount_due, $inv->currency);
-            $invoice->currency        = $inv->currency;
-            $invoice->invoice_date    = $this->ts($inv->created);
-            $invoice->paid_at         = now();
-            $invoice->save();
+        // if (!$invoice) {
+        //     Log::warning("Local invoice not found for Stripe invoice {$inv->id}");
+        //     return;
+        // }
 
-            Transaction::updateOrCreate(
-                ['stripe_transaction_id' => (string)$inv->payment_intent],
-                ['invoice_id' => $invoice->id, 'status' => 'paid', 'paid_at' => now()]
-            );
+        // // 1️⃣ Check if charge exists
+        // if (empty($inv->charge)) {
+        //     Log::warning("Charge still missing, requeueing job for invoice {$inv->id}");
+        //     self::dispatch($inv->id)->delay(now()->addMinutes(2));
+        //     return;
+        // }
+        // $inv = \Stripe\Invoice::retrieve($invoice->stripe_invoice_id);
+        // if (!$inv->charge) {
+        //     // still missing — requeue again
+        //     Log::warning("Charge still missing, requeueing job for invoice {$inv->id}");
+        //     self::dispatch($inv->id)->delay(now()->addMinutes(2));
+        //     return;
+        // }
 
-            // ✅ Extra Scenario: Cancel if local DB says subscription ended earlier
-            if ($subscription->canceled_at && now()->gte($subscription->canceled_at)) {
-                if ($subscription->status !== 'canceled') {
-                    $subscription->update(['status' => 'canceled']);
-                    try {
-                        StripeSubscription::update($inv->subscription, [
-                            'cancel_at_period_end' => true,
-                        ]);
-                    } catch (\Throwable $e) {
-                        Log::warning("Failed to sync early cancel to Stripe: " . $e->getMessage());
-                    }
-                }
-            }
-        });
+        // // 2️⃣ Retrieve charge object
+        // try {
+        //     $charge = Charge::retrieve($inv->charge);
+        // } catch (\Exception $e) {
+        //     Log::error("Failed to retrieve charge for invoice {$inv->id}: " . $e->getMessage());
+        //     return;
+        // }
+
+        // // 3️⃣ Avoid duplicate transactions
+        // if (Transaction::where('stripe_transaction_id', $charge->id)->exists()) {
+        //     Log::info("Transaction already exists for charge {$charge->id}");
+        //     return;
+        // }
+
+        // // 4️⃣ Create transaction record
+        // $trans = Transaction::create([
+        //     'invoice_id'            => $invoice->id,
+        //     'stripe_transaction_id' => $charge->id,
+        //     'status'                => 'paid',
+        //     'paid_at'               => now(),
+        // ]);
+
+        // Log::info("✅ Transaction created with ID: {$trans->id} for charge {$charge->id}");
+
+        // // 5️⃣ Send mail
+        // Mail::to('lionsubhan123@gmail.com')
+        //     ->send(new TransactionPaidMail($invoice->subscription->user, $trans, true));
     }
 
     private function onInvoicePaymentFailed($inv)
@@ -172,7 +189,50 @@ class WebhookController extends Controller
             );
         });
     }
+    private function onChargeSucceeded($event)
+    {
+        $intent = $event['data']['object']; // PaymentIntent object
+        $charge = $intent['charges']['data'][0] ?? null;
+        Log::info('Charge Succeeded Event Received: ' . $intent['id']);
+        if (!$charge) {
+            Log::warning("No charge found for PaymentIntent {$intent['id']}");
+            return;
+        }
 
+        $invoiceId = $charge['invoice'] ?? $intent['invoice'] ?? null;
+        if (!$invoiceId) {
+            Log::warning("No invoice linked to PaymentIntent {$intent['id']}");
+            return;
+        }
+
+        // 1️⃣ Find local invoice
+        $invoice = \App\Models\Invoice::where('stripe_invoice_id', $invoiceId)->first();
+        if (!$invoice) {
+            Log::warning("Local invoice not found for Stripe invoice ID: {$invoiceId}");
+            return;
+        }
+
+        // 2️⃣ Prevent duplicates
+        if (\App\Models\Transaction::where('stripe_transaction_id', $charge['id'])->exists()) {
+            Log::info("Transaction already exists for charge {$charge['id']}");
+            return;
+        }
+
+        // 3️⃣ Create Transaction
+        $transaction = \App\Models\Transaction::create([
+            'invoice_id'            => $invoice->id,
+            'stripe_transaction_id' => $charge['id'],
+            'status'                => 'paid',
+            'paid_at'               => now(),
+            'amount'                => $charge['amount'] / 100,
+            'currency'              => strtoupper($charge['currency']),
+        ]);
+
+        // 4️⃣ Log / Notify
+        Log::info("Transaction created for invoice {$invoiceId} - charge {$charge['id']}");
+
+        // Optional: notify user/admin
+    }
     /* ---------- PAYMENT EVENTS ---------- */
 
     private function onPaymentIntentSucceeded($pi)
