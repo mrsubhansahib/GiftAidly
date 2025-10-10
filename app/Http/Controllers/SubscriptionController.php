@@ -24,7 +24,7 @@ use Illuminate\Support\Str;
 
 class SubscriptionController extends Controller
 {
-    private string $adminEmail = 'wasibutt5276@gmail.com';
+    private string $adminEmail = 'testofficialmail123@gmail.com';
     public function donateDailyWeeklyMonthly(Request $request)
     {
         $request->validate([
@@ -616,7 +616,7 @@ class SubscriptionController extends Controller
             DB::commit();
             $adminEmail = $this->adminEmail;
             DB::afterCommit(function () use ($subscription, $invoice, $transaction) {
-                $admin = \App\Models\User::where('role', 'admin')->first();
+                $admin = User::where('role', 'admin')->first();
 
                 // ✅ USER MAILS
                 Mail::to(auth()->user()->email)

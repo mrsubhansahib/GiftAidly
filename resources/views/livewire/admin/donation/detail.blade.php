@@ -39,7 +39,7 @@ mount(function ($id) {
                     </td>
                 </tr>
                 <tr>
-                    <th>Price</th>
+                    <th>Amount</th>
                     <td>
                         {{ match (strtoupper($subscription->currency)) {
                             'USD' => '$',

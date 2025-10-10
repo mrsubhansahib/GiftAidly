@@ -2,23 +2,26 @@
 
 namespace App\Mail;
 
+use App\Models\Subscription;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
-use Illuminate\Mail\Mailables\Content;
-use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Mail\Mailables\Envelope;
+use Illuminate\Mail\Mailables\Content;
 
 class SubscriptionCanceledMail extends Mailable
 {
     use Queueable, SerializesModels;
+    public $subscription;
+    public $isAdmin;
 
     /**
      * Create a new message instance.
      */
-    public function __construct()
+    public function __construct($subscription, $isAdmin = false)
     {
-        //
+        $this->subscription = $subscription;
+        $this->isAdmin = $isAdmin;
     }
 
     /**
@@ -27,7 +30,9 @@ class SubscriptionCanceledMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Subscription Canceled Mail',
+            subject: $this->isAdmin
+                ? '⚠️ Donation Canceled - GiftAidly'
+                : '❌ Your Donation Has Been Canceled - GiftAidly',
         );
     }
 
@@ -38,15 +43,16 @@ class SubscriptionCanceledMail extends Mailable
     {
         return new Content(
             markdown: 'email.user.subscrption.canceled',
+            with: [
+                'subscription' => $this->subscription,
+                'isAdmin' => $this->isAdmin,
+            ],
         );
     }
 
     /**
      * Get the attachments for the message.
-     *
-     * @return array<int, \Illuminate\Mail\Mailables\Attachment>
      */
-    
     public function attachments(): array
     {
         return [];
