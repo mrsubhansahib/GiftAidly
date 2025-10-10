@@ -108,9 +108,13 @@ class WebhookController extends Controller
         DB::transaction(function () use ($sub) {
             $local = Subscription::where('stripe_subscription_id', $sub->id)->first();
             // Log::info('Subscription was:'. $local->user->name);
-
-            Mail::to('lionsubhan123@gmail.com')->send(new SubscriptionCanceledMail($local->user));
-            Mail::to($local->user->email)->send(new SubscriptionCanceledMail($local->user));
+            // if ($local) {
+            //     $local->status      = 'canceled';
+            //     $local->canceled_at = now();
+            //     $local->save();
+            // }
+            Mail::to(config('mail.admin_email'))->send(new SubscriptionCanceledMail($local, true)); 
+            Mail::to($local->user->email)->send(new SubscriptionCanceledMail($local)); 
         });
     }
 
