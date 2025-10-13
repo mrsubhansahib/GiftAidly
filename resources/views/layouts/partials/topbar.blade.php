@@ -20,6 +20,7 @@
             </div>
 
             <div class="d-flex align-items-center gap-2">
+                @if (auth()->user()->role === 'donor')
                 <div class="topbar-item">
                     <a type="button" href="{{ route('second', ['donation', 'index']) }}"
                         style="background: linear-gradient(45deg, #1d43ab, #f9c001); 
@@ -43,6 +44,8 @@
                         Donate Now
                     </a>
                 </div>
+                @endif
+
 
 
                 <!-- Theme Color (Light/Dark) -->

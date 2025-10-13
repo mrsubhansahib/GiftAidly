@@ -225,8 +225,8 @@ class SubscriptionController extends Controller
 
                 // 2) 🧍 USER Notification
                 $userTitle = $startIsFuture && !$forceChargeNow
-                    ? "📅 Donation Subscription Scheduled"
-                    : "💝 Donation Subscription Started";
+                    ? "📅 Donation Scheduled"
+                    : "💝 Donation Started";
 
                 $userMessage = $startIsFuture && !$forceChargeNow
                     ? "Your {$typeReadable} donation of {$currencySymbol}{$request->amount} has been scheduled successfully."
