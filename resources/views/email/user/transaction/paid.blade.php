@@ -2,6 +2,14 @@
     use Carbon\Carbon;
 
     $formattedDate = Carbon::parse($transaction->paid_at)->format('d M Y H:i');
+
+    $currencySymbols = [
+        'USD' => '$',
+        'EUR' => '€',
+        'GBP' => '£',
+    ];
+    $currencyCode = strtoupper($transaction->invoice->currency);
+    $currencySymbol = $currencySymbols[$currencyCode] ?? $currencyCode;
 @endphp
 
 <x-mail::message>
@@ -19,7 +27,7 @@ A new transaction has been **successfully processed**. Below are the details:
 ---
 
 ## 💳 **Transaction Details**
-**Amount:** {{ strtoupper($transaction->invoice->currency) }} {{ number_format($transaction->invoice->amount_due, 2) }}  
+**Amount:** {{ $currencySymbol }} {{ number_format($transaction->invoice->amount_due, 2) }}  
 **Date:** {{ $formattedDate }}  
 **Status:** {{ ucfirst($transaction->status) }}
 
@@ -39,7 +47,7 @@ Your transaction has been **successfully processed** ✅
 
 ## 💳 Transaction Details
 
-**Amount:** {{ strtoupper($transaction->invoice->currency) }} {{ number_format($transaction->invoice->amount_due, 2) }}  
+**Amount:** {{ $currencySymbol }} {{ number_format($transaction->invoice->amount_due, 2) }}  
 **Date:** {{ $formattedDate }}  
 **Status:** {{ ucfirst($transaction->status) }}
 

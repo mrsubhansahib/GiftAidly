@@ -107,9 +107,8 @@ mount(function ($id) {
                                 {{ number_format($invoice->amount_due, 2) }}
                             </td>
                             <td>
-                                <span
-                                    class="badge {{ $subscription->status === 'active' ? 'bg-success' : 'bg-danger' }}">
-                                    {{ ucfirst($subscription->status) }}
+                                <span class="badge {{ $invoice->paid_at ? 'bg-success' : 'bg-danger' }}">
+                                    {{ $invoice->paid_at ? 'Paid' : 'Pending' }}
                                 </span>
                             </td>
                             <td>{{ \Carbon\Carbon::parse($invoice->invoice_date)->format('Y-m-d') }}</td>
