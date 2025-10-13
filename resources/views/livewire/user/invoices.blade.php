@@ -25,7 +25,8 @@ state([
                                     <th>Name</th>
                                     <th>Email</th>
                                     <th>Amount Due</th>
-                                    <th>Paid At</th>
+                                    <th>Status</th>
+                                    <th>Invoice Date</th>
                                     <th class="text-center">Action</th>
                                 </tr>
                             </thead>
@@ -41,6 +42,11 @@ state([
                                                 'EUR' => '€',
                                             } }}
                                             {{ number_format($invoice['amount_due'], 2) }}
+                                        </td>
+                                        <td>
+                                            <span class="badge {{ $invoice->paid_at ? 'bg-success' : 'bg-danger' }}">
+                                                {{ $invoice->paid_at ? 'Paid' : 'Failed' }}
+                                            </span>
                                         </td>
                                         <td>
                                             {{ \Carbon\Carbon::parse($invoice->paid_at)->format('Y-m-d') }}
@@ -96,7 +102,7 @@ state([
                                                             <div class="text-center p-4 bg-light rounded-3">
                                                                 <h6 class="text-muted mb-2">Amount</h6>
                                                                 <h3 class="text-dark fw-bold mb-0">
-                                                                    {{ match (strtoupper($invoice['currency'] )) {
+                                                                    {{ match (strtoupper($invoice['currency'])) {
                                                                         'USD' => '$',
                                                                         'GBP' => '£',
                                                                         'EUR' => '€',

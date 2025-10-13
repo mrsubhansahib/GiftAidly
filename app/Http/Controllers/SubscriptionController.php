@@ -151,15 +151,7 @@ class SubscriptionController extends Controller
                 }
                 $invoice = Stripe\Invoice::retrieve($latestId);
 
-                // Finalize if draft
-                if ($invoice->status === 'draft') {
-                    $invoice = $invoice->finalizeInvoice(); // instance method
-                }
-
-                // Pay now if not paid yet
-                if ($invoice->collection_method === 'charge_automatically' && $invoice->status !== 'paid') {
-                    $invoice = $invoice->pay(); // instance method
-                }
+         
             } else {
                 // ===== FUTURE START / TRIAL PATH =====
                 // No invoice yet; it will be created at trial_end
@@ -202,7 +194,7 @@ class SubscriptionController extends Controller
             }
 
             DB::commit();
-            $adminEmail = config('mail.admin_email');
+            $adminEmail = env('ADMIN_EMAIL');
             $admin = User::where('role', 'admin')->first();
             DB::afterCommit(function () use ($subscription, $savedInvoice, $startIsFuture, $forceChargeNow, $request, $adminEmail, $admin) {
                 if ($startIsFuture && !$forceChargeNow) {
@@ -215,12 +207,6 @@ class SubscriptionController extends Controller
                         ->send(new SubscriptionStartedMail(auth()->user(), $subscription));
                     Mail::to($adminEmail)
                         ->send(new SubscriptionStartedMail(auth()->user(), $subscription, true));
-                }
-                if ($savedInvoice) {
-                    Mail::to(auth()->user()->email)
-                        ->send(new InvoicePaidMail(auth()->user(), $savedInvoice));
-                    Mail::to($adminEmail)
-                        ->send(new InvoicePaidMail(auth()->user(), $savedInvoice, true));
                 }
 
                 $currencySymbols = [
@@ -367,15 +353,6 @@ class SubscriptionController extends Controller
                 }
                 $invoice = Stripe\Invoice::retrieve($latestId);
 
-                // Finalize if draft
-                if ($invoice->status === 'draft') {
-                    $invoice = $invoice->finalizeInvoice(); // instance method
-                }
-
-                // Pay now if not paid yet
-                if ($invoice->collection_method === 'charge_automatically' && $invoice->status !== 'paid') {
-                    $invoice = $invoice->pay(); // instance method
-                }
             } else {
                 // ===== FUTURE START / TRIAL PATH =====
                 // No invoice yet; it will be created at trial_end
@@ -426,22 +403,15 @@ class SubscriptionController extends Controller
                 if ($startIsFuture && !$forceChargeNow) {
                     Mail::to(auth()->user()->email)
                         ->send(new SubscriptionScheduledMail(auth()->user(), $subscription));
-                    Mail::to($admin->email ?? config('mail.admin_address'))
+                    Mail::to($admin->email ?? env('ADMIN_EMAIL'))
                         ->send(new SubscriptionScheduledMail(auth()->user(), $subscription, true));
                 } else {
                     Mail::to(auth()->user()->email)
                         ->send(new SubscriptionStartedMail(auth()->user(), $subscription));
-                    Mail::to($admin->email ?? config('mail.admin_address'))
+                    Mail::to($admin->email ?? env('ADMIN_EMAIL'))
                         ->send(new SubscriptionStartedMail(auth()->user(), $subscription, true));
                 }
 
-                // 2) 🧾 Invoice Email (agar pay ho chuka ho)
-                if ($savedInvoice) {
-                    Mail::to(auth()->user()->email)
-                        ->send(new InvoicePaidMail(auth()->user(), $savedInvoice));
-                    Mail::to($admin->email ?? config('mail.admin_address'))
-                        ->send(new InvoicePaidMail(auth()->user(), $savedInvoice, true));
-                }
 
                 // 🔸 Currency symbol map
                 $currencySymbols = [
@@ -626,11 +596,11 @@ class SubscriptionController extends Controller
 
                 // ✅ ADMIN MAILS
                 if ($admin) {
-                    Mail::to($admin->email ?? config('mail.admin_address'))
+                    Mail::to($admin->email ?? env('ADMIN_EMAIL'))
                         ->send(new SubscriptionStartedMail(auth()->user(), $subscription, true));
-                    Mail::to($admin->email ?? config('mail.admin_address'))
+                    Mail::to($admin->email ?? env('ADMIN_EMAIL'))
                         ->send(new InvoicePaidMail(auth()->user(), $invoice, true));
-                    Mail::to($admin->email ?? config('mail.admin_address'))
+                    Mail::to($admin->email ?? env('ADMIN_EMAIL'))
                         ->send(new TransactionPaidMail(auth()->user(), $transaction, true));
                 }
 

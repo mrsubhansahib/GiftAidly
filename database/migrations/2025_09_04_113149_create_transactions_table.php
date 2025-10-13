@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('invoice_id')->constrained('invoices')->onDelete('cascade');
             $table->string('stripe_transaction_id')->unique();
-            $table->timestamp('paid_at');
+            $table->timestamp('paid_at')->nullable();
             $table->string('status'); // Paid, Failed, Refunded
             $table->timestamps();
         });

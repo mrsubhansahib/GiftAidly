@@ -15,7 +15,6 @@ mount(function ($id) {
     ])->findOrFail($id);
 });
 
-
 ?>
 <div class="container">
 
@@ -146,9 +145,8 @@ mount(function ($id) {
                             </td>
 
                             <td>
-                                <span
-                                    class="badge {{ $invoice->subscription->status === 'active' ? 'bg-success' : 'bg-danger' }}">
-                                    {{ ucfirst($invoice->subscription->status) }}
+                                <span class="badge {{ $invoice->paid_at ? 'bg-success' : 'bg-danger' }}">
+                                    {{ $invoice->paid_at ? 'Paid' : 'Failed' }}
                                 </span>
                             </td>
                             <td>{{ \Carbon\Carbon::parse($invoice->invoice_date)->format('Y-m-d') }}</td>

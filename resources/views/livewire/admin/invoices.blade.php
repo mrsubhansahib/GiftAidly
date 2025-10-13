@@ -21,6 +21,7 @@ state([
                                     <th>Email</th>
                                     <th>Donation Type</th>
                                     <th>Amount Due</th>
+                                    <th>Status</th>
                                     <th>Invoice Date</th>
                                     <th class="text-center">Action</th>
                                 </tr>
@@ -47,6 +48,11 @@ state([
                                                 'EUR' => '€',
                                             } }}
                                             {{ number_format($invoice->amount_due, 2) }}
+                                        </td>
+                                        <td>
+                                            <span class="badge {{ $invoice->paid_at ? 'bg-success' : 'bg-danger' }}">
+                                                {{ $invoice->paid_at ? 'Paid' : 'Failed' }}
+                                            </span>
                                         </td>
                                         <td>{{ $invoice->invoice_date ? \Carbon\Carbon::parse($invoice->invoice_date)->format('Y-m-d') : '-' }}
                                         </td>

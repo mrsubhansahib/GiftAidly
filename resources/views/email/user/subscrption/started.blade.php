@@ -50,7 +50,6 @@ A new donation has been made on **GiftAidly**. Below are the details:
 ## 💰 **Donation Details**
 **Donation Type:** {{ $frequency }}  
 **Amount:** {{ $currencySymbol }} {{ number_format($subscription->price, 2) }}  
-**Frequency:** {{ $frequency }}  
 **Gift Aid:** {{ $subscription->gift_aid === 'yes' ? '✅ Applied' : '❌ Not Applied' }}
 
 @if (Str::startsWith($subscription->type, 'special'))

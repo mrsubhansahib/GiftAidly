@@ -113,8 +113,8 @@ mount(function ($id) {
 
                             <td>
                                 <span
-                                    class="badge {{ $subscription->status === 'paid' ? 'bg-success' : 'bg-danger' }}">
-                                    {{ ucfirst($subscription->status) }}
+                                    class="badge {{ $invoice->paid_at ? 'bg-success' : 'bg-danger' }}">
+                                    {{ $invoice->paid_at ? 'Paid' : 'Failed' }}
                                 </span>
                             </td>
                             <td>{{ \Carbon\Carbon::parse($invoice->invoice_date)->format('Y-m-d') }}</td>
@@ -251,8 +251,8 @@ mount(function ($id) {
                             </td>
                             <td>
                                 <span
-                                    class="badge {{ $txn->status === 'completed' ? 'bg-success' : ($txn->status === 'pending' ? 'bg-warning text-light' : 'bg-danger') }}">
-                                    {{ ucfirst($txn->status) }}
+                                    class="badge {{ $invoice->paid_at ? 'bg-success': 'bg-danger' }}">
+                                    {{ $invoice->paid_at ? 'Paid' : 'Failed' }}
                                 </span>
                             </td>
                             <td>{{ \Carbon\Carbon::parse($txn->paid_at)->format('Y-m-d') }}</td>
