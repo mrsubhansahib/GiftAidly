@@ -2,27 +2,29 @@
 
 namespace App\Mail;
 
+use App\Models\User;
+use App\Models\Invoice;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class TransactionFailedMail extends Mailable
+class InvoiceFailedMail extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public $transaction;
     public $user;
+    public $invoice;
     public $isAdmin;
 
     /**
      * Create a new message instance.
      */
-    public function __construct($user, $transaction, $isAdmin = false)
+    public function __construct(User $user, Invoice $invoice, $isAdmin = false)
     {
         $this->user = $user;
-        $this->transaction = $transaction;
+        $this->invoice = $invoice;
         $this->isAdmin = $isAdmin;
     }
 
@@ -32,7 +34,9 @@ class TransactionFailedMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Transaction Failed Notification',
+            subject: $this->isAdmin
+                ? '⚠️ Invoice Payment Failed - GiftAidly'
+                : '❌ Donation Invoice Failed - GiftAidly',
         );
     }
 
@@ -42,7 +46,12 @@ class TransactionFailedMail extends Mailable
     public function content(): Content
     {
         return new Content(
-            markdown: 'email.user.transaction.failed',
+            markdown: 'email.user.invoice.failed',
+            with: [
+                'user' => $this->user,
+                'invoice' => $this->invoice,
+                'isAdmin' => $this->isAdmin,
+            ],
         );
     }
 
