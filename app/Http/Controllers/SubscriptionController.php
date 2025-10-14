@@ -150,8 +150,6 @@ class SubscriptionController extends Controller
                     throw new \Exception('Latest invoice ID not found on subscription (immediate charge path).');
                 }
                 $invoice = Stripe\Invoice::retrieve($latestId);
-
-         
             } else {
                 // ===== FUTURE START / TRIAL PATH =====
                 // No invoice yet; it will be created at trial_end
@@ -197,6 +195,8 @@ class SubscriptionController extends Controller
             $adminEmail = env('ADMIN_EMAIL');
             $admin = User::where('role', 'admin')->first();
             DB::afterCommit(function () use ($subscription, $savedInvoice, $startIsFuture, $forceChargeNow, $request, $adminEmail, $admin) {
+
+                // ---------------- EMAILS ----------------
                 if ($startIsFuture && !$forceChargeNow) {
                     Mail::to(auth()->user()->email)
                         ->send(new SubscriptionScheduledMail(auth()->user(), $subscription));
@@ -209,37 +209,60 @@ class SubscriptionController extends Controller
                         ->send(new SubscriptionStartedMail(auth()->user(), $subscription, true));
                 }
 
+                // ---------------- COMMON VARIABLES ----------------
                 $currencySymbols = [
                     'usd' => '$',
                     'gbp' => '£',
                     'eur' => '€',
                 ];
                 $currencySymbol = $currencySymbols[strtolower($request->currency)] ?? strtoupper($request->currency);
-                // Type readable
-                $typeReadable = match ($request->type) {
+
+                $typeReadable = match (strtolower($request->type)) {
                     'day'   => 'Daily',
                     'week'  => 'Weekly',
-                    'month' => 'Monthly'
+                    'month' => 'Monthly',
+                    'friday' => 'Friday',
+                    default => ucfirst($request->type),
                 };
-                $userName = Str::title(auth()->user()->name);
 
-                // 2) 🧍 USER Notification
-                $userTitle = $startIsFuture && !$forceChargeNow
-                    ? "📅 Donation Scheduled"
-                    : "💝 Donation Started";
+                $userName = \Illuminate\Support\Str::title(auth()->user()->name);
 
-                $userMessage = $startIsFuture && !$forceChargeNow
-                    ? "Your {$typeReadable} donation of {$currencySymbol}{$request->amount} has been scheduled successfully."
-                    : "Your {$typeReadable} donation of {$currencySymbol}{$request->amount} has started successfully.";
+                /*
+    |--------------------------------------------------------------------------
+    | 🧍 USER NOTIFICATION
+    |--------------------------------------------------------------------------
+    */
+                if ($startIsFuture && !$forceChargeNow) {
+                    // Future → Scheduled
+                    $userTitle = "📅 {$typeReadable} Donation Scheduled";
+                    $userMessage = "Your {$typeReadable} donation of {$currencySymbol}{$request->amount} has been scheduled successfully.";
+                } else {
+                    // Immediate → Started
+                    $userTitle = "💝 {$typeReadable} Donation Started";
+                    $userMessage = "Your {$typeReadable} donation of {$currencySymbol}{$request->amount} has started successfully.";
+                }
+
                 auth()->user()->notify(new UserActionNotification(
                     $userTitle,
                     $userMessage,
                     'user'
                 ));
-                // 3) 🧑‍💼 ADMIN Notification
+
+                /*
+    |--------------------------------------------------------------------------
+    | 🧑‍💼 ADMIN NOTIFICATION
+    |--------------------------------------------------------------------------
+    */
                 if ($admin) {
-                    $adminTitle = "💰 New {$typeReadable} Donation Received";
-                    $adminMessage = "{$userName} has started a {$typeReadable} donation of {$currencySymbol}{$request->amount}.";
+                    if ($startIsFuture && !$forceChargeNow) {
+                        // Future → Scheduled
+                        $adminTitle = "🗓️ {$typeReadable} Donation Scheduled";
+                        $adminMessage = "{$userName} has scheduled a {$typeReadable} donation of {$currencySymbol}{$request->amount}.";
+                    } else {
+                        // Immediate → Received
+                        $adminTitle = "💰 New {$typeReadable} Donation Received";
+                        $adminMessage = "{$userName} has started a {$typeReadable} donation of {$currencySymbol}{$request->amount}.";
+                    }
 
                     $admin->notify(new UserActionNotification(
                         $adminTitle,
@@ -248,6 +271,7 @@ class SubscriptionController extends Controller
                     ));
                 }
             });
+
             $msg = $forceChargeNow || !$startIsFuture
                 ? 'Donation successful! Invoice finalized & paid immediately.'
                 : 'Subscription scheduled. Billing will start on your selected start date.';
@@ -352,7 +376,6 @@ class SubscriptionController extends Controller
                     throw new \Exception('Latest invoice ID not found on subscription (immediate charge path).');
                 }
                 $invoice = Stripe\Invoice::retrieve($latestId);
-
             } else {
                 // ===== FUTURE START / TRIAL PATH =====
                 // No invoice yet; it will be created at trial_end
@@ -397,23 +420,9 @@ class SubscriptionController extends Controller
             DB::commit();
             $adminEmail = config('mail.admin_email');
             DB::afterCommit(function () use ($subscription, $savedInvoice, $startIsFuture, $forceChargeNow, $request) {
-                $admin = \App\Models\User::where('role', 'admin')->first();
+                $admin = User::where('role', 'admin')->first();
 
-                // 1) 📧 Subscription Email
-                if ($startIsFuture && !$forceChargeNow) {
-                    Mail::to(auth()->user()->email)
-                        ->send(new SubscriptionScheduledMail(auth()->user(), $subscription));
-                    Mail::to($admin->email ?? env('ADMIN_EMAIL'))
-                        ->send(new SubscriptionScheduledMail(auth()->user(), $subscription, true));
-                } else {
-                    Mail::to(auth()->user()->email)
-                        ->send(new SubscriptionStartedMail(auth()->user(), $subscription));
-                    Mail::to($admin->email ?? env('ADMIN_EMAIL'))
-                        ->send(new SubscriptionStartedMail(auth()->user(), $subscription, true));
-                }
-
-
-                // 🔸 Currency symbol map
+                // 🔹 Currency symbols
                 $currencySymbols = [
                     'usd' => '$',
                     'gbp' => '£',
@@ -424,17 +433,23 @@ class SubscriptionController extends Controller
                 // 🔸 Type readable (fixed “Friday”)
                 $typeReadable = 'Friday';
 
-                // 🔸 Proper user name
-                $userName = \Illuminate\Support\Str::title(auth()->user()->name);
+                // 🔹 Donor name
+                $userName = Str::title(auth()->user()->name);
 
-                // 3) 🧍 USER Notification
-                $userTitle = $startIsFuture && !$forceChargeNow
-                    ? "📅 Friday Donation Scheduled"
-                    : "💝 Friday Donation Started";
-
-                $userMessage = $startIsFuture && !$forceChargeNow
-                    ? "Your {$typeReadable} donation of {$currencySymbol}{$request->amount} has been scheduled successfully."
-                    : "Your {$typeReadable} donation of {$currencySymbol}{$request->amount} has started successfully.";
+                /*
+    |--------------------------------------------------------------------------
+    | 🧍 USER NOTIFICATION
+    |--------------------------------------------------------------------------
+    */
+                if ($startIsFuture && !$forceChargeNow) {
+                    // Donation scheduled for later date
+                    $userTitle = "📅 {$typeReadable} Donation Scheduled";
+                    $userMessage = "Your {$typeReadable} donation of {$currencySymbol}{$request->amount} has been scheduled successfully.";
+                } else {
+                    // Donation charged immediately
+                    $userTitle = "💝 {$typeReadable} Donation Started";
+                    $userMessage = "Your {$typeReadable} donation of {$currencySymbol}{$request->amount} has started successfully.";
+                }
 
                 auth()->user()->notify(new UserActionNotification(
                     $userTitle,
@@ -442,10 +457,21 @@ class SubscriptionController extends Controller
                     'user'
                 ));
 
-                // 4) 🧑‍💼 ADMIN Notification
+                /*
+    |--------------------------------------------------------------------------
+    | 🧑‍💼 ADMIN NOTIFICATION
+    |--------------------------------------------------------------------------
+    */
                 if ($admin) {
-                    $adminTitle = "💰 New {$typeReadable} Donation Received";
-                    $adminMessage = "{$userName} has started a {$typeReadable} donation of {$currencySymbol}{$request->amount}.";
+                    if ($startIsFuture && !$forceChargeNow) {
+                        // Admin sees “scheduled” if start date is in the future
+                        $adminTitle = "🗓️ {$typeReadable} Donation Scheduled";
+                        $adminMessage = "{$userName} has scheduled a {$typeReadable} donation of {$currencySymbol}{$request->amount}.";
+                    } else {
+                        // Admin sees “received” when payment happens immediately
+                        $adminTitle = "💰 New {$typeReadable} Donation Received";
+                        $adminMessage = "{$userName} has started a {$typeReadable} donation of {$currencySymbol}{$request->amount}.";
+                    }
 
                     $admin->notify(new UserActionNotification(
                         $adminTitle,
@@ -683,7 +709,6 @@ class SubscriptionController extends Controller
                 'month'  => 'Monthly',
                 'friday' => 'Friday',
                 default  => ucfirst($subscription->type),
-                
             };
 
             $userName = \Illuminate\Support\Str::title($subscription->user->name ?? 'User');
