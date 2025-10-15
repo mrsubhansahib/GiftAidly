@@ -114,7 +114,7 @@ class WebhookController extends Controller
         DB::transaction(function () use ($sub) {
             $local = Subscription::where('stripe_subscription_id', $sub->id)->first();
 
-            Mail::to(env('Admin_Email'))->send(new SubscriptionCanceledMail($local, true));
+            Mail::to(env('ADMIN_EMAIL'))->send(new SubscriptionCanceledMail($local, true));
             Mail::to($local->user->email)->send(new SubscriptionCanceledMail($local));
         });
     }
@@ -216,24 +216,24 @@ class WebhookController extends Controller
 
         // Log::info("Invoice Subscription Succeeded : {$invoice->lines->data[0]->parent->subscription_item_details->subscription}");
 
-        // DB::transaction(function () use ($inv, $invoice) {
+        DB::transaction(function () use ($inv, $invoice) {
 
 
-        $localInvoice = Invoice::where('stripe_invoice_id', $inv->invoice)->first();
-        if ($inv->payment->payment_intent) {
-            $trans = Transaction::updateOrCreate(
-                [
-                    'stripe_transaction_id' => $inv->payment->payment_intent,
-                    'invoice_id' => $localInvoice->id,
-                    'status'     => 'paid',
-                    'paid_at'    => now(),
-                ]
-            );
-            Log::info("✅ Transaction created with ID: {$trans->id}");
-            Mail::to(env('ADMIN_EMAIL'))
-                ->send(new TransactionPaidMail($localInvoice->subscription->user, $trans, true));
-        }
-        // });
+            $localInvoice = Invoice::where('stripe_invoice_id', $inv->invoice)->first();
+            if ($inv->payment->payment_intent) {
+                $trans = Transaction::updateOrCreate(
+                    [
+                        'stripe_transaction_id' => $inv->payment->payment_intent,
+                        'invoice_id' => $localInvoice->id,
+                        'status'     => 'paid',
+                        'paid_at'    => now(),
+                    ]
+                );
+                Log::info("✅ Transaction created with ID: {$trans->id}");
+                Mail::to(env('ADMIN_EMAIL'))
+                    ->send(new TransactionPaidMail($localInvoice->subscription->user, $trans, true));
+            }
+        });
     }
 
     private function onInvoicePaymentFailed($inv)

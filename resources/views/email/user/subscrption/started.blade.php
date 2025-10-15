@@ -77,7 +77,6 @@ Your support means the world to us and helps us continue our mission to make a d
 
 **Donation Type:** {{ $frequency }}  
 **Amount:** {{ $currencySymbol }} {{ number_format($subscription->price, 2) }}  
-**Frequency:** {{ $frequency }}  
 **Gift Aid:** {{ $subscription->gift_aid === 'yes' ? '✅ Applied' : '❌ Not Applied' }}  
 @if (Str::startsWith($subscription->type, 'special'))
 **Donated At:** {{ $startDate }}
