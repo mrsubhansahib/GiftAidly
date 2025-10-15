@@ -372,7 +372,7 @@ class SubscriptionController extends Controller
 
 
             DB::commit();
-            DB::afterCommit(function () use ($subscription,$startIsFuture, $forceChargeNow, $request) {
+            DB::afterCommit(function () use ($subscription, $startIsFuture, $forceChargeNow, $request) {
                 $adminEmail = env('ADMIN_EMAIL');
                 $admin = User::where('role', 'admin')->first();
 
@@ -525,6 +525,7 @@ class SubscriptionController extends Controller
                 ],
             ]);
 
+            // dd($paymentIntent);
             $subscription = auth()->user()->subscriptions()->create([
                 'stripe_subscription_id' => 'one-time-' . $paymentIntent->id,
                 'stripe_price_id' => $price->id,
@@ -557,27 +558,9 @@ class SubscriptionController extends Controller
             ]);
 
             DB::commit();
-            $adminEmail = config('mail.admin_email');
             DB::afterCommit(function () use ($subscription, $invoice, $transaction) {
+                $adminEmail = env('ADMIN_EMAIL');
                 $admin = User::where('role', 'admin')->first();
-
-                // ✅ USER MAILS
-                Mail::to(auth()->user()->email)
-                    ->send(new SubscriptionStartedMail(auth()->user(), $subscription));
-
-                Mail::to(auth()->user()->email)
-                    ->send(new InvoicePaidMail(auth()->user(), $invoice));
-
-                // ✅ ADMIN MAILS
-                if ($admin) {
-                    Mail::to($admin->email ?? env('ADMIN_EMAIL'))
-                        ->send(new SubscriptionStartedMail(auth()->user(), $subscription, true));
-                    Mail::to($admin->email ?? env('ADMIN_EMAIL'))
-                        ->send(new InvoicePaidMail(auth()->user(), $invoice, true));
-                    Mail::to($admin->email ?? env('ADMIN_EMAIL'))
-                        ->send(new TransactionPaidMail(auth()->user(), $transaction, true));
-                }
-
                 // 🧠 Currency symbol mapping
                 $currencySymbols = [
                     'usd' => '$',
@@ -593,32 +576,34 @@ class SubscriptionController extends Controller
                 $userName = \Illuminate\Support\Str::title(auth()->user()->name);
 
                 // 📢 1) USER Notification
+                $adminTitle = "💰 New {$typeReadable} Received";
+                $adminMessage = "{$userName} donated {$currencySymbol}{$subscription->price} towards {$subscription->type}.";
                 $userTitle = "💝 {$typeReadable} Successful";
                 $userMessage = "You donated {$currencySymbol}{$subscription->price} towards {$subscription->type}.";
-
                 auth()->user()->notify(new UserActionNotification(
                     $userTitle,
                     $userMessage,
                     'user'
                 ));
+                $admin->notify(new UserActionNotification(
+                    $adminTitle,
+                    $adminMessage,
+                    'admin'
+                ));
+                // ✅ ADMIN MAILS
+                Mail::to($adminEmail)
+                    ->send(new SubscriptionStartedMail(auth()->user(), $subscription, true));
+                Mail::to($adminEmail)
+                    ->send(new InvoicePaidMail(auth()->user(), $invoice, true));
+                Mail::to($adminEmail)
+                    ->send(new TransactionPaidMail(auth()->user(), $transaction, true));
+                Mail::to(auth()->user()->email)
+                    ->send(new SubscriptionStartedMail(auth()->user(), $subscription));
 
-                // 📢 2) ADMIN Notification
-                if ($admin) {
-                    $adminTitle = "💰 New {$typeReadable} Received";
-                    $adminMessage = "{$userName} donated {$currencySymbol}{$subscription->price} towards {$subscription->type}.";
-
-                    $admin->notify(new UserActionNotification(
-                        $adminTitle,
-                        $adminMessage,
-                        'admin'
-                    ));
-                }
+                Mail::to(auth()->user()->email)
+                    ->send(new InvoicePaidMail(auth()->user(), $invoice));
             });
 
-            auth()->user()->notify(new UserActionNotification(
-                "Special Donation",
-                "You donated {$request->amount} {$request->currency} for {$donation->name}."
-            ));
 
             return redirect('index')->with('success', 'Special donation successful! Invoice finalized & paid immediately.');
         } catch (\Stripe\Exception\CardException $e) {
