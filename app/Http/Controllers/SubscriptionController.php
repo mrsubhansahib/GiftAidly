@@ -370,20 +370,10 @@ class SubscriptionController extends Controller
                 'canceled_at' => $endDate->copy()->subDays(7),
             ]);
 
-            $savedInvoice = null;
-            if ($invoice !== null && $invoice->status === 'paid') {
-                $savedInvoice = Invoice::create([
-                    'subscription_id' => $subscription->id,
-                    'stripe_invoice_id' => $invoice->id,
-                    'amount_due' => $invoice->amount_due / 100,
-                    'currency' => $invoice->currency,
-                    'invoice_date' => Carbon::createFromTimestamp($invoice->created),
-                    'paid_at' => Carbon::createFromTimestamp($invoice->status_transitions->paid_at ?? now()),
-                ]);
-            }
+
             DB::commit();
-            $adminEmail = config('mail.admin_email');
-            DB::afterCommit(function () use ($subscription, $savedInvoice, $startIsFuture, $forceChargeNow, $request) {
+            DB::afterCommit(function () use ($subscription,$startIsFuture, $forceChargeNow, $request) {
+                $adminEmail = env('ADMIN_EMAIL');
                 $admin = User::where('role', 'admin')->first();
 
                 // 🔹 Currency symbols
@@ -393,11 +383,7 @@ class SubscriptionController extends Controller
                     'eur' => '€',
                 ];
                 $currencySymbol = $currencySymbols[strtolower($request->currency)] ?? strtoupper($request->currency);
-
-                // 🔸 Type readable (fixed “Friday”)
                 $typeReadable = 'Friday';
-
-                // 🔹 Donor name
                 $userName = Str::title(auth()->user()->name);
 
                 /*
@@ -407,12 +393,28 @@ class SubscriptionController extends Controller
     */
                 if ($startIsFuture && !$forceChargeNow) {
                     // Donation scheduled for later date
+
+                    $adminTitle = "🗓️ {$typeReadable} Donation Scheduled";
+                    $adminMessage = "{$userName} has scheduled a {$typeReadable} donation of {$currencySymbol}{$request->amount}.";
                     $userTitle = "📅 {$typeReadable} Donation Scheduled";
                     $userMessage = "Your {$typeReadable} donation of {$currencySymbol}{$request->amount} has been scheduled successfully.";
+                    Mail::to(auth()->user()->email)
+                        ->send(new SubscriptionScheduledMail(auth()->user(), $subscription));
+                    // Future → Scheduled
+                    Mail::to($adminEmail)
+                        ->send(new SubscriptionScheduledMail(auth()->user(), $subscription, true));
                 } else {
-                    // Donation charged immediately
+
+                    // Immediate → Received
+                    $adminTitle = "💰 New {$typeReadable} Donation Received";
+                    $adminMessage = "{$userName} has started a {$typeReadable} donation of {$currencySymbol}{$request->amount}.";
+                    // Immediate → Started
                     $userTitle = "💝 {$typeReadable} Donation Started";
                     $userMessage = "Your {$typeReadable} donation of {$currencySymbol}{$request->amount} has started successfully.";
+                    Mail::to(auth()->user()->email)
+                        ->send(new SubscriptionStartedMail(auth()->user(), $subscription));
+                    Mail::to($adminEmail)
+                        ->send(new SubscriptionStartedMail(auth()->user(), $subscription, true));
                 }
 
                 auth()->user()->notify(new UserActionNotification(
@@ -420,29 +422,11 @@ class SubscriptionController extends Controller
                     $userMessage,
                     'user'
                 ));
-
-                /*
-    |--------------------------------------------------------------------------
-    | 🧑‍💼 ADMIN NOTIFICATION
-    |--------------------------------------------------------------------------
-    */
-                if ($admin) {
-                    if ($startIsFuture && !$forceChargeNow) {
-                        // Admin sees “scheduled” if start date is in the future
-                        $adminTitle = "🗓️ {$typeReadable} Donation Scheduled";
-                        $adminMessage = "{$userName} has scheduled a {$typeReadable} donation of {$currencySymbol}{$request->amount}.";
-                    } else {
-                        // Admin sees “received” when payment happens immediately
-                        $adminTitle = "💰 New {$typeReadable} Donation Received";
-                        $adminMessage = "{$userName} has started a {$typeReadable} donation of {$currencySymbol}{$request->amount}.";
-                    }
-
-                    $admin->notify(new UserActionNotification(
-                        $adminTitle,
-                        $adminMessage,
-                        'admin'
-                    ));
-                }
+                $admin->notify(new UserActionNotification(
+                    $adminTitle,
+                    $adminMessage,
+                    'admin'
+                ));
             });
 
 

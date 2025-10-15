@@ -107,31 +107,34 @@
         window.AppToast = {
             show
         };
+        window.addEventListener('toast', event => {
+            AppToast.show(event.detail.type, event.detail.message);
+        });
+
     })();
 </script>
 
 
 <?php
-    $flashes = [];
-    foreach (['success', 'info', 'warning'] as $t) {
-        if (session($t)) {
-            $flashes[] = ['type' => $t, 'msg' => session($t)];
-        }
-    }
-    if ($errors->any()) {
-        foreach ($errors->all() as $key => $value) {
-            $flashes[] = ['type' => 'danger', 'msg' => "There is a problem! $value"];
-        }
-    }
+$flashes = [];
+foreach (['success', 'info', 'warning'] as $t) {
+if (session($t)) {
+$flashes[] = ['type' => $t, 'msg' => session($t)];
+}
+}
+if ($errors->any()) {
+foreach ($errors->all() as $key => $value) {
+$flashes[] = ['type' => 'danger', 'msg' => "There is a problem! $value"];
+}
+}
 ?>
 
 <?php if($flashes): ?>
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            <?php $__currentLoopData = $flashes; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $f): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                AppToast.show('<?php echo e($f['type']); ?>', <?php echo json_encode($f['msg']); ?>);
-            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-        });
-    </script>
-<?php endif; ?>
-<?php /**PATH D:\Laravel\Softic-Era\Current Projects\GiftAidly\resources\views/layouts/partials/alert.blade.php ENDPATH**/ ?>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        <?php $__currentLoopData = $flashes; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $f): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+            AppToast.show('<?php echo e($f['type']); ?>', <?php echo json_encode($f['msg']); ?>);
+        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+    });
+</script>
+<?php endif; ?><?php /**PATH D:\Laravel\Softic-Era\Current Projects\GiftAidly\resources\views/layouts/partials/alert.blade.php ENDPATH**/ ?>
