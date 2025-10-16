@@ -4,6 +4,7 @@ use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\RoutingController;
 use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\WebhookController;
+use App\Http\Controllers\zakahController;
 use Illuminate\Support\Facades\Route;
 
 require __DIR__ . '/auth.php';
@@ -12,6 +13,9 @@ require __DIR__ . '/api.php';
 
 Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
 Route::post('/notifications/clear', [NotificationController::class, 'clearAll'])->name('notifications.clear');
+Route::get('/receive-zakat', [zakahController::class, 'handle']);
+
+
 
 Route::group(['prefix' => '/', 'middleware' => ['auth', 'verified']], function () {
 

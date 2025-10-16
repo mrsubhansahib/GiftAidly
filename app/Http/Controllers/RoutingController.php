@@ -9,7 +9,11 @@ class RoutingController extends Controller
 {
     public function index(Request $request)
     {
-        return view('index');
+        if (auth()->user()->role === 'admin') {
+            return view('index');
+        } else {
+            return view('donation.index');
+        }
     }
 
     /**
