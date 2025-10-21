@@ -5,36 +5,39 @@ class="authentication-bg"
 @endsection
 
 <!-- style -->
- <style>
+<style>
     /* Container for password input to position the icon */
-.password-input-container {
-    position: relative;
-}
+    .password-input-container {
+        position: relative;
+    }
 
-/* Styling for the eye icon */
-.password-toggle-icon {
-    position: absolute;
-    top: 50%;
-    margin-top: -5px; /* Half the icon height to center it vertically */
-    right: 15px;
-    transform: translateY(-50%);
-    cursor: pointer;
-    color: #6c757d; /* Muted icon color */
-    transition: color 0.2s ease-in-out;
-    z-index: 100;
-}
+    /* Styling for the eye icon */
+    .password-toggle-icon {
+        position: absolute;
+        top: 50%;
+        margin-top: -5px;
+        /* Half the icon height to center it vertically */
+        right: 15px;
+        transform: translateY(-50%);
+        cursor: pointer;
+        color: #6c757d;
+        /* Muted icon color */
+        transition: color 0.2s ease-in-out;
+        z-index: 100;
+    }
 
-.password-toggle-icon:hover {
-    color: #343a40; /* Darker color on hover */
-}
+    .password-toggle-icon:hover {
+        color: #343a40;
+        /* Darker color on hover */
+    }
 
-/* Add padding to the input to prevent text from overlapping the icon */
-.form-control-password {
-    padding-right: 45px !important;
-}
- </style>
- 
- 
+    /* Add padding to the input to prevent text from overlapping the icon */
+    .form-control-password {
+        padding-right: 45px !important;
+    }
+</style>
+
+
 @section('content')
 <div class="account-pages py-5">
     <div class="container">
@@ -63,24 +66,24 @@ class="authentication-bg"
                                 <label for="email" class="form-label">Email Address</label>
                                 <input type="email" class="form-control @error('email') is-invalid @enderror" id="email" name="email" placeholder="user@demo.com" value="{{ old('email') }}"
                                     placeholder="Enter your email">
-                                    @error('email')
-                                        <div class="text-danger text-sm mt-1">{{ $message }}</div>
-                                    @enderror
+                                @error('email')
+                                <div class="text-danger text-sm mt-1">{{ $message }}</div>
+                                @enderror
                             </div>
                             <div class="mb-3">
-    <div class="d-flex justify-content-between align-items-center">
-        <label for="password" class="form-label">Password</label>
-        <a href="{{ route('password.request') }}" class="text-decoration-none small text-muted">Forgot password?</a>
-    </div>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <label for="password" class="form-label">Password</label>
+                                    <a href="{{ route('password.request') }}" class="text-decoration-none small text-muted">Forgot password?</a>
+                                </div>
 
-    <!-- Password Input with Eye Icon -->
-    <div class="password-input-container">
-        <input type="password" class="form-control form-control-password" id="password" name="password" placeholder="Enter your password" required>
-        <span class="password-toggle-icon" onclick="togglePassword('password', this)">
-            <iconify-icon icon="mdi:eye-outline" width="24" height="24"></iconify-icon>
-        </span>
-    </div>
-</div>
+                                <!-- Password Input with Eye Icon -->
+                                <div class="password-input-container">
+                                    <input type="password" class="form-control form-control-password" id="password" name="password" placeholder="Enter your password" required>
+                                    <span class="password-toggle-icon" onclick="togglePassword('password', this)">
+                                        <iconify-icon icon="mdi:eye-outline" width="24" height="24"></iconify-icon>
+                                    </span>
+                                </div>
+                            </div>
                             <div class="form-check mb-3">
                                 <input type="checkbox" required class="form-check-input" id="remember-me">
                                 <label class="form-check-label" for="remember-me">Remember me</label>
@@ -101,17 +104,17 @@ class="authentication-bg"
 </div>
 @endsection
 @section('scripts')
-    <script>
-        function togglePassword(fieldId, iconContainer) {
-    const field = document.getElementById(fieldId);
-    const icon = iconContainer.querySelector("iconify-icon");
+<script>
+    function togglePassword(fieldId, iconContainer) {
+        const field = document.getElementById(fieldId);
+        const icon = iconContainer.querySelector("iconify-icon");
 
-    if (field.type === "password") {
-        field.type = "text";
-        icon.setAttribute("icon", "mdi:eye-off-outline");
-    } else {
-        field.type = "password";
-        icon.setAttribute("icon", "mdi:eye-outline");
+        if (field.type === "password") {
+            field.type = "text";
+            icon.setAttribute("icon", "mdi:eye-off-outline");
+        } else {
+            field.type = "password";
+            icon.setAttribute("icon", "mdi:eye-outline");
+        }
     }
-}
-    </script>
+</script>

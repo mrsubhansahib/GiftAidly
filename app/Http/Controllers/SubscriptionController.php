@@ -678,4 +678,149 @@ class SubscriptionController extends Controller
             return redirect()->back()->with('success', 'Subscription canceled successfully');
         }
     }
+    public function donateZakat(Request $request)
+    {
+        $request->merge([
+            'currency' => strtoupper($request->currency),
+        ]);
+
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|max:255',
+            'currency' => 'required|in:GBP,USD,EUR',
+            'zakat' => 'required|numeric|min:1',
+            'stripeToken' => 'required|string',
+        ]);
+
+        // Normalize to lowercase for Stripe (e.g., GBP → gbp)
+        $stripeCurrency = strtolower($request->currency);
+
+        DB::beginTransaction();
+        try {
+            Stripe\Stripe::setApiKey(env('STRIPE_SECRET'));
+
+            // ✅ Create or find user
+            $user = User::firstOrCreate(
+                ['email' => $request->email],
+                [
+                    'name' => $request->name,
+                    'password' => bcrypt(Str::random(12)),
+                    'role' => 'user',
+                ]
+            );
+
+            // ✅ Create Stripe customer if missing
+            if (!$user->stripe_customer_id) {
+                $customer = Stripe\Customer::create([
+                    'name'  => $user->name,
+                    'email' => $user->email,
+                    'source' => $request->stripeToken,
+                ]);
+                $user->update(['stripe_customer_id' => $customer->id]);
+            } else {
+                $customer = Stripe\Customer::retrieve($user->stripe_customer_id);
+            }
+
+            // ✅ Create or retrieve product
+            $productName = 'Zakat Donation';
+            $productRecord = ProductCatalog::firstOrCreate(['name' => $productName], [
+                'product_id' => Stripe\Product::create(['name' => $productName])->id
+            ]);
+            $product = Stripe\Product::retrieve($productRecord->product_id);
+
+            // ✅ Create one-time price
+            $price = Stripe\Price::create([
+                'unit_amount' => $request->zakat * 100,
+                'currency'    => $stripeCurrency,
+                'product'     => $product->id,
+            ]);
+
+            // ✅ Create one-time payment intent
+            $paymentIntent = \Stripe\PaymentIntent::create([
+                'amount'   => $request->zakat * 100,
+                'currency' => $stripeCurrency,
+                'customer' => $customer->id,
+                'confirm'  => true,
+                'automatic_payment_methods' => [
+                    'enabled' => true,
+                    'allow_redirects' => 'never',
+                ],
+                'payment_method_data' => [
+                    'type' => 'card',
+                    'card' => ['token' => $request->stripeToken],
+                ],
+            ]);
+
+            // ✅ Save records
+            $subscription = $user->subscriptions()->create([
+                'stripe_subscription_id' => 'one-time-' . $paymentIntent->id,
+                'stripe_price_id' => $price->id,
+                'status' => 'ended',
+                'price' => $request->zakat,
+                'currency' => $stripeCurrency,
+                'type' => 'zakat',
+                'gift_aid' => 'no',
+                'start_date' => now(),
+                'end_date'   => now()->addSecond(),
+                'canceled_at' => now()->addSeconds(2),
+            ]);
+
+            $invoice = Invoice::create([
+                'subscription_id'   => $subscription->id,
+                'stripe_invoice_id' => $paymentIntent->id,
+                'amount_due'        => $request->zakat,
+                'currency'          => $stripeCurrency,
+                'invoice_date'      => now(),
+                'paid_at'           => now(),
+            ]);
+
+            $transaction = Transaction::create([
+                'invoice_id'            => $invoice->id,
+                'stripe_transaction_id' => $paymentIntent->charges->data[0]->id ?? $paymentIntent->id,
+                'paid_at'               => now(),
+                'status'                => 'paid',
+            ]);
+
+            DB::commit();
+
+            // ✅ Notifications after commit
+            DB::afterCommit(function () use ($user, $subscription, $invoice, $transaction) {
+                $adminEmail = env('ADMIN_EMAIL');
+                $admin = User::where('role', 'admin')->first();
+
+                $currencySymbols = [
+                    'usd' => '$',
+                    'gbp' => '£',
+                    'eur' => '€',
+                ];
+                $currencySymbol = $currencySymbols[strtolower($subscription->currency)] ?? strtoupper($subscription->currency);
+
+                $userName = Str::title($user->name);
+                $typeReadable = 'Zakat Donation';
+
+                $adminTitle = "💰 New {$typeReadable} Received";
+                $adminMessage = "{$userName} donated {$currencySymbol}{$subscription->price} as Zakat.";
+                $userTitle = "💝 {$typeReadable} Successful";
+                $userMessage = "Your Zakat of {$currencySymbol}{$subscription->price} has been received successfully.";
+
+                $user->notify(new UserActionNotification($userTitle, $userMessage, 'user'));
+                $admin->notify(new UserActionNotification($adminTitle, $adminMessage, 'admin'));
+
+                Mail::to($adminEmail)->send(new SubscriptionStartedMail($user, $subscription, true));
+                Mail::to($adminEmail)->send(new InvoicePaidMail($user, $invoice, true));
+                Mail::to($adminEmail)->send(new TransactionPaidMail($user, $transaction, true));
+
+                Mail::to($user->email)->send(new SubscriptionStartedMail($user, $subscription));
+                Mail::to($user->email)->send(new InvoicePaidMail($user, $invoice));
+            });
+
+            return redirect()->back()->with('success', 'Zakat donation successful! Payment received and invoice generated.');
+        } catch (\Stripe\Exception\CardException $e) {
+            DB::rollBack();
+            return back()->withInput()->with('error', 'Stripe card error: ' . $e->getMessage());
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->withInput()->with('error', 'Error: ' . $e->getMessage());
+        }
+    }
 }

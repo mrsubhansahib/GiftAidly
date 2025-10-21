@@ -15,7 +15,7 @@ class zakahController extends Controller
         $currency = $request->query('currency');
         $zakat = $request->query('zakat');
 
-        return view('zakah.index', [
+        return view('zakah.form', [
             'currency' => $currency,
             'zakat' => $zakat,
         ]);
