@@ -3,8 +3,9 @@
 @section('body-attribuet')
 class="authentication-bg"
 @endsection
-
 @section('content')
+@include('layouts.partials.alert')
+
 <div class="container py-5">
     <div class="row justify-content-center">
         <div class="col-md-6">
@@ -22,11 +23,9 @@ class="authentication-bg"
                         @php
                         // Normalize any symbol to valid ISO code
                         $currency = match($currency) {
-                        '£', '₤' => 'GBP',
+                        '£' => 'GBP',
                         '$' => 'USD',
                         '€' => 'EUR',
-                        'gbp', 'usd', 'eur' => strtoupper($currency),
-                        default => 'GBP', // fallback
                         };
                         @endphp
 
