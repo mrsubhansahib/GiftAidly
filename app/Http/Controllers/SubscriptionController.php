@@ -680,8 +680,15 @@ class SubscriptionController extends Controller
     }
     public function donateZakat(Request $request)
     {
+        // 🔹 Normalize currency symbols and validate
         $request->merge([
-            'currency' => strtoupper($request->currency),
+            'currency' => match ($request->currency) {
+                '£' => 'GBP',
+                '$' => 'USD',
+                '€' => 'EUR',
+                'gbp', 'usd', 'eur' => strtoupper($request->currency),
+                default => 'GBP',
+            },
         ]);
 
         $request->validate([
@@ -692,7 +699,6 @@ class SubscriptionController extends Controller
             'stripeToken' => 'required|string',
         ]);
 
-        // Normalize to lowercase for Stripe (e.g., GBP → gbp)
         $stripeCurrency = strtolower($request->currency);
 
         DB::beginTransaction();
@@ -700,14 +706,15 @@ class SubscriptionController extends Controller
             Stripe\Stripe::setApiKey(env('STRIPE_SECRET'));
 
             // ✅ Create or find user
-            $user = User::firstOrCreate(
-                ['email' => $request->email],
-                [
-                    'name' => $request->name,
-                    'password' => bcrypt(Str::random(12)),
-                    'role' => 'user',
-                ]
-            );
+            $user = User::where('email', $request->email)->first();
+            if (!$user) {
+                $user = new User();
+                $user->name = $request->name;
+                $user->email = $request->email;
+                $user->password = bcrypt(Str::random(12));
+                $user->role = 'donor';
+                $user->save();
+            }
 
             // ✅ Create Stripe customer if missing
             if (!$user->stripe_customer_id) {
@@ -721,21 +728,24 @@ class SubscriptionController extends Controller
                 $customer = Stripe\Customer::retrieve($user->stripe_customer_id);
             }
 
-            // ✅ Create or retrieve product
+            // ✅ Create or retrieve Stripe Product for Zakat Donation
             $productName = 'Zakat Donation';
-            $productRecord = ProductCatalog::firstOrCreate(['name' => $productName], [
-                'product_id' => Stripe\Product::create(['name' => $productName])->id
-            ]);
+            $productRecord = ProductCatalog::firstOrCreate(
+                ['name' => $productName],
+                ['product_id' => Stripe\Product::create(['name' => $productName])->id]
+            );
             $product = Stripe\Product::retrieve($productRecord->product_id);
 
-            // ✅ Create one-time price
+            // ✅ Create one-time Price
             $price = Stripe\Price::create([
                 'unit_amount' => $request->zakat * 100,
                 'currency'    => $stripeCurrency,
                 'product'     => $product->id,
             ]);
 
-            // ✅ Create one-time payment intent
+                DB::commit();
+                dd('Price created:', $price);
+            // ✅ Create one-time PaymentIntent
             $paymentIntent = \Stripe\PaymentIntent::create([
                 'amount'   => $request->zakat * 100,
                 'currency' => $stripeCurrency,
@@ -751,22 +761,9 @@ class SubscriptionController extends Controller
                 ],
             ]);
 
-            // ✅ Save records
-            $subscription = $user->subscriptions()->create([
-                'stripe_subscription_id' => 'one-time-' . $paymentIntent->id,
-                'stripe_price_id' => $price->id,
-                'status' => 'ended',
-                'price' => $request->zakat,
-                'currency' => $stripeCurrency,
-                'type' => 'zakat',
-                'gift_aid' => 'no',
-                'start_date' => now(),
-                'end_date'   => now()->addSecond(),
-                'canceled_at' => now()->addSeconds(2),
-            ]);
-
+            // ✅ Save invoice
             $invoice = Invoice::create([
-                'subscription_id'   => $subscription->id,
+                'subscription_id'   => null, // no subscription
                 'stripe_invoice_id' => $paymentIntent->id,
                 'amount_due'        => $request->zakat,
                 'currency'          => $stripeCurrency,
@@ -774,6 +771,7 @@ class SubscriptionController extends Controller
                 'paid_at'           => now(),
             ]);
 
+            // ✅ Save transaction
             $transaction = Transaction::create([
                 'invoice_id'            => $invoice->id,
                 'stripe_transaction_id' => $paymentIntent->charges->data[0]->id ?? $paymentIntent->id,
@@ -783,8 +781,8 @@ class SubscriptionController extends Controller
 
             DB::commit();
 
-            // ✅ Notifications after commit
-            DB::afterCommit(function () use ($user, $subscription, $invoice, $transaction) {
+            // ✅ Notifications + Emails
+            DB::afterCommit(function () use ($user, $invoice, $transaction) {
                 $adminEmail = env('ADMIN_EMAIL');
                 $admin = User::where('role', 'admin')->first();
 
@@ -793,24 +791,23 @@ class SubscriptionController extends Controller
                     'gbp' => '£',
                     'eur' => '€',
                 ];
-                $currencySymbol = $currencySymbols[strtolower($subscription->currency)] ?? strtoupper($subscription->currency);
+                $currencySymbol = $currencySymbols[strtolower($invoice->currency)] ?? strtoupper($invoice->currency);
 
                 $userName = Str::title($user->name);
                 $typeReadable = 'Zakat Donation';
 
+                // 📢 Notifications
                 $adminTitle = "💰 New {$typeReadable} Received";
-                $adminMessage = "{$userName} donated {$currencySymbol}{$subscription->price} as Zakat.";
+                $adminMessage = "{$userName} donated {$currencySymbol}{$invoice->amount_due} as Zakat.";
                 $userTitle = "💝 {$typeReadable} Successful";
-                $userMessage = "Your Zakat of {$currencySymbol}{$subscription->price} has been received successfully.";
+                $userMessage = "Your Zakat of {$currencySymbol}{$invoice->amount_due} has been received successfully.";
 
                 $user->notify(new UserActionNotification($userTitle, $userMessage, 'user'));
-                $admin->notify(new UserActionNotification($adminTitle, $adminMessage, 'admin'));
+                $admin?->notify(new UserActionNotification($adminTitle, $adminMessage, 'admin'));
 
-                Mail::to($adminEmail)->send(new SubscriptionStartedMail($user, $subscription, true));
+                // 📧 Emails
                 Mail::to($adminEmail)->send(new InvoicePaidMail($user, $invoice, true));
                 Mail::to($adminEmail)->send(new TransactionPaidMail($user, $transaction, true));
-
-                Mail::to($user->email)->send(new SubscriptionStartedMail($user, $subscription));
                 Mail::to($user->email)->send(new InvoicePaidMail($user, $invoice));
             });
 
