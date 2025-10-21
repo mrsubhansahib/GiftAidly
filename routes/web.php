@@ -14,6 +14,8 @@ require __DIR__ . '/api.php';
 Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
 Route::post('/notifications/clear', [NotificationController::class, 'clearAll'])->name('notifications.clear');
 Route::get('/receive-zakat', [zakahController::class, 'handle']);
+Route::post('/donate-zakat', [SubscriptionController::class, 'donateZakat'])->name('zakat.process');
+
 
 
 
