@@ -703,7 +703,7 @@ class SubscriptionController extends Controller
 
         DB::beginTransaction();
         try {
-            Stripe\Stripe::setApiKey(env('STRIPE_SECRET'));
+            Stripe\Stripe::setApiKey(config('services.stripe.secret'));
 
             // ✅ Create or find user
             $user = User::where('email', $request->email)->first();
@@ -712,7 +712,6 @@ class SubscriptionController extends Controller
                 $user->name = $request->name;
                 $user->email = $request->email;
                 $user->password = bcrypt(Str::random(12));
-                $user->role = 'donor';
                 $user->save();
             }
 
@@ -743,8 +742,6 @@ class SubscriptionController extends Controller
                 'product'     => $product->id,
             ]);
 
-                DB::commit();
-                dd('Price created:', $price);
             // ✅ Create one-time PaymentIntent
             $paymentIntent = \Stripe\PaymentIntent::create([
                 'amount'   => $request->zakat * 100,
@@ -755,61 +752,58 @@ class SubscriptionController extends Controller
                     'enabled' => true,
                     'allow_redirects' => 'never',
                 ],
-                'payment_method_data' => [
-                    'type' => 'card',
-                    'card' => ['token' => $request->stripeToken],
-                ],
+                'description' => 'Zakat Donation',
             ]);
 
             // ✅ Save invoice
-            $invoice = Invoice::create([
-                'subscription_id'   => null, // no subscription
-                'stripe_invoice_id' => $paymentIntent->id,
-                'amount_due'        => $request->zakat,
-                'currency'          => $stripeCurrency,
-                'invoice_date'      => now(),
-                'paid_at'           => now(),
-            ]);
+            // $invoice = Invoice::create([
+            //     'subscription_id'   => 123, // no subscription
+            //     'stripe_invoice_id' => $paymentIntent->id,
+            //     'amount_due'        => $request->zakat,
+            //     'currency'          => $stripeCurrency,
+            //     'invoice_date'      => now(),
+            //     'paid_at'           => now(),
+            // ]);
 
-            // ✅ Save transaction
-            $transaction = Transaction::create([
-                'invoice_id'            => $invoice->id,
-                'stripe_transaction_id' => $paymentIntent->charges->data[0]->id ?? $paymentIntent->id,
-                'paid_at'               => now(),
-                'status'                => 'paid',
-            ]);
+            // // ✅ Save transaction
+            // $transaction = Transaction::create([
+            //     'invoice_id'            => $invoice->id,
+            //     'stripe_transaction_id' => $paymentIntent->charges->data[0]->id ?? $paymentIntent->id,
+            //     'paid_at'               => now(),
+            //     'status'                => 'paid',
+            // ]);
 
             DB::commit();
 
             // ✅ Notifications + Emails
-            DB::afterCommit(function () use ($user, $invoice, $transaction) {
-                $adminEmail = env('ADMIN_EMAIL');
-                $admin = User::where('role', 'admin')->first();
+            // DB::afterCommit(function () use ($user, $invoice, $transaction) {
+            //     $adminEmail = env('ADMIN_EMAIL');
+            //     $admin = User::where('role', 'admin')->first();
 
-                $currencySymbols = [
-                    'usd' => '$',
-                    'gbp' => '£',
-                    'eur' => '€',
-                ];
-                $currencySymbol = $currencySymbols[strtolower($invoice->currency)] ?? strtoupper($invoice->currency);
+            //     $currencySymbols = [
+            //         'usd' => '$',
+            //         'gbp' => '£',
+            //         'eur' => '€',
+            //     ];
+            //     $currencySymbol = $currencySymbols[strtolower($invoice->currency)] ?? strtoupper($invoice->currency);
 
-                $userName = Str::title($user->name);
-                $typeReadable = 'Zakat Donation';
+            //     $userName = Str::title($user->name);
+            //     $typeReadable = 'Zakat Donation';
 
-                // 📢 Notifications
-                $adminTitle = "💰 New {$typeReadable} Received";
-                $adminMessage = "{$userName} donated {$currencySymbol}{$invoice->amount_due} as Zakat.";
-                $userTitle = "💝 {$typeReadable} Successful";
-                $userMessage = "Your Zakat of {$currencySymbol}{$invoice->amount_due} has been received successfully.";
+            //     // 📢 Notifications
+            //     $adminTitle = "💰 New {$typeReadable} Received";
+            //     $adminMessage = "{$userName} donated {$currencySymbol}{$invoice->amount_due} as Zakat.";
+            //     $userTitle = "💝 {$typeReadable} Successful";
+            //     $userMessage = "Your Zakat of {$currencySymbol}{$invoice->amount_due} has been received successfully.";
 
-                $user->notify(new UserActionNotification($userTitle, $userMessage, 'user'));
-                $admin?->notify(new UserActionNotification($adminTitle, $adminMessage, 'admin'));
+            //     $user->notify(new UserActionNotification($userTitle, $userMessage, 'user'));
+            //     $admin?->notify(new UserActionNotification($adminTitle, $adminMessage, 'admin'));
 
-                // 📧 Emails
-                Mail::to($adminEmail)->send(new InvoicePaidMail($user, $invoice, true));
-                Mail::to($adminEmail)->send(new TransactionPaidMail($user, $transaction, true));
-                Mail::to($user->email)->send(new InvoicePaidMail($user, $invoice));
-            });
+            //     // 📧 Emails
+            //     Mail::to($adminEmail)->send(new InvoicePaidMail($user, $invoice, true));
+            //     Mail::to($adminEmail)->send(new TransactionPaidMail($user, $transaction, true));
+            //     Mail::to($user->email)->send(new InvoicePaidMail($user, $invoice));
+            // });
 
             return redirect()->back()->with('success', 'Zakat donation successful! Payment received and invoice generated.');
         } catch (\Stripe\Exception\CardException $e) {
