@@ -71,7 +71,7 @@
                                 </div>
 
                                 <!-- Password with Eye Icon -->
-                                <div class="mb-3">
+                                <!-- <div class="mb-3">
                                     <label class="form-label" for="example-password">Password</label>
                                     <div class="password-input-container">
                                         <input type="password" id="example-password" name="password"
@@ -84,10 +84,10 @@
                                     @error('password')
                                         <div class="text-danger text-sm mt-1">{{ $message }}</div>
                                     @enderror
-                                </div>
+                                </div> -->
 
                                 <!-- Confirm Password with Eye Icon -->
-                                <div class="mb-3">
+                                <!-- <div class="mb-3">
                                     <label class="form-label" for="example-password-confirm">Confirm Password</label>
                                     <div class="password-input-container">
                                         <input type="password" id="example-password-confirm" name="password_confirmation"
@@ -96,7 +96,7 @@
                                             <iconify-icon icon="mdi:eye-outline" width="24" height="24"></iconify-icon>
                                         </span>
                                     </div>
-                                </div>
+                                </div> -->
 
                                 <div class="mb-3">
                                     <div class="form-check">
@@ -124,7 +124,7 @@
         </div>
     </div>
 @endsection
-
+<!-- 
 @section('scripts')
 <script>
 function togglePassword(fieldId, iconContainer) {
@@ -139,4 +139,4 @@ function togglePassword(fieldId, iconContainer) {
     }
 }
 </script>
-@endsection
+@endsection -->
