@@ -76,7 +76,7 @@ class="authentication-bg"
                                     <a href="{{ route('password.request') }}" class="text-decoration-none small text-muted">Forgot password?</a>
                                 </div>
 
-                                <!-- Password Input with Eye Icon -->
+                                Password Input with Eye Icon
                                 <div class="password-input-container">
                                     <input type="password" class="form-control form-control-password" id="password" name="password" placeholder="Enter your password" required>
                                     <span class="password-toggle-icon" onclick="togglePassword('password', this)">
@@ -84,27 +84,27 @@ class="authentication-bg"
                                     </span>
                                 </div>
                             </div>
-                            <div class="form-check mb-3">
+                            <!-- <div class="form-check mb-3">
                                 <input type="checkbox" required class="form-check-input" id="remember-me">
                                 <label class="form-check-label" for="remember-me">Remember me</label>
-                            </div>
+                            </div> -->
                             <div class="d-grid">
                                 <button style="background: linear-gradient(45deg, #1d43ab, #94740dff);" class="btn btn-lg fw-medium text-light" type="submit">Sign In</button>
                             </div>
                         </form>
                     </div>
                 </div>
-                <p class="text-center mt-4 text-white text-opacity-50">Don't have an account?
+                <!-- <p class="text-center mt-4 text-white text-opacity-50">Don't have an account?
                     <a href="{{ route('signup') }}"
                         class="text-decoration-none text-white fw-bold">Sign Up</a>
-                </p>
+                </p> -->
             </div>
         </div>
     </div>
 </div>
 @endsection
 @section('scripts')
-<script>
+<!-- <script>
     function togglePassword(fieldId, iconContainer) {
         const field = document.getElementById(fieldId);
         const icon = iconContainer.querySelector("iconify-icon");
@@ -117,4 +117,4 @@ class="authentication-bg"
             icon.setAttribute("icon", "mdi:eye-outline");
         }
     }
-</script>
+</script> -->

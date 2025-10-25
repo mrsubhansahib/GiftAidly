@@ -12,7 +12,7 @@ class="authentication-bg"
 
             <div class="card shadow-sm rounded-3">
                 <div class="card-body">
-                    <h3 class="text-center mb-4 fw-bold">Zakat Payment</h3>
+                    <h3 class="text-center my-4 fw-bold">Zakat Payment</h3>
 
 
 
@@ -62,11 +62,12 @@ class="authentication-bg"
                         </div>
 
                         <input type="hidden" name="stripeToken" id="stripeToken">
-
-                        <button type="submit" id="submitBtn" class="btn btn-primary w-100 fw-semibold">
-                            <span id="btnText">Pay Now</span>
-                            <span id="btnLoader" class="spinner-border spinner-border-sm d-none"></span>
-                        </button>
+                        <div class="d-grid">
+                            <button type="submit" id="submitBtn" style="background: linear-gradient(45deg, #1d43ab, #94740dff);" class="btn btn-lg fw-medium text-light">
+                                <span id="btnText">Pay Now</span>
+                                <span id="btnLoader" class="spinner-border spinner-border-sm d-none"></span>
+                            </button>
+                        </div>
                     </form>
                 </div>
             </div>
