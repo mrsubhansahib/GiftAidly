@@ -1,6 +1,11 @@
 @extends('layouts.vertical', ['subtitle' => 'Dashboard'])
 
 @section('content')
+    @if (auth()->check() && auth()->user()->role === 'donor')
+        <script>
+            window.location.href = "{{ route('third', ['user', 'donations', 'index']) }}";
+        </script>
+    @endif
     @include('layouts.partials.page-title', ['title' => 'GiftAidly', 'subtitle' => 'Dashboard'])
     <div class="row">
         <!-- Card 1 -->
@@ -27,30 +32,9 @@
                     </div>
                 </a>
             </div>
-        @endif
 
-        <!-- Card 2 -->
-        @php
-            $user = auth()->user();
-            $isAdmin = $user && $user->role === 'admin';
-            $isDonor = $user && $user->role === 'donor';
-
-            $donationCount = $isAdmin
-                ? \App\Models\Subscription::count()
-                : ($isDonor
-                    ? \App\Models\Subscription::where('user_id', $user->id)->count()
-                    : 0);
-
-            $donationRoute = $isAdmin
-                ? route('third', ['admin', 'donations', 'index'])
-                : route('third', ['user', 'donations', 'index']);
-
-            $donationColClass = $isDonor ? 'col-md-6 col-xl-6' : 'col-md-6 col-xl-4';
-        @endphp
-
-        @if ($isAdmin || $isDonor)
-            <div class="{{ $donationColClass }}">
-                <a href="{{ $donationRoute }}" class="text-decoration-none">
+            <div class="col-md-6 col-xl-4">
+                <a href="{{ route('third', ['admin', 'donations', 'index']) }}" class="text-decoration-none">
                     <div class="card hover-shadow" style="cursor: pointer;">
                         <div class="card-body">
                             <div class="row">
@@ -61,63 +45,18 @@
                                     </div>
                                 </div>
                                 <div class="col-6 text-end">
-                                    <p class="text-muted mb-0 text-truncate">
-                                        {{ $isAdmin ? 'Donations' : 'My Donations' }}
-                                    </p>
-                                    <h3 class="text-dark mt-2 mb-0">{{ $donationCount }}</h3>
+                                    <p class="text-muted mb-0 text-truncate">Donations</p>
+                                    <h3 class="text-dark mt-2 mb-0">
+                                        {{ \App\Models\Subscription::count() }}
+                                    </h3>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </a>
             </div>
-        @endif
 
 
-        <!-- Card 3 -->
-        {{-- @php
-            $invoiceCount = $isAdmin
-                ? \App\Models\Invoice::count()
-                : ($isDonor
-                    ? \App\Models\Invoice::whereHas('subscription', function ($query) use ($user) {
-                        $query->where('user_id', $user->id);
-                    })->count()
-                    : 0);
-
-            $invoiceRoute = $isAdmin
-                ? route('third', ['admin', 'invoices', 'index'])
-                : route('third', ['user', 'invoices', 'index']);
-
-            $invoiceColClass = $isDonor ? 'col-md-6 col-xl-6' : 'col-md-6 col-xl-3';
-        @endphp
-
-        @if ($isAdmin || $isDonor)
-            <div class="{{ $invoiceColClass }}">
-                <a href="{{ $invoiceRoute }}" class="text-decoration-none">
-                    <div class="card hover-shadow" style="cursor: pointer;">
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-6">
-                                    <div class="avatar-md bg-primary bg-opacity-10 rounded-circle">
-                                        <iconify-icon icon="solar:bill-list-outline"
-                                            class="fs-32 text-primary avatar-title"></iconify-icon>
-                                    </div>
-                                </div>
-                                <div class="col-6 text-end">
-                                    <p class="text-muted mb-0 text-truncate">
-                                        {{ $isAdmin ? 'Invoices' : 'My Invoices' }}
-                                    </p>
-                                    <h3 class="text-dark mt-2 mb-0">{{ $invoiceCount }}</h3>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </a>
-            </div>
-        @endif --}}
-
-
-        @if (auth()->check() && auth()->user()->role === 'admin')
             <div class="col-md-6 col-xl-4">
                 <a href="{{ route('third', ['admin', 'transactions', 'index']) }}" class="text-decoration-none">
                     <div class="card hover-shadow" style="cursor: pointer;">
