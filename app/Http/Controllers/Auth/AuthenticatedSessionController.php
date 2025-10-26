@@ -33,13 +33,19 @@ class AuthenticatedSessionController extends Controller
      */
     public function store(LoginRequest $request)
     {
-
         $request->authenticate();
 
         $request->session()->regenerate();
 
-        return redirect()->intended(route('root'))->with('success', 'You have successfully logged in.');
-        // return redirect()->intended(RouteServiceProvider::HOME);
+        $user = auth()->user();
+        if ($user && $user->role === 'admin') {
+            $fallback = route('any', 'index');
+        } elseif ($user && $user->role === 'donor') {
+            $fallback = route('third', ['user', 'donations', 'index']);
+        } else {
+            $fallback = route('root');
+        }
+        return redirect()->intended($fallback)->with('success', 'You have successfully logged in.');
     }
     public function admin_store(Request $request)
     {

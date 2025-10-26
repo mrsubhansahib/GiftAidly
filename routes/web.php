@@ -20,7 +20,7 @@ Route::post('/donate-zakat', [SubscriptionController::class, 'donateZakat'])->na
 Route::post('donate/daily-weekly-monthly', [SubscriptionController::class, 'donateDailyWeeklyMonthly'])->name('donation.daily_weekly_monthly');
 Route::post('donate/friday', [SubscriptionController::class, 'donateFriday'])->name('donation.friday');
 Route::post('donate/special', [SubscriptionController::class, 'donateSpecial'])->name('donation.special');
-Route::group(['prefix' => '/', 'middleware' => ['auth', 'verified']], function () {
+Route::group(['prefix' => '/', 'middleware' => ['auth']], function () {
 
     Route::get('cancel/donation/{id}', [SubscriptionController::class, 'cancelSubscription'])->name('cancel.donation');
     // User detail only for admin
@@ -37,8 +37,9 @@ Route::group(['prefix' => '/', 'middleware' => ['auth', 'verified']], function (
     Route::get('/user/donation/{id}', function ($id) {
         return view('user.donations.detail', ['id' => $id]);
     })->name('user.donations.detail');
+    
+    Route::get('{first}/{second}/{third}', [RoutingController::class, 'thirdLevel'])->name('third');
+    Route::get('{first}/{second}', [RoutingController::class, 'secondLevel'])->name('second');
+    Route::get('{any}', [RoutingController::class, 'root'])->name('any');
 });
 Route::get('', [RoutingController::class, 'index'])->name('root');
-Route::get('{first}/{second}/{third}', [RoutingController::class, 'thirdLevel'])->name('third');
-Route::get('{first}/{second}', [RoutingController::class, 'secondLevel'])->name('second');
-Route::get('{any}', [RoutingController::class, 'root'])->name('any');

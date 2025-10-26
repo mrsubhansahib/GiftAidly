@@ -106,7 +106,7 @@ mount(function ($id) {
     </div>
 
     {{-- Invoices --}}
-    <div class="card mb-3 shadow-sm">
+    {{-- <div class="card mb-3 shadow-sm">
         <div class="card-header">
             <h4>Invoices</h4>
         </div>
@@ -243,7 +243,7 @@ mount(function ($id) {
                 </tbody>
             </table>
         </div>
-    </div>
+    </div> --}}
 
     {{-- Transactions --}}
     <div class="card mb-3 shadow-sm">

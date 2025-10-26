@@ -149,10 +149,10 @@ class WebhookController extends Controller
         } else {
             Log::info("Invoice is already Paid");
         }
-        Mail::to(env('ADMIN_EMAIL'))
-            ->send(new InvoicePaidMail($localInvoice->subscription->user, $localInvoice, true));
-        Mail::to($localInvoice->subscription->user->email)
-            ->send(new InvoicePaidMail($localInvoice->subscription->user, $localInvoice));
+        // Mail::to(env('ADMIN_EMAIL'))
+        //     ->send(new InvoicePaidMail($localInvoice->subscription->user, $localInvoice, true));
+        // Mail::to($localInvoice->subscription->user->email)
+        //     ->send(new InvoicePaidMail($localInvoice->subscription->user, $localInvoice));
         function invoiceMail($localInvoice) {}
     }
     private function onInvoicePaymentSucceeded($inv)
@@ -230,8 +230,8 @@ class WebhookController extends Controller
                     ]
                 );
                 Log::info("✅ Transaction created with ID: {$trans->id}");
-                Mail::to(env('ADMIN_EMAIL'))
-                    ->send(new TransactionPaidMail($localInvoice->subscription->user, $trans, true));
+                // Mail::to(env('ADMIN_EMAIL'))
+                //     ->send(new TransactionPaidMail($localInvoice->subscription->user, $trans, true));
             }
         });
     }
@@ -279,8 +279,8 @@ class WebhookController extends Controller
                     ]
                 );
                 Log::info("✅ Transaction created with ID: {$trans->id}");
-                Mail::to(env('ADMIN_EMAIL'))
-                    ->send(new TransactionFailedMail($localInvoice->subscription->user, $trans, true));
+                // Mail::to(env('ADMIN_EMAIL'))
+                //     ->send(new TransactionFailedMail($localInvoice->subscription->user, $trans, true));
             }
         });
     }

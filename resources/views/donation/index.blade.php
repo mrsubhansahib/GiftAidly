@@ -5,12 +5,12 @@
 <!-- Animated Top Bar -->
 <div class="animated-bar"></div>
 
-<!-- Banner Section -->
-<section class="banner">
-    @if (auth()->check())
-    <div style="display: flex; justify-content: end; margin-bottom: 20px;">
-        <a type="button" href="{{ route('any', ['index']) }}"
-            style="background: linear-gradient(45deg, #1d43ab, #94740dff); 
+        <!-- Banner Section -->
+        <section class="banner">
+            @if (auth()->check())
+            <div style="display: flex; justify-content: end; margin-bottom: 20px;">
+                <a type="button" href="{{ route('any', ['index']) }}"
+                    style="background: linear-gradient(45deg, #1d43ab, #94740dff); 
                             background-size: 200% 200%;
                             background-position: left center;
                             text-decoration: none;
@@ -21,18 +21,34 @@
                             border-radius: 25px;  
                             cursor: pointer;
                             z-index: 10;
-                            transition: background-position 0.5s ease-in-out, transform 0.3s ease;
-                            "
-            onmouseover="this.style.backgroundPosition='right center'; this.style.transform='scale(1.05)';"
-            onmouseout="this.style.backgroundPosition='left center'; this.style.transform='scale(1)';">
-            <!-- Classic dashboard (Material Design Icons) -->
-            <iconify-icon icon="mdi:view-dashboard" class="fs-20 align-middle"
-                style="margin-right: 6px;"></iconify-icon>
+                            transition: background-position 0.5s ease-in-out, transform 0.3s ease;">
+                    <iconify-icon icon="mdi:view-dashboard" class="fs-20 align-middle" style="margin-right: 6px;"></iconify-icon>
+                    Dashboard
+                </a>
+            </div>
+        @else
+            <div style="display: flex; justify-content: end; margin-bottom: 20px;">
+                <a type="button" href="{{ route('second', ['auth','signin']) }}"
+                    style="background: linear-gradient(45deg, #1d43ab, #94740dff); 
+                            background-size: 200% 200%;
+                            background-position: left center;
+                            text-decoration: none;
+                            border: none; 
+                            color: white;
+                            font-weight: 600; 
+                            padding: 6px 18px; 
+                            border-radius: 25px;  
+                            cursor: pointer;
+                            z-index: 10;
+                            transition: background-position 0.5s ease-in-out, transform 0.3s ease;"
+                    onmouseover="this.style.backgroundPosition='right center'; this.style.transform='scale(1.05)';"
+                    onmouseout="this.style.backgroundPosition='left center'; this.style.transform='scale(1)';">
+                    <iconify-icon icon="mdi:login" class="fs-20 align-middle" style="margin-right: 6px;"></iconify-icon>
+                    Sign In
+                </a>
+            </div>
+        @endif
 
-            Dashboard
-        </a>
-    </div>
-    @endif
 
     <div class="floating-elements"></div>
     <div class="banner-content">
