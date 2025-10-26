@@ -9,7 +9,9 @@
         <section class="banner">
             @if (auth()->check())
             <div style="display: flex; justify-content: end; margin-bottom: 20px;">
-                <a type="button" href="{{ route('any', ['index']) }}"
+                <a type="button" href="{{ auth()->user()->role === 'donor' 
+                    ? route('third', ['user', 'donations', 'index']) 
+                    : route('any', ['index']) }}"
                     style="background: linear-gradient(45deg, #1d43ab, #94740dff); 
                             background-size: 200% 200%;
                             background-position: left center;
