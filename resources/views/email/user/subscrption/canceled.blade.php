@@ -50,7 +50,6 @@ A donation subscription has been **canceled** on **GiftAidly**. Below are the de
 ## 💸 **Donation Details**
 **Donation Type:** {{ $frequency }}  
 **Amount:** {{ $currencySymbol }} {{ number_format($subscription->price, 2) }}  
-**Frequency:** {{ $frequency }}  
 **Gift Aid:** {{ $subscription->gift_aid === 'yes' ? '✅ Applied' : '❌ Not Applied' }}
 
 @if (Str::startsWith($subscription->type, 'special'))
@@ -58,7 +57,6 @@ A donation subscription has been **canceled** on **GiftAidly**. Below are the de
 @else
 **Start Date:** {{ $startDate }}  
 **End Date:** {{ $endDate }}  
-**Status:** {{ ucfirst($subscription->status) }}
 @endif
 
 ---
@@ -77,15 +75,13 @@ We truly appreciate your previous support — your generosity made a real impact
 ## 🧾 Donation Summary
 
 **Donation Type:** {{ $frequency }}  
-**Amount:** {{ $currencySymbol }} {{ number_format($subscription->price, 2) }}  
-**Frequency:** {{ $frequency }}  
+**Amount:** {{ $currencySymbol }} {{ number_format($subscription->price, 2) }}   
 **Gift Aid:** {{ $subscription->gift_aid === 'yes' ? '✅ Applied' : '❌ Not Applied' }}  
 @if (Str::startsWith($subscription->type, 'special'))
 **Donated At:** {{ $startDate }}
 @else
 **Start Date:** {{ $startDate }}  
 **End Date:** {{ $endDate }}  
-**Status:** {{ ucfirst($subscription->status) }}
 @endif
 
 @if ($subscription->gift_aid === 'yes')

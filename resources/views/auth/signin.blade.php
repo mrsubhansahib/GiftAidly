@@ -75,8 +75,6 @@ class="authentication-bg"
                                     <label for="password" class="form-label">Password</label>
                                     <a href="{{ route('password.request') }}" class="text-decoration-none small text-muted">Forgot password?</a>
                                 </div>
-
-                                Password Input with Eye Icon
                                 <div class="password-input-container">
                                     <input type="password" class="form-control form-control-password" id="password" name="password" placeholder="Enter your password" required>
                                     <span class="password-toggle-icon" onclick="togglePassword('password', this)">

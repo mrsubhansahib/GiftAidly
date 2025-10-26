@@ -5,7 +5,7 @@
     <div class="row">
         <!-- Card 1 -->
         @if (auth()->check() && auth()->user()->role === 'admin')
-            <div class="col-md-6 col-xl-3">
+            <div class="col-md-6 col-xl-4">
                 <a href="{{ route('third', ['admin', 'donors', 'index']) }}" class="text-decoration-none">
                     <div class="card hover-shadow" style="cursor: pointer;">
                         <div class="card-body">
@@ -45,7 +45,7 @@
                 ? route('third', ['admin', 'donations', 'index'])
                 : route('third', ['user', 'donations', 'index']);
 
-            $donationColClass = $isDonor ? 'col-md-6 col-xl-6' : 'col-md-6 col-xl-3';
+            $donationColClass = $isDonor ? 'col-md-6 col-xl-6' : 'col-md-6 col-xl-4';
         @endphp
 
         @if ($isAdmin || $isDonor)
@@ -75,7 +75,7 @@
 
 
         <!-- Card 3 -->
-        @php
+        {{-- @php
             $invoiceCount = $isAdmin
                 ? \App\Models\Invoice::count()
                 : ($isDonor
@@ -114,11 +114,11 @@
                     </div>
                 </a>
             </div>
-        @endif
+        @endif --}}
 
 
         @if (auth()->check() && auth()->user()->role === 'admin')
-            <div class="col-md-6 col-xl-3">
+            <div class="col-md-6 col-xl-4">
                 <a href="{{ route('third', ['admin', 'transactions', 'index']) }}" class="text-decoration-none">
                     <div class="card hover-shadow" style="cursor: pointer;">
                         <div class="card-body">

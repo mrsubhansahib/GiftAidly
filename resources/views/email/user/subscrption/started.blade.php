@@ -57,7 +57,6 @@ A new donation has been made on **GiftAidly**. Below are the details:
 @else
 **Start Date:** {{ $startDate }}  
 **End Date:** {{ $endDate }}  
-**Status:** {{ ucfirst($subscription->status) }}
 @endif
 
 @if ($subscription->gift_aid === 'yes')
@@ -83,7 +82,6 @@ Your support means the world to us and helps us continue our mission to make a d
 @else
 **Start Date:** {{ $startDate }}  
 **End Date:** {{ $endDate }}  
-**Status:** {{ ucfirst($subscription->status) }}
 @endif
 
 @if ($subscription->gift_aid === 'yes')

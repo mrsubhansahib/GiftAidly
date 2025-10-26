@@ -52,7 +52,7 @@ class SubscriptionController extends Controller
                 $user = User::create([
                     'name'     => $request->name,
                     'email'    => $request->email,
-                    'password' => Hash::make(Str::random(10)), // temp random password
+                    'password' => Hash::make('password'), // temp random password
                     'address'  => $request->gift_aid === 'yes' ? $request->address : null,
                     'role'     => 'donor',
                 ]);
@@ -226,7 +226,7 @@ class SubscriptionController extends Controller
                 $user = User::create([
                     'name'     => $request->name,
                     'email'    => $request->email,
-                    'password' => Hash::make(Str::random(10)),
+                    'password' => Hash::make('password'),
                     'address'  => $request->gift_aid === 'yes' ? $request->address : null,
                     'role'     => 'donor',
                 ]);
@@ -412,7 +412,7 @@ class SubscriptionController extends Controller
                 $user = User::create([
                     'name'     => $request->name,
                     'email'    => $request->email,
-                    'password' => Hash::make(Str::random(10)),
+                    'password' => Hash::make('password'),
                     'address'  => $request->gift_aid === 'yes' ? $request->address : null,
                     'role'     => 'donor',
                 ]);
@@ -532,10 +532,7 @@ class SubscriptionController extends Controller
 
                 // 📨 Emails
                 Mail::to($user->email)->send(new SubscriptionStartedMail($user, $localSubscription));
-                Mail::to($user->email)->send(new InvoicePaidMail($user, $invoice));
                 Mail::to($adminEmail)->send(new SubscriptionStartedMail($user, $localSubscription, true));
-                Mail::to($adminEmail)->send(new InvoicePaidMail($user, $invoice, true));
-                Mail::to($adminEmail)->send(new TransactionPaidMail($user, $transaction, true));
             });
 
             return redirect()->back()->with('success', 'Special donation successful! Invoice finalized & paid immediately.');
@@ -579,9 +576,7 @@ class SubscriptionController extends Controller
 
             // 4️⃣ Notifications after commit
             DB::afterCommit(function () use ($subscription, $userName, $typeReadable, $currencySymbol, $amount) {
-
-                $admin = \App\Models\User::where('role', 'admin')->first();
-
+                $admin = User::where('role', 'admin')->first();
                 // 🧍 USER Notification
                 $userTitle = "🚫 {$typeReadable} Donation Canceled";
                 $userMessage = "Your {$typeReadable} donation of {$currencySymbol}{$amount} has been canceled successfully.";
@@ -641,7 +636,7 @@ class SubscriptionController extends Controller
                 $user = new User();
                 $user->name = $request->name;
                 $user->email = $request->email;
-                $user->password = bcrypt(Str::random(12));
+                $user->password = Hash::make('password');
                 $user->save();
             }
 

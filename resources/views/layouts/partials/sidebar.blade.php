@@ -1,113 +1,107 @@
 <div class="app-sidebar">
-     <!-- Sidebar Logo -->
-     <div class="logo-box">
-          <a href="{{ route('any', 'index') }}" class="logo-dark">
-               <img src="/images/logo-sm.png" class="logo-sm" alt="logo sm">
-               <img src="/images/logo-dark.png" style="width: 140px; height: 40px;" class="logo-lg" alt="logo dark">
-          </a>
+    <!-- Sidebar Logo -->
+    <div class="logo-box">
+        <a href="" class="logo-dark">
+            <img src="/images/logo-sm.png" class="logo-sm" alt="logo sm">
+            <img src="/images/logo-dark.png" style="width: 140px; height: 40px;" class="logo-lg" alt="logo dark">
+        </a>
 
-          <a href="{{ route('any', 'index') }}" class="logo-light">
-               <img src="/images/logo-sm.png" class="logo-sm" alt="logo sm">
-               <img src="/images/logo-light.png" style="width: 135px; height: 40px;" class="logo-lg" alt="logo light">
-          </a>
-     </div>
+        <a href="" class="logo-light">
+            <img src="/images/logo-sm.png" class="logo-sm" alt="logo sm">
+            <img src="/images/logo-light.png" style="width: 135px; height: 40px;" class="logo-lg" alt="logo light">
+        </a>
+    </div>
 
-     <div class="scrollbar" data-simplebar>
+    <div class="scrollbar" data-simplebar>
 
-          <ul class="navbar-nav" id="navbar-nav">
+        <ul class="navbar-nav" id="navbar-nav">
 
-               <li class="menu-title">Menu...</li>
+            <li class="menu-title">Menu...</li>
 
-               <li class="nav-item">
+            @if (Auth::user()->role === 'admin')
+                <li class="nav-item">
                     <a class="nav-link" href="{{ route('any', 'index') }}">
-                         <span class="nav-icon">
-                              <iconify-icon icon="solar:widget-2-outline"></iconify-icon>
-                         </span>
-                         <span class="nav-text"> Dashboard </span>
-                         <span class="badge bg-primary badge-pill text-end">New</span>
+                        <span class="nav-icon">
+                            <iconify-icon icon="solar:widget-2-outline"></iconify-icon>
+                        </span>
+                        <span class="nav-text"> Dashboard </span>
+                        <span class="badge bg-primary badge-pill text-end">New</span>
                     </a>
-               </li>
-
-               @if(Auth::user()->role === 'admin')
-               {{-- Donors --}}
-               <li class="nav-item">
+                </li>
+                {{-- Donors --}}
+                <li class="nav-item">
                     <a class="nav-link" href="{{ route('third', ['admin', 'donors', 'index']) }}">
-                         <span class="nav-icon">
-                              <iconify-icon icon="solar:user-heart-outline"></iconify-icon>
-                         </span>
-                         <span class="nav-text"> Donors </span>
+                        <span class="nav-icon">
+                            <iconify-icon icon="solar:user-heart-outline"></iconify-icon>
+                        </span>
+                        <span class="nav-text"> Donors </span>
                     </a>
-               </li>
+                </li>
 
-               {{-- Donations --}}
-               <li class="nav-item">
+                {{-- Donations --}}
+                <li class="nav-item">
                     <a class="nav-link" href="{{ route('third', ['admin', 'donations', 'index']) }}">
-                         <span class="nav-icon">
-                              <iconify-icon icon="solar:hand-money-outline"></iconify-icon>
-                         </span>
-                         <span class="nav-text"> Donations </span>
+                        <span class="nav-icon">
+                            <iconify-icon icon="solar:hand-money-outline"></iconify-icon>
+                        </span>
+                        <span class="nav-text"> Donations </span>
                     </a>
-               </li>
+                </li>
 
-               {{-- Invoices --}}
-               <li class="nav-item">
+                {{-- Invoices --}}
+                {{-- <li class="nav-item">
                     <a class="nav-link" href="{{ route('third', ['admin', 'invoices', 'index']) }}">
-                         <span class="nav-icon">
-                              <iconify-icon icon="solar:bill-list-outline"></iconify-icon>
-                         </span>
-                         <span class="nav-text"> Invoices </span>
+                        <span class="nav-icon">
+                            <iconify-icon icon="solar:bill-list-outline"></iconify-icon>
+                        </span>
+                        <span class="nav-text"> Invoices </span>
                     </a>
-               </li>
+                </li> --}}
 
-               {{-- Transactions --}}
-               <li class="nav-item">
+                {{-- Transactions --}}
+                <li class="nav-item">
                     <a class="nav-link" href="{{ route('third', ['admin', 'transactions', 'index']) }}">
-                         <span class="nav-icon">
-                              <iconify-icon icon="solar:card-outline"></iconify-icon>
-                         </span>
-                         <span class="nav-text"> Transactions </span>
+                        <span class="nav-icon">
+                            <iconify-icon icon="solar:card-outline"></iconify-icon>
+                        </span>
+                        <span class="nav-text"> Transactions </span>
                     </a>
-               </li>
-               @endif
+                </li>
 
-               @if (Auth::user()->role === 'donor')
-               {{-- Donations --}}
-               <li class="nav-item">
-                    <a class="nav-link" href="{{ route('third', ['user', 'donations', 'index']) }}">
-                         <span class="nav-icon">
-                              <iconify-icon icon="solar:hand-money-outline"></iconify-icon>
-                         </span>
-                         <span class="nav-text"> My Donations </span>
-                    </a>
-               </li>
-
-               {{-- Invoices --}}
-               <li class="nav-item">
-                    <a class="nav-link" href="{{ route('third', ['user', 'invoices', 'index']) }}">
-                         <span class="nav-icon">
-                              <iconify-icon icon="solar:bill-list-outline"></iconify-icon>
-                         </span>
-                         <span class="nav-text"> My Invoices </span>
-                    </a>
-               </li>
-               @endif
-               @if (auth::user()->role === 'admin')
-               {{-- Special Donations --}}
-
-
-               <li class="nav-item">
+                {{-- Special Donations --}}
+                <li class="nav-item">
                     <a class="nav-link" href="{{ route('third', ['admin', 'special-donations', 'index']) }}">
-                         <span class="nav-icon">
-                              <iconify-icon icon="solar:wallet-money-linear"></iconify-icon>
-                         </span>
-                         <span class="nav-text"> Special Donations </span>
+                        <span class="nav-icon">
+                            <iconify-icon icon="solar:wallet-money-linear"></iconify-icon>
+                        </span>
+                        <span class="nav-text"> Special Donations </span>
                     </a>
-               </li>
-               @endif
-          </ul>
-          </li>
+                </li>
+            @endif
 
-          {{-- <li class="nav-item">
+            @if (Auth::user()->role === 'donor')
+                {{-- Donations --}}
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ route('third', ['user', 'donations', 'index']) }}">
+                        <span class="nav-icon">
+                            <iconify-icon icon="solar:hand-money-outline"></iconify-icon>
+                        </span>
+                        <span class="nav-text"> My Donations </span>
+                    </a>
+                </li>
+
+                {{-- Invoices --}}
+                {{-- <li class="nav-item">
+                    <a class="nav-link" href="{{ route('third', ['user', 'invoices', 'index']) }}">
+                        <span class="nav-icon">
+                            <iconify-icon icon="solar:bill-list-outline"></iconify-icon>
+                        </span>
+                        <span class="nav-text"> My Invoices </span>
+                    </a>
+                </li> --}}
+            @endif
+
+            {{-- <li class="nav-item">
                     <a class="nav-link menu-arrow" href="#sidebarError" data-bs-toggle="collapse" role="button"
                          aria-expanded="false" aria-controls="sidebarError">
                          <span class="nav-icon">
@@ -382,6 +376,6 @@
                <span class="nav-text"> Disable Item </span>
           </a>
      </li> --}}
-     </ul>
-</div>
+        </ul>
+    </div>
 </div>

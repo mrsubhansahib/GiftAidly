@@ -75,7 +75,7 @@ mount(function ($id) {
     </div>
 
     {{-- Invoices --}}
-    <div class="card mb-3 shadow-sm">
+    {{-- <div class="card mb-3 shadow-sm">
         <div class="card-header">
             <h4>Invoices</h4>
         </div>
@@ -211,7 +211,7 @@ mount(function ($id) {
                 </tbody>
             </table>
         </div>
-    </div>
+    </div> --}}
 
     {{-- Transactions --}}
     <div class="card mb-3 shadow-sm">
@@ -251,8 +251,8 @@ mount(function ($id) {
                             </td>
                             <td>
                                 <span
-                                    class="badge {{ $invoice->paid_at ? 'bg-success': 'bg-danger' }}">
-                                    {{ $invoice->paid_at ? 'Paid' : 'Failed' }}
+                                    class="badge {{ $txn->paid_at ? 'bg-success': 'bg-danger' }}">
+                                    {{ $txn->paid_at ? 'Paid' : 'Failed' }}
                                 </span>
                             </td>
                             <td>{{ \Carbon\Carbon::parse($txn->paid_at)->format('Y-m-d') }}</td>
