@@ -33,7 +33,7 @@ class="authentication-bg"
                                             gone <br /> missing in the digital wilderness.</p>
 
                                         <div class="text-center">
-                                            <a href="{{ route('any', 'index') }}" class="btn btn-danger">Back to Home</a>
+                                            <a href="{{ route('any', '') }}" class="btn btn-danger">Back to Home</a>
                                         </div>
                                     </div>
                                 </div>

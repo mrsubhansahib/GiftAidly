@@ -9,11 +9,7 @@ class RoutingController extends Controller
 {
     public function index(Request $request)
     {
-        // if (auth()->user()->role === 'admin') {
-        //     return view('index');
-        // } else {
             return view('donation.index');
-        // }
     }
 
     /**
@@ -26,7 +22,7 @@ class RoutingController extends Controller
         }
 
         return view('pages.404'); // fallback view
-    }
+    } 
 
     /**
      * Second level route

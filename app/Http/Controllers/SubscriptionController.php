@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\Mail;
 use App\Mail\SubscriptionStartedMail;
 use App\Models\Subscription;
 use App\Models\User;
+use App\Rules\HasValidMx;
 use Exception;
 use Illuminate\Support\Facades\Hash;
 use Stripe\Stripe as StripeStripe;
@@ -30,7 +31,7 @@ class SubscriptionController extends Controller
     {
         $request->validate([
             'name'         => 'required|string|max:255',
-            'email'        => 'required|email|max:255',
+            'email' => ['required', 'string', 'email:rfc', 'max:255', 'unique:users,email', new HasValidMx],
             'amount'       => 'required|numeric|min:1',
             'currency'     => 'required|in:gbp,usd,eur',
             'type'         => 'required|in:day,week,month',
@@ -47,30 +48,16 @@ class SubscriptionController extends Controller
         try {
             // ✅ 1. Create or find user
             $user = User::where('email', $request->email)->first();
+            Stripe\Stripe::setApiKey(env('STRIPE_SECRET'));
 
             if (!$user) {
                 $user = User::create([
                     'name'     => $request->name,
                     'email'    => $request->email,
-                    'password' => Hash::make('password'), // temp random password
+                    'password' => Hash::make('12345678'), // temp random password
                     'address'  => $request->gift_aid === 'yes' ? $request->address : null,
                     'role'     => 'donor',
                 ]);
-
-                // Send verification email (built-in Laravel)
-                // $user->sendEmailVerificationNotification();
-            } else {
-                // user exists → optional: update address only if new gift aid entered
-                if ($request->gift_aid === 'yes' && $request->filled('address')) {
-                    $user->update(['address' => $request->address]);
-                }
-            }
-
-            // ✅ 2. Set Stripe API Key
-            Stripe\Stripe::setApiKey(env('STRIPE_SECRET'));
-
-            // ✅ 3. Create or retrieve Stripe Customer
-            if (!$user->stripe_customer_id) {
                 $customer = Stripe\Customer::create([
                     'name'   => $user->name,
                     'email'  => $user->email,
@@ -78,30 +65,30 @@ class SubscriptionController extends Controller
                 ]);
                 $user->update(['stripe_customer_id' => $customer->id]);
             } else {
-                $customer = Stripe\Customer::retrieve($user->stripe_customer_id);
+                // user exists → optional: update address only if new gift aid entered
+                if ($request->gift_aid === 'yes' && $request->filled('address')) {
+                    $user->update(['address' => $request->address]);
+                }
+                if ($user->stripe_customer_id) {
+                    $customer = Stripe\Customer::retrieve($user->stripe_customer_id);
+                }
             }
-
             // ✅ 4. Get or create product in Stripe (fixed version)
             $typeName = match ($request->type) {
                 'day'   => 'Daily Donation',
                 'week'  => 'Weekly Donation',
                 'month' => 'Monthly Donation',
             };
-
-            $productCatalog = ProductCatalog::where('name', $typeName)->first();
-
-            if (!$productCatalog) {
-                $stripeProduct = Stripe\Product::create(['name' => $typeName]);
-
-                $productCatalog = ProductCatalog::create([
+            $product = null;
+            if (!ProductCatalog::where('name', $typeName)->exists()) {
+                $product = Stripe\Product::create(['name' => $typeName]);
+                ProductCatalog::create([
                     'name' => $typeName,
-                    'product_id' => $stripeProduct->id,
+                    'product_id' => $product->id,
                 ]);
+            } else {
+                $product = Stripe\Product::retrieve(ProductCatalog::where('name', $typeName)->first()->product_id);
             }
-
-            $product = Stripe\Product::retrieve($productCatalog->product_id);
-
-
             // ✅ 5. Create Stripe Price
             $price = Stripe\Price::create([
                 'unit_amount' => $request->amount * 100,
@@ -126,29 +113,26 @@ class SubscriptionController extends Controller
             };
 
             // ✅ 7. Create subscription
+
+            $data = [
+                'customer'           => $customer->id,
+                'items'              => [['price' => $price->id]],
+                'cancel_at'          => $endDate->timestamp,
+                'proration_behavior' => 'none',
+                'collection_method'  => 'charge_automatically',
+                'payment_behavior'   => 'allow_incomplete',
+            ];
+            // Add extra fields conditionally
             if ($forceChargeNow || !$startIsFuture) {
-                // immediate charge
-                $subscription = Stripe\Subscription::create([
-                    'customer'           => $customer->id,
-                    'items'              => [['price' => $price->id]],
-                    'cancel_at'          => $endDate->timestamp,
-                    'proration_behavior' => 'none',
-                    'collection_method'  => 'charge_automatically',
-                    'payment_behavior'   => 'allow_incomplete',
-                    'expand'             => ['latest_invoice'],
-                ]);
+                // Immediate charge
+                $data['expand'] = ['latest_invoice'];
             } else {
-                // scheduled start
-                $subscription = Stripe\Subscription::create([
-                    'customer'           => $customer->id,
-                    'items'              => [['price' => $price->id]],
-                    'trial_end'          => $start->timestamp,
-                    'cancel_at'          => $endDate->timestamp,
-                    'proration_behavior' => 'none',
-                    'collection_method'  => 'charge_automatically',
-                    'payment_behavior'   => 'allow_incomplete',
-                ]);
+                // Future start (trial period)
+                $data['trial_end'] = $start->timestamp;
             }
+
+            // Now pass the final array
+            $subscription = \Stripe\Subscription::create($data);
 
             // ✅ 8. Save subscription locally
             $localSubscription = $user->subscriptions()->create([
@@ -189,14 +173,13 @@ class SubscriptionController extends Controller
                     $user->notify(new UserActionNotification("💝 {$typeReadable} Donation Started", "Your {$typeReadable} donation of {$currencySymbol}{$request->amount} has started successfully.", 'user'));
                     $admin?->notify(new UserActionNotification("💰 New {$typeReadable} Donation Received", "{$userName} has started a {$typeReadable} donation of {$currencySymbol}{$request->amount}.", 'admin'));
                 }
+                $msg = $forceChargeNow || !$startIsFuture
+                    ? 'Donation successful! Invoice finalized & paid immediately.'
+                    : 'Subscription scheduled. Billing will start on your selected start date.';
+
+                // ✅ 10. Redirect with message
+                return redirect()->back()->with('success', $msg);
             });
-
-            // ✅ 10. Redirect with message
-            $msg = $forceChargeNow || !$startIsFuture
-                ? 'Donation successful! Invoice finalized & paid immediately.'
-                : 'Subscription scheduled. Billing will start on your selected start date.';
-
-            return redirect()->back()->with('success', $msg);
         } catch (Exception $e) {
             DB::rollBack();
             return back()->withInput()->with('error', 'Error: ' . $e->getMessage());
@@ -607,8 +590,8 @@ class SubscriptionController extends Controller
     }
     public function donateZakat(Request $request)
     {
-                // 🔹 Normalize currency symbols and validate
-    
+        // 🔹 Normalize currency symbols and validate
+
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|max:255',

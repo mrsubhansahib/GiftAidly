@@ -11,35 +11,38 @@ require __DIR__ . '/auth.php';
 
 require __DIR__ . '/api.php';
 
-Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
-Route::post('/notifications/clear', [NotificationController::class, 'clearAll'])->name('notifications.clear');
-Route::get('/receive-zakat', [zakahController::class, 'handle']);
-Route::post('/donate-zakat', [SubscriptionController::class, 'donateZakat'])->name('zakat.process');
+// 🟢 Public routes first
+Route::get('/', [RoutingController::class, 'index'])->name('root');
 
-// Donation form Routes
+// 🔒 Authenticated routes
+Route::middleware(['auth'])->group(function () {
+    Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
+    Route::post('/notifications/clear', [NotificationController::class, 'clearAll'])->name('notifications.clear');
+   
+    Route::get('cancel/donation/{id}', [SubscriptionController::class, 'cancelSubscription'])->name('cancel.donation');
+
+    Route::get('admin/donor/{id}', fn($id) => view('admin.donors.detail', ['id' => $id]))->name('admin.donor.detail');
+    Route::get('admin/donation/{id}', fn($id) => view('admin.donations.detail', ['id' => $id]))->name('admin.donations.detail');
+   
+    Route::get('user/donation/{id}', fn($id) => view('user.donations.detail', ['id' => $id]))->name('user.donations.detail');
+});
+
+// 🕋 Donation routes (public)
 Route::post('donate/daily-weekly-monthly', [SubscriptionController::class, 'donateDailyWeeklyMonthly'])->name('donation.daily_weekly_monthly');
 Route::post('donate/friday', [SubscriptionController::class, 'donateFriday'])->name('donation.friday');
 Route::post('donate/special', [SubscriptionController::class, 'donateSpecial'])->name('donation.special');
-Route::group(['prefix' => '/', 'middleware' => ['auth']], function () {
 
-    Route::get('cancel/donation/{id}', [SubscriptionController::class, 'cancelSubscription'])->name('cancel.donation');
-    // User detail only for admin
-    Route::get('/admin/donor/{id}', function ($id) {
-        return view('admin.donors.detail', ['id' => $id]);
-    })->name('admin.donor.detail');
+// 💰 Zakat routes
+Route::get('/receive-zakat', [zakahController::class, 'handle']);
+Route::post('/donate-zakat', [SubscriptionController::class, 'donateZakat'])->name('zakat.process');
 
-    // Admin Subscription Detail (can view any user's subscription)
-    Route::get('/admin/donation/{id}', function ($id) {
-        return view('admin.donations.detail', ['id' => $id]);
-    })->name('admin.donations.detail');
+// 🌍 Dynamic public pages (no auth)
+Route::get('{first}', [RoutingController::class, 'root'])->where('first', '^(?!admin|user).*$')->name('any');
+Route::get('{first}/{second}', [RoutingController::class, 'secondLevel'])->where('first', '^(?!admin|user).*$')->name('second');
+Route::get('{first}/{second}/{third}', [RoutingController::class, 'thirdLevel'])->where('first', '^(?!admin|user).*$')->name('third');
 
-    // User subscription detail
-    Route::get('/user/donation/{id}', function ($id) {
-        return view('user.donations.detail', ['id' => $id]);
-    })->name('user.donations.detail');
-    
-    Route::get('{first}/{second}/{third}', [RoutingController::class, 'thirdLevel'])->name('third');
-    Route::get('{first}/{second}', [RoutingController::class, 'secondLevel'])->name('second');
-    Route::get('{any}', [RoutingController::class, 'root'])->name('any');
+// 🧭 Fallback for true 404s
+Route::fallback(function () {
+    return response()->view('pages.404', [], 404);
 });
-Route::get('', [RoutingController::class, 'index'])->name('root');
+
