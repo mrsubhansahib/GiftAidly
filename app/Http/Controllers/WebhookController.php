@@ -124,7 +124,6 @@ class WebhookController extends Controller
 
     private function onInvoiceCreated($inv)
     {
-
         $invoice = StripeInvoice::retrieve([
             'id' => $inv->id,
             'expand' => ['payment_intent', 'charge', 'subscription'],
@@ -243,14 +242,7 @@ class WebhookController extends Controller
             'id' => $inv->invoice,
             'expand' => ['payment_intent', 'charge', 'subscription'],
         ]);
-        if ($invoice->status === 'draft') {
-            $invoice = $invoice->finalizeInvoice(); // instance method
-        }
-
-        // Pay now if not paid yet
-        if ($invoice->collection_method === 'charge_automatically' && $invoice->status !== 'paid') {
-            $invoice = $invoice->pay(); // instance method
-        }
+   
         // Log::info("Invoice Subscription Succeeded : {$invoice->lines->data[0]->parent->subscription_item_details->subscription}");
 
         DB::transaction(function () use ($inv, $invoice) {
@@ -265,10 +257,10 @@ class WebhookController extends Controller
                     'invoice_date'    => $this->ts($inv->created),
                 ]
             );
-            // Mail::to(env('ADMIN_EMAIL'))
-            //         ->send(new TransactionFailedMail($localInvoice->subscription->user,$inv->invoice, true));
-            // Mail::to($localInvoice->subscription->user->email)
-            //         ->send(new TransactionFailedMail($localInvoice->subscription->user,$inv->invoice));
+            Mail::to(env('ADMIN_EMAIL'))
+                    ->send(new TransactionFailedMail($localInvoice->subscription->user,$inv->invoice, true));
+            Mail::to($localInvoice->subscription->user->email)
+                    ->send(new TransactionFailedMail($localInvoice->subscription->user,$inv->invoice));
             $localInvoice = Invoice::where('stripe_invoice_id', $inv->invoice)->first();
             if ($inv->payment->payment_intent) {
                 $trans = Transaction::updateOrCreate(

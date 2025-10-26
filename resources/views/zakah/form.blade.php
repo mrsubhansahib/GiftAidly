@@ -23,9 +23,9 @@ class="authentication-bg"
                         @php
                         // Normalize any symbol to valid ISO code
                         $currency = match($currency) {
-                        '£' => 'GBP',
-                        '$' => 'USD',
-                        '€' => 'EUR',
+                        '£' => 'gbp',
+                        '$' => 'usd',
+                        '€' => 'eur',
                         };
                         @endphp
 

@@ -544,17 +544,16 @@ class SubscriptionController extends Controller
     public function cancelSubscription($id)
     {
         $subscription = Subscription::where('id', $id)->first();
-        if ($subscription) {
+        DB::beginTransaction();
+        try {
+            // 1️⃣ Update local record
+            \Stripe\Stripe::setApiKey(env('STRIPE_SECRET'));
+            $stripeSub = \Stripe\Subscription::retrieve($subscription->stripe_subscription_id);
+            $stripeSub->cancel();
             $subscription->update([
                 'status' => 'canceled',
                 'canceled_at' => now(),
             ]);
-
-            // 2️⃣ Cancel in Stripe
-            \Stripe\Stripe::setApiKey(env('STRIPE_SECRET'));
-            $stripeSub = \Stripe\Subscription::retrieve($subscription->stripe_subscription_id);
-            $stripeSub->cancel();
-
             // 3️⃣ Prepare Notification Data
             $currencySymbols = [
                 'usd' => '$',
@@ -573,6 +572,7 @@ class SubscriptionController extends Controller
 
             $userName = \Illuminate\Support\Str::title($subscription->user->name ?? 'User');
             $amount = $subscription->price;
+            DB::commit();
 
             // 4️⃣ Notifications after commit
             DB::afterCommit(function () use ($subscription, $userName, $typeReadable, $currencySymbol, $amount) {
@@ -599,32 +599,23 @@ class SubscriptionController extends Controller
                     ));
                 }
             });
-
             return redirect()->back()->with('success', 'Subscription canceled successfully');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->back()->with('error', 'Error canceling subscription: ' . $e->getMessage());
         }
     }
     public function donateZakat(Request $request)
     {
-        // 🔹 Normalize currency symbols and validate
-        $request->merge([
-            'currency' => match ($request->currency) {
-                '£' => 'GBP',
-                '$' => 'USD',
-                '€' => 'EUR',
-                'gbp', 'usd', 'eur' => strtoupper($request->currency),
-                default => 'GBP',
-            },
-        ]);
-
+                // 🔹 Normalize currency symbols and validate
+    
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|max:255',
-            'currency' => 'required|in:GBP,USD,EUR',
+            'currency' => 'required|in:gbp,usd,eur',
             'zakat' => 'required|numeric|min:1',
             'stripeToken' => 'required|string',
         ]);
-
-        $stripeCurrency = strtolower($request->currency);
 
         DB::beginTransaction();
         try {
@@ -667,6 +658,8 @@ class SubscriptionController extends Controller
                 'product'     => $product->id,
             ]);
 
+            DB::commit();
+            dd('Price created:', $price);
             // ✅ Create one-time PaymentIntent
             $paymentIntent = \Stripe\PaymentIntent::create([
                 'amount'   => $request->zakat * 100,
