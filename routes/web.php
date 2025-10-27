@@ -37,9 +37,10 @@ Route::get('/receive-zakat', [zakahController::class, 'handle']);
 Route::post('/donate-zakat', [SubscriptionController::class, 'donateZakat'])->name('zakat.process');
 
 // 🌍 Dynamic public pages (no auth)
-Route::get('{first}', [RoutingController::class, 'root'])->where('first', '^(?!admin|user).*$')->name('any');
-Route::get('{first}/{second}', [RoutingController::class, 'secondLevel'])->where('first', '^(?!admin|user).*$')->name('second');
-Route::get('{first}/{second}/{third}', [RoutingController::class, 'thirdLevel'])->where('first', '^(?!admin|user).*$')->name('third');
+    Route::get('{first}/{second}/{third}', [RoutingController::class, 'thirdLevel'])->name('third');
+    Route::get('{first}/{second}', [RoutingController::class, 'secondLevel'])->name('second');
+    Route::get('{any}', [RoutingController::class, 'root'])->name('any');
+
 
 // 🧭 Fallback for true 404s
 Route::fallback(function () {
