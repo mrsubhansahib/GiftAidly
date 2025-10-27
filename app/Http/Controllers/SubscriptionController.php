@@ -31,7 +31,7 @@ class SubscriptionController extends Controller
     {
         $request->validate([
             'name'         => 'required|string|max:255',
-            'email' => ['required', 'string', 'email:rfc', 'max:255', 'unique:users,email', new HasValidMx],
+            'email' => ['required', 'string', 'email:rfc', 'max:255', new HasValidMx],
             'amount'       => 'required|numeric|min:1',
             'currency'     => 'required|in:gbp,usd,eur',
             'type'         => 'required|in:day,week,month',
@@ -42,7 +42,6 @@ class SubscriptionController extends Controller
             'stripeToken'  => 'required|string',
             'charge_now'   => 'nullable|boolean',
         ]);
-
         DB::beginTransaction();
 
         try {
