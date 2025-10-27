@@ -173,13 +173,12 @@ class SubscriptionController extends Controller
                     $user->notify(new UserActionNotification("💝 {$typeReadable} Donation Started", "Your {$typeReadable} donation of {$currencySymbol}{$request->amount} has started successfully.", 'user'));
                     $admin?->notify(new UserActionNotification("💰 New {$typeReadable} Donation Received", "{$userName} has started a {$typeReadable} donation of {$currencySymbol}{$request->amount}.", 'admin'));
                 }
-                $msg = $forceChargeNow || !$startIsFuture
-                    ? 'Donation successful! Invoice finalized & paid immediately.'
-                    : 'Subscription scheduled. Billing will start on your selected start date.';
-
                 // ✅ 10. Redirect with message
-                return redirect()->back()->with('success', $msg);
             });
+            $msg = $forceChargeNow || !$startIsFuture
+                ? 'Donation successful! Invoice finalized & paid immediately.'
+                : 'Subscription scheduled. Billing will start on your selected start date.';
+            return redirect()->back()->with('success', $msg);
         } catch (Exception $e) {
             DB::rollBack();
             return back()->withInput()->with('error', 'Error: ' . $e->getMessage());
