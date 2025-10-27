@@ -185,9 +185,10 @@ class SubscriptionController extends Controller
     }
     public function donateFriday(Request $request)
     {
+        // dd($request->all());
         $request->validate([
             'name'         => 'required|string|max:255',
-            'email'        => 'required|email|max:255',
+            'email' => ['required', 'string', 'email:rfc', 'max:255', new HasValidMx],
             'amount'       => 'required|numeric|min:1',
             'currency'     => 'required|in:gbp,usd,eur',
             'gift_aid'     => 'nullable|in:yes,no',
@@ -203,57 +204,57 @@ class SubscriptionController extends Controller
         try {
             // ✅ 1. Find or create donor
             $user = User::where('email', $request->email)->first();
+
+            // ✅ 2. Stripe setup
+            Stripe\Stripe::setApiKey(env('STRIPE_SECRET'));
+            $customer = null;
             if (!$user) {
                 $user = User::create([
                     'name'     => $request->name,
                     'email'    => $request->email,
-                    'password' => Hash::make('password'),
+                    'password' => Hash::make('12345678'),
                     'address'  => $request->gift_aid === 'yes' ? $request->address : null,
                     'role'     => 'donor',
                 ]);
-
-                // $user->sendEmailVerificationNotification();
-            } else {
-                // user exists → optional: update address only if new gift aid entered
-                if ($request->gift_aid === 'yes' && $request->filled('address')) {
-                    $user->update(['address' => $request->address]);
-                }
-            }
-
-            // ✅ 2. Stripe setup
-            Stripe\Stripe::setApiKey(env('STRIPE_SECRET'));
-
-            // ✅ 3. Create or retrieve Stripe customer
-            if (!$user->stripe_customer_id) {
                 $customer = Stripe\Customer::create([
                     'name'   => $user->name,
                     'email'  => $user->email,
                     'source' => $request->stripeToken,
                 ]);
                 $user->update(['stripe_customer_id' => $customer->id]);
+                // $user->sendEmailVerificationNotification();
             } else {
-                $customer = Stripe\Customer::retrieve($user->stripe_customer_id);
+                // user exists → optional: update address only if new gift aid entered
+                if ($request->gift_aid === 'yes' && $request->filled('address')) {
+                    $user->update(['address' => $request->address]);
+                }
+                if ($user->stripe_customer_id) {
+                    $customer = Stripe\Customer::retrieve($user->stripe_customer_id);
+                }
             }
+          
+
+            // ✅ 3. Create or retrieve Stripe customer
 
             // ✅ 4. Create or get Friday product
-            $productCatalog = ProductCatalog::where('name', 'Friday Donation')->first();
-            if (!$productCatalog) {
+            $stripeProduct = null;
+            if (!ProductCatalog::where('name', 'Friday Donation')->exists()) {
                 $stripeProduct = Stripe\Product::create(['name' => 'Friday Donation']);
                 $productCatalog = ProductCatalog::create([
                     'name' => 'Friday Donation',
                     'product_id' => $stripeProduct->id,
                 ]);
+            } else {
+                $stripeProduct = Stripe\Product::retrieve(ProductCatalog::where('name', 'Friday Donation')->first()->product_id);
             }
-            $product = Stripe\Product::retrieve($productCatalog->product_id);
 
             // ✅ 5. Create recurring price (weekly)
             $price = Stripe\Price::create([
                 'unit_amount' => $request->amount * 100,
                 'currency'    => $request->currency,
                 'recurring'   => ['interval' => 'week'],
-                'product'     => $product->id,
+                'product'     => $stripeProduct->id,
             ]);
-
             // ✅ 6. Date handling
             $tz    = config('app.timezone');
             $start = Carbon::createFromFormat('Y-m-d', $request->start_date, $tz);
@@ -264,31 +265,26 @@ class SubscriptionController extends Controller
             $forceChargeNow = (bool) $request->boolean('charge_now');
             $anchor = $forceChargeNow || !$startIsFuture ? Carbon::now() : $start->copy();
             $endDate = $anchor->copy()->addWeeks($weeks + 1);
+          
 
+            $data = [
+                'customer'           => $customer->id,
+                'items'              => [['price' => $price->id]],
+                'cancel_at'          => $endDate->timestamp,
+                'proration_behavior' => 'none',
+                'collection_method'  => 'charge_automatically',
+                'payment_behavior'   => 'allow_incomplete',
+
+            ];
             // ✅ 7. Create subscription
-            if ($forceChargeNow || !$startIsFuture) {
-                // immediate
-                $subscription = Stripe\Subscription::create([
-                    'customer'           => $customer->id,
-                    'items'              => [['price' => $price->id]],
-                    'cancel_at'          => $endDate->timestamp,
-                    'proration_behavior' => 'none',
-                    'collection_method'  => 'charge_automatically',
-                    'payment_behavior'   => 'allow_incomplete',
-                    'expand'             => ['latest_invoice'],
-                ]);
+              if ($forceChargeNow || !$startIsFuture) {
+                // Immediate charge
+                $data['expand'] = ['latest_invoice'];
             } else {
-                // scheduled
-                $subscription = Stripe\Subscription::create([
-                    'customer'           => $customer->id,
-                    'items'              => [['price' => $price->id]],
-                    'trial_end'          => $start->timestamp,
-                    'cancel_at'          => $endDate->timestamp,
-                    'proration_behavior' => 'none',
-                    'collection_method'  => 'charge_automatically',
-                    'payment_behavior'   => 'allow_incomplete',
-                ]);
+                // Future start (trial period)
+                $data['trial_end'] = $start->timestamp;
             }
+            $subscription = \Stripe\Subscription::create($data);
 
             // ✅ 8. Save local record
             $localSubscription = $user->subscriptions()->create([
@@ -329,7 +325,6 @@ class SubscriptionController extends Controller
                     $adminMessage = "{$userName} has scheduled a {$typeReadable} donation of {$currencySymbol}{$request->amount}.";
                     $userTitle = "📅 {$typeReadable} Donation Scheduled";
                     $userMessage = "Your {$typeReadable} donation of {$currencySymbol}{$request->amount} has been scheduled successfully.";
-
                     Mail::to($user->email)
                         ->send(new SubscriptionScheduledMail($user, $localSubscription));
                     Mail::to($adminEmail)
@@ -340,13 +335,11 @@ class SubscriptionController extends Controller
                     $adminMessage = "{$userName} has started a {$typeReadable} donation of {$currencySymbol}{$request->amount}.";
                     $userTitle = "💝 {$typeReadable} Donation Started";
                     $userMessage = "Your {$typeReadable} donation of {$currencySymbol}{$request->amount} has started successfully.";
-
                     Mail::to($user->email)
                         ->send(new SubscriptionStartedMail($user, $localSubscription));
                     Mail::to($adminEmail)
                         ->send(new SubscriptionStartedMail($user, $localSubscription, true));
                 }
-
                 // 🔹 Notifications (same format)
                 $user->notify(new UserActionNotification(
                     $userTitle,
@@ -366,7 +359,7 @@ class SubscriptionController extends Controller
                 : 'Subscription scheduled. Billing will start on your selected start date.';
 
             return redirect()->back()->with('success', $msg);
-        } catch (Exception $e) {
+        } catch (Exception $e) {    
             DB::rollBack();
             return back()->withInput()->with('error', 'Error: ' . $e->getMessage());
         }
