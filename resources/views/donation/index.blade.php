@@ -98,14 +98,14 @@
                         <!-- ✅ Name Field -->
                         <div class="form-group" style="grid-column: 1 / -1;">
                             <label for="name-daily">Full Name</label>
-                            <input type="text" name="name" id="name-daily" class="text-input" placeholder="Enter your full name" required />
+                            <input type="text" name="name" id="name-daily" class="text-input" placeholder="Enter your full name"/>
                             <span id="error-name-daily" style="color: red; font-size: 13px; display: block; margin-top: 3px;"></span>
                         </div>
 
                         <!-- ✅ Email Field -->
                         <div class="form-group" style="grid-column: 1 / -1;">
                             <label for="email-daily">Email Address</label>
-                            <input type="email" name="email" id="email-daily" class="text-input" placeholder="Enter your email" required />
+                            <input type="email" name="email" id="email-daily" class="text-input" placeholder="Enter your email"/>
                             <span id="error-email-daily" style="color: red; font-size: 13px; display: block; margin-top: 3px;"></span>
                         </div>
 
@@ -201,7 +201,7 @@
                         <div class="form-group" style="grid-column: 1 / -1;">
                             <label for="name-friday">Full Name</label>
                             <input type="text" name="name" id="name-friday" class="text-input"
-                                placeholder="Enter your full name" required />
+                                placeholder="Enter your full name"/>
                             <span id="error-name-friday"
                                 style="color: red; font-size: 13px; display: block; margin-top: 3px;"></span>
                         </div>
@@ -210,7 +210,7 @@
                         <div class="form-group" style="grid-column: 1 / -1;">
                             <label for="email-friday">Email Address</label>
                             <input type="email" name="email" id="email-friday" class="text-input"
-                                placeholder="Enter your email" required />
+                                placeholder="Enter your email" />
                             <span id="error-email-friday"
                                 style="color: red; font-size: 13px; display: block; margin-top: 3px;"></span>
                         </div>
@@ -309,7 +309,7 @@
                         <div class="form-group" style="grid-column: 1 / -1;">
                             <label for="name-monthly">Full Name</label>
                             <input type="text" name="name" id="name-monthly" class="text-input"
-                                placeholder="Enter your full name" required />
+                                placeholder="Enter your full name"/>
                             <span id="error-name-monthly"
                                 style="color: red; font-size: 13px; display: block; margin-top: 3px;"></span>
                         </div>
@@ -318,7 +318,7 @@
                         <div class="form-group" style="grid-column: 1 / -1;">
                             <label for="email-monthly">Email Address</label>
                             <input type="email" name="email" id="email-monthly" class="text-input"
-                                placeholder="Enter your email" required />
+                                placeholder="Enter your email" />
                             <span id="error-email-monthly"
                                 style="color: red; font-size: 13px; display: block; margin-top: 3px;"></span>
                         </div>

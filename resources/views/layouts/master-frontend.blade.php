@@ -694,12 +694,44 @@
             form.addEventListener("submit", function(e) {
                 e.preventDefault();
 
+                const nameInput = form.querySelector('#name-daily');
+                const emailInput = form.querySelector('#email-daily');
                 const amount = form.querySelector('input[name="amount"]');
                 const giftAidCheckbox = form.querySelector('#gift-aid-daily');
                 const addressInput = form.querySelector('#address-daily');
+
+                const nameError = form.querySelector('#error-name-daily');
+                const emailError = form.querySelector('#error-email-daily');
+                const amountError = form.querySelector('#error-amount-daily');
+                const dateError = form.querySelector('#error-date-daily');
+                const addressError = form.querySelector('#error-address-daily');
+
                 let valid = true;
 
-                // Amount
+                // ✅ Name Validation
+                if (!nameInput.value.trim()) {
+                    nameError.textContent = 'Please enter your full name.';
+                    valid = false;
+                } else if (nameInput.value.trim().length < 3) {
+                    nameError.textContent = 'Name must be at least 3 characters long.';
+                    valid = false;
+                } else {
+                    nameError.textContent = '';
+                }
+
+                // ✅ Email Validation
+                const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailInput.value.trim()) {
+                    emailError.textContent = 'Please enter your email address.';
+                    valid = false;
+                } else if (!emailPattern.test(emailInput.value.trim())) {
+                    emailError.textContent = 'Please enter a valid email format.';
+                    valid = false;
+                } else {
+                    emailError.textContent = '';
+                }
+
+                // ✅ Amount
                 if (!amount.value || parseFloat(amount.value) < 1) {
                     amountError.textContent = 'Please enter a valid amount.';
                     valid = false;
@@ -707,7 +739,7 @@
                     amountError.textContent = '';
                 }
 
-                // Date range
+                // ✅ Date range
                 if (!startEl.value || !endEl.value) {
                     dateError.textContent = 'Please select a valid date range.';
                     valid = false;
@@ -715,7 +747,7 @@
                     dateError.textContent = '';
                 }
 
-                // Gift Aid
+                // ✅ Gift Aid
                 if (giftAidCheckbox.checked && addressInput.value.trim() === '') {
                     addressError.textContent = 'Please enter your address for Gift Aid.';
                     valid = false;
@@ -725,6 +757,7 @@
 
                 if (!valid) e.preventDefault();
             });
+
         }
         // ------------------------------
         // ✅ Friday Range Picker
@@ -832,12 +865,45 @@
             // ✅ Friday Form Validation (NEW)
             form.addEventListener("submit", function(e) {
                 e.preventDefault();
+
+                const nameInput = form.querySelector('#name-friday');
+                const emailInput = form.querySelector('#email-friday');
                 const amount = form.querySelector('input[name="amount"]');
                 const giftAidCheckbox = form.querySelector('#gift-aid-friday');
                 const addressInput = form.querySelector('#address-friday');
+
+                const nameError = form.querySelector('#error-name-friday');
+                const emailError = form.querySelector('#error-email-friday');
+                const amountError = form.querySelector('#error-amount-friday');
+                const dateError = form.querySelector('#error-date-friday');
+                const addressError = form.querySelector('#error-address-friday');
+
                 let valid = true;
 
-                // Amount check
+                // ✅ Name Validation
+                if (!nameInput.value.trim()) {
+                    nameError.textContent = 'Please enter your full name.';
+                    valid = false;
+                } else if (nameInput.value.trim().length < 3) {
+                    nameError.textContent = 'Name must be at least 3 characters long.';
+                    valid = false;
+                } else {
+                    nameError.textContent = '';
+                }
+
+                // ✅ Email Validation
+                const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailInput.value.trim()) {
+                    emailError.textContent = 'Please enter your email address.';
+                    valid = false;
+                } else if (!emailPattern.test(emailInput.value.trim())) {
+                    emailError.textContent = 'Please enter a valid email format.';
+                    valid = false;
+                } else {
+                    emailError.textContent = '';
+                }
+
+                // ✅ Amount check
                 if (!amount.value || parseFloat(amount.value) < 1) {
                     amountError.textContent = 'Please enter a valid amount.';
                     valid = false;
@@ -845,7 +911,7 @@
                     amountError.textContent = '';
                 }
 
-                // Date range check
+                // ✅ Date range check
                 if (!startEl.value || !endEl.value) {
                     dateError.textContent = 'Please select a valid date range.';
                     valid = false;
@@ -853,7 +919,7 @@
                     dateError.textContent = '';
                 }
 
-                // Gift Aid check
+                // ✅ Gift Aid check
                 if (giftAidCheckbox.checked && addressInput.value.trim() === '') {
                     addressError.textContent = 'Please enter your address for Gift Aid.';
                     valid = false;
@@ -868,6 +934,77 @@
         // ------------------------------
         // ✅ Special Donations Form Validation
         // ------------------------------
+        document.addEventListener("DOMContentLoaded", function() {
+            const form = document.getElementById("form-monthly");
+            if (!form) return;
+
+            const nameInput = form.querySelector('#name-monthly');
+            const emailInput = form.querySelector('#email-monthly');
+            const amountInput = form.querySelector('#pay-amount');
+            const specialSelect = form.querySelector('#pay-special');
+            const giftAidCheckbox = form.querySelector('#gift-aid-monthly');
+            const addressInput = form.querySelector('#address-monthly');
+
+            const nameError = form.querySelector('#error-name-monthly');
+            const emailError = form.querySelector('#error-email-monthly');
+            const amountError = form.querySelector('#error-amount-special');
+            const productError = form.querySelector('#error-product-special');
+            const addressError = form.querySelector('#error-address-special');
+
+            form.addEventListener("submit", function(e) {
+                e.preventDefault();
+                let valid = true;
+
+                // ✅ Name
+                if (!nameInput.value.trim()) {
+                    nameError.textContent = 'Please enter your full name.';
+                    valid = false;
+                } else if (nameInput.value.trim().length < 3) {
+                    nameError.textContent = 'Name must be at least 3 characters long.';
+                    valid = false;
+                } else {
+                    nameError.textContent = '';
+                }
+
+                // ✅ Email
+                const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailInput.value.trim()) {
+                    emailError.textContent = 'Please enter your email address.';
+                    valid = false;
+                } else if (!emailPattern.test(emailInput.value.trim())) {
+                    emailError.textContent = 'Please enter a valid email format.';
+                    valid = false;
+                } else {
+                    emailError.textContent = '';
+                }
+
+                // ✅ Special product selection
+                if (!specialSelect.value) {
+                    productError.textContent = 'Please select a special donation option.';
+                    valid = false;
+                } else {
+                    productError.textContent = '';
+                }
+
+                // ✅ Amount
+                if (!amountInput.value || parseFloat(amountInput.value) < 1) {
+                    amountError.textContent = 'Please enter a valid amount.';
+                    valid = false;
+                } else {
+                    amountError.textContent = '';
+                }
+
+                // ✅ Gift Aid
+                if (giftAidCheckbox.checked && addressInput.value.trim() === '') {
+                    addressError.textContent = 'Please enter your address for Gift Aid.';
+                    valid = false;
+                } else {
+                    addressError.textContent = '';
+                }
+
+                if (!valid) e.preventDefault();
+            });
+        });
 
         // ------------------------------
         // ✅ INIT Flatpickr
@@ -923,9 +1060,45 @@
                 });
 
                 // Handle form submit
+                // Handle form submit
                 form.addEventListener("submit", async function(event) {
                     event.preventDefault();
 
+                    const displayError = document.getElementById(errorId);
+
+                    // ✅ Check if any visible error spans already have messages (from your custom validation)
+                    const errors = form.querySelectorAll("span[id^='error-']");
+                    let hasError = false;
+                    errors.forEach((el) => {
+                        if (el.textContent.trim() !== "") hasError = true;
+                    });
+
+                    // ✅ Also ensure required basic fields exist before creating a Stripe token
+                    const nameField = form.querySelector("input[name='name']");
+                    const emailField = form.querySelector("input[name='email']");
+                    const amountField = form.querySelector("input[name='amount']");
+
+                    if (!nameField?.value.trim() || !emailField?.value.trim() || !amountField?.value
+                        .trim()) {
+                        hasError = true;
+                    }
+
+                    // ✅ NEW: Check if card field has any value (Stripe Element empty check)
+                    // Stripe doesn’t expose value directly, so we detect if Element is "complete"
+                    const elementComplete = card._complete === true;
+                    if (!elementComplete) {
+                        displayError.textContent = "Please enter your card details.";
+                        hasError = true;
+                    } else {
+                        displayError.textContent = "";
+                    }
+
+                    if (hasError) {
+                        form.querySelector("button[type=submit]").disabled = false;
+                        return;
+                    }
+
+                    // ✅ Proceed only if form is valid
                     form.querySelector("button[type=submit]").disabled = true;
 
                     const {
@@ -934,16 +1107,23 @@
                     } = await stripe.createToken(card);
 
                     if (error) {
-                        document.getElementById(errorId).textContent = error.message;
+                        displayError.textContent = error.message;
                         form.querySelector("button[type=submit]").disabled = false;
                     } else {
+                        displayError.textContent = "";
                         const hiddenInput = document.createElement("input");
                         hiddenInput.setAttribute("type", "hidden");
                         hiddenInput.setAttribute("name", "stripeToken");
                         hiddenInput.setAttribute("value", token.id);
                         form.appendChild(hiddenInput);
 
-                        form.submit();
+                        // ✅ Double-check no other errors before submitting
+                        let stillValid = true;
+                        errors.forEach((el) => {
+                            if (el.textContent.trim() !== "") stillValid = false;
+                        });
+
+                        if (stillValid) form.submit();
                     }
                 });
             }
