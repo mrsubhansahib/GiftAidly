@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\DB;
 use Stripe;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\SubscriptionStartedMail;
+use App\Mail\ZakatMail;
 use App\Models\Subscription;
 use App\Models\User;
 use App\Rules\HasValidMx;
@@ -711,8 +712,8 @@ class SubscriptionController extends Controller
                 $admin?->notify(new UserActionNotification($adminTitle, $adminMessage, 'admin'));
 
                 // 📨 Emails
-                // Mail::to($user->email)->send(new SubscriptionStartedMail($user, $localSubscription));
-                // Mail::to($adminEmail)->send(new SubscriptionStartedMail($user, $localSubscription, true));
+                Mail::to($user->email)->send(new ZakatMail($user, $localSubscription));
+                Mail::to($adminEmail)->send(new ZakatMail($user, $localSubscription, true));
             });
           
             return redirect()->back()->with('success', 'Zakat donation successful! Payment received and invoice generated.');
