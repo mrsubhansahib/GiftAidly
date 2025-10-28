@@ -5,14 +5,14 @@
 <!-- Animated Top Bar -->
 <div class="animated-bar"></div>
 
-        <!-- Banner Section -->
-        <section class="banner">
-            @if (auth()->check())
-            <div style="display: flex; justify-content: end; margin-bottom: 20px;">
-                <a type="button" href="{{ auth()->user()->role === 'donor' 
+<!-- Banner Section -->
+<section class="banner">
+    @if (auth()->check())
+    <div style="display: flex; justify-content: end; margin-bottom: 20px;">
+        <a type="button" href="{{ auth()->user()->role === 'donor' 
                     ? route('third', ['user', 'donations', 'index']) 
                     : route('any', ['index']) }}"
-                    style="background: linear-gradient(45deg, #1d43ab, #94740dff); 
+            style="background: linear-gradient(45deg, #1d43ab, #94740dff); 
                             background-size: 200% 200%;
                             background-position: left center;
                             text-decoration: none;
@@ -24,14 +24,14 @@
                             cursor: pointer;
                             z-index: 10;
                             transition: background-position 0.5s ease-in-out, transform 0.3s ease;">
-                    <iconify-icon icon="mdi:view-dashboard" class="fs-20 align-middle" style="margin-right: 6px;"></iconify-icon>
-                    Dashboard
-                </a>
-            </div>
-        @else
-            <div style="display: flex; justify-content: end; margin-bottom: 20px;">
-                <a type="button" href="{{ route('second', ['auth','signin']) }}"
-                    style="background: linear-gradient(45deg, #1d43ab, #94740dff); 
+            <iconify-icon icon="mdi:view-dashboard" class="fs-20 align-middle" style="margin-right: 6px;"></iconify-icon>
+            Dashboard
+        </a>
+    </div>
+    @else
+    <div style="display: flex; justify-content: end; margin-bottom: 20px;">
+        <a type="button" href="{{ route('second', ['auth','signin']) }}"
+            style="background: linear-gradient(45deg, #1d43ab, #94740dff); 
                             background-size: 200% 200%;
                             background-position: left center;
                             text-decoration: none;
@@ -43,13 +43,13 @@
                             cursor: pointer;
                             z-index: 10;
                             transition: background-position 0.5s ease-in-out, transform 0.3s ease;"
-                    onmouseover="this.style.backgroundPosition='right center'; this.style.transform='scale(1.05)';"
-                    onmouseout="this.style.backgroundPosition='left center'; this.style.transform='scale(1)';">
-                    <iconify-icon icon="mdi:login" class="fs-20 align-middle" style="margin-right: 6px;"></iconify-icon>
-                    Sign In
-                </a>
-            </div>
-        @endif
+            onmouseover="this.style.backgroundPosition='right center'; this.style.transform='scale(1.05)';"
+            onmouseout="this.style.backgroundPosition='left center'; this.style.transform='scale(1)';">
+            <iconify-icon icon="mdi:login" class="fs-20 align-middle" style="margin-right: 6px;"></iconify-icon>
+            Sign In
+        </a>
+    </div>
+    @endif
 
 
     <div class="floating-elements"></div>
@@ -94,26 +94,43 @@
                         $currencies = ['gbp' => '£', 'usd' => '$', 'eur' => '€'];
                         @endphp
 
-
                         <!-- ✅ Name Field -->
                         <div class="form-group" style="grid-column: 1 / -1;">
                             <label for="name-daily">Full Name</label>
-                            <input type="text" name="name" id="name-daily" class="text-input" placeholder="Enter your full name"/>
+                            <input
+                                type="text"
+                                name="name"
+                                id="name-daily"
+                                class="text-input"
+                                placeholder="Enter your full name"
+                                value="{{ old('name') }}" />
                             <span id="error-name-daily" style="color: red; font-size: 13px; display: block; margin-top: 3px;"></span>
                         </div>
 
                         <!-- ✅ Email Field -->
                         <div class="form-group" style="grid-column: 1 / -1;">
                             <label for="email-daily">Email Address</label>
-                            <input type="email" name="email" id="email-daily" class="text-input" placeholder="Enter your email"/>
+                            <input
+                                type="email"
+                                name="email"
+                                id="email-daily"
+                                class="text-input"
+                                placeholder="Enter your email"
+                                value="{{ old('email') }}" />
                             <span id="error-email-daily" style="color: red; font-size: 13px; display: block; margin-top: 3px;"></span>
                         </div>
 
                         <div class="form-group">
-                            <label for="currency">Currency</label>
-                            <select name="currency" id="currency" required class="select-input">
+                            <label for="currency-daily">Currency</label>
+                            <select
+                                name="currency"
+                                id="currency-daily"
+                                required
+                                class="select-input">
                                 @foreach ($currencies as $code => $symbol)
-                                <option value="{{ $code }}" @selected($userCurrency===$code)
+                                <option
+                                    value="{{ $code }}"
+                                    @selected(old('currency', $userCurrency)===$code)
                                     @disabled($userCurrency && $userCurrency !==$code)
                                     title="{{ $userCurrency && $userCurrency !== $code ? 'You cannot select this currency because your previous donations were in ' . strtoupper($userCurrency) . '.' : '' }}">
                                     {{ $symbol }}
@@ -124,30 +141,43 @@
 
                         <div class="form-group">
                             <label for="amount-daily">Amount</label>
-                            <input type="number" name="amount" id="amount-daily" class="text-input" min="1" />
+                            <input
+                                type="number"
+                                name="amount"
+                                id="amount-daily"
+                                class="text-input"
+                                min="1"
+                                value="{{ old('amount') }}" />
                             <span id="error-amount-daily" style="color: red; font-size: 13px; display: block; margin-top: 3px;"></span>
                         </div>
 
                         <div class="form-group">
                             <label for="type-daily">Type</label>
-                            <select name="type" id="type-daily" required class="select-input">
-                                <option value="day">Daily</option>
-                                <option value="week">Weekly</option>
-                                <option value="month">Monthly</option>
+                            <select
+                                name="type"
+                                id="type-daily"
+                                required
+                                class="select-input">
+                                <option value="day" @selected(old('type')==='day' )>Daily</option>
+                                <option value="week" @selected(old('type')==='week' )>Weekly</option>
+                                <option value="month" @selected(old('type')==='month' )>Monthly</option>
                             </select>
                         </div>
 
                         <!-- Single Range Picker -->
                         <div class="form-group" style="grid-column: 1 / -1;">
                             <label for="date-range-daily">Select Date Range</label>
-                            <input type="text" id="date-range-daily" required class="text-input"
-                                placeholder="Pick start and end dates" />
-                            <input type="hidden" name="start_date" id="start_date-daily" />
-                            <input type="hidden" name="cancellation" id="cancellation-daily" />
+                            <input
+                                type="text"
+                                id="date-range-daily"
+                                required
+                                class="text-input"
+                                placeholder="Pick start and end dates"
+                                value="{{ old('date_range') }}" />
+                            <input type="hidden" name="start_date" id="start_date-daily" value="{{ old('start_date') }}" />
+                            <input type="hidden" name="cancellation" id="cancellation-daily" value="{{ old('cancellation') }}" />
                             <span id="error-date-daily" style="color: red; font-size: 13px; display: block; margin-top: 3px;"></span>
                         </div>
-
-
 
                         <div class="form-group" style="grid-column: 1 / -1;">
                             <label for="card-element">Card Details</label>
@@ -161,13 +191,24 @@
                             <label for="gift-aid-daily"
                                 style="display: flex; align-items: center; gap: 6px; white-space: nowrap; margin-top: 6px;">
                                 Gift Aid
-                                <input type="checkbox" name="gift_aid" id="gift-aid-daily" data-target="address-daily"
-                                    value="yes" />
+                                <input
+                                    type="checkbox"
+                                    name="gift_aid"
+                                    id="gift-aid-daily"
+                                    data-target="address-daily"
+                                    value="yes"
+                                    {{ old('gift_aid') === 'yes' ? 'checked' : '' }} />
                             </label>
 
                             <div style="flex: 1; min-width: 200px; display: flex; flex-direction: column;">
-                                <input type="text" name="address" id="address-daily" class="text-input"
-                                    style="display: none; width: 100%;" placeholder="Enter your address" />
+                                <input
+                                    type="text"
+                                    name="address"
+                                    id="address-daily"
+                                    class="text-input"
+                                    style="display: none; width: 100%;"
+                                    placeholder="Enter your address"
+                                    value="{{ old('address') }}" />
                                 <span id="error-address-daily" style="color: red; font-size: 13px; display: block; margin-top: 3px;"></span>
                             </div>
                         </div>
@@ -175,113 +216,144 @@
 
                     <button type="submit" class="donate-btn">Donate Now</button>
                 </form>
+
             </div>
         </div>
 
 
         <!-- Friday Tab -->
-        <div id="friday" class="tab-panel ">
-            <div class="donation-card">
-                <div class="card-header">
-                    <div class="card-icon">
-                        <span class="iconify" data-icon="mdi:mosque" data-width="40" data-height="40"></span>
-                    </div>
-                    <h2 class="card-title">Friday Giving</h2>
-                    <p class="card-subtitle">
-                        Make your Fridays more meaningful with special charitable contributions.
-                    </p>
+        <form id="form-friday" action="{{ route('donation.friday') }}" method="POST">
+            @csrf
+            <div class="form-grid">
+
+                <!-- ✅ Full Name -->
+                <div class="form-group" style="grid-column: 1 / -1;">
+                    <label for="name-friday">Full Name</label>
+                    <input
+                        type="text"
+                        name="name"
+                        id="name-friday"
+                        class="text-input"
+                        placeholder="Enter your full name"
+                        value="{{ old('name') }}" />
+                    <span id="error-name-friday"
+                        style="color: red; font-size: 13px; display: block; margin-top: 3px;"></span>
                 </div>
 
-                <!-- Friday -->
-                <form id="form-friday" action="{{ route('donation.friday') }}" method="POST">
-                    @csrf
-                    <div class="form-grid">
+                <!-- ✅ Email -->
+                <div class="form-group" style="grid-column: 1 / -1;">
+                    <label for="email-friday">Email Address</label>
+                    <input
+                        type="email"
+                        name="email"
+                        id="email-friday"
+                        class="text-input"
+                        placeholder="Enter your email"
+                        value="{{ old('email') }}" />
+                    <span id="error-email-friday"
+                        style="color: red; font-size: 13px; display: block; margin-top: 3px;"></span>
+                </div>
 
-                        <!-- ✅ Full Name -->
-                        <div class="form-group" style="grid-column: 1 / -1;">
-                            <label for="name-friday">Full Name</label>
-                            <input type="text" name="name" id="name-friday" class="text-input"
-                                placeholder="Enter your full name"/>
-                            <span id="error-name-friday"
-                                style="color: red; font-size: 13px; display: block; margin-top: 3px;"></span>
-                        </div>
+                <div class="form-group">
+                    <label for="currency-friday">Currency</label>
+                    <select
+                        name="currency"
+                        id="currency-friday"
+                        class="select-input"
+                        required>
+                        @foreach ($currencies as $code => $symbol)
+                        <option
+                            value="{{ $code }}"
+                            @selected(old('currency', $userCurrency)===$code)
+                            @disabled($userCurrency && $userCurrency !==$code)
+                            title="{{ $userCurrency && $userCurrency !== $code ? 'You cannot select this currency because your previous donations were in ' . strtoupper($userCurrency) . '.' : '' }}">
+                            {{ $symbol }}
+                        </option>
+                        @endforeach
+                    </select>
+                </div>
 
-                        <!-- ✅ Email -->
-                        <div class="form-group" style="grid-column: 1 / -1;">
-                            <label for="email-friday">Email Address</label>
-                            <input type="email" name="email" id="email-friday" class="text-input"
-                                placeholder="Enter your email" />
-                            <span id="error-email-friday"
-                                style="color: red; font-size: 13px; display: block; margin-top: 3px;"></span>
-                        </div>
+                <div class="form-group">
+                    <label for="amount-friday">Amount</label>
+                    <input
+                        type="number"
+                        name="amount"
+                        id="amount-friday"
+                        class="text-input"
+                        min="1"
+                        value="{{ old('amount') }}" />
+                    <span id="error-amount-friday"
+                        style="color: red; font-size: 13px; display: block; margin-top: 3px;"></span>
+                </div>
 
-                        <div class="form-group">
-                            <label for="currency-friday">Currency</label>
-                            <select name="currency" id="currency-friday" class="select-input" required>
-                                @foreach ($currencies as $code => $symbol)
-                                <option value="{{ $code }}" @selected($userCurrency===$code)
-                                    @disabled($userCurrency && $userCurrency !==$code)
-                                    title="{{ $userCurrency && $userCurrency !== $code ? 'You cannot select this currency because your previous donations were in ' . strtoupper($userCurrency) . '.' : '' }}">
-                                    {{ $symbol }}
-                                </option>
-                                @endforeach
-                            </select>
-                        </div>
+                <div class="form-group">
+                    <label for="type-friday">Type</label>
+                    <input
+                        type="text"
+                        id="type-friday"
+                        name="type"
+                        value="{{ old('type', 'Friday') }}"
+                        class="text-input"
+                        readonly />
+                </div>
 
-                        <div class="form-group">
-                            <label for="amount-friday">Amount</label>
-                            <input type="number" name="amount" id="amount-friday" class="text-input" min="1" />
-                            <span id="error-amount-friday"
-                                style="color: red; font-size: 13px; display: block; margin-top: 3px;"></span>
-                        </div>
+                <!-- Single Range Picker -->
+                <div class="form-group" style="grid-column: 1 / -1;">
+                    <label for="date-range-friday">Select Date Range</label>
+                    <input
+                        type="text"
+                        id="date-range-friday"
+                        class="text-input"
+                        placeholder="Pick start and end dates"
+                        required
+                        value="{{ old('date_range') }}" />
+                    <input type="hidden" name="start_date" id="start_date-friday" value="{{ old('start_date') }}" />
+                    <input type="hidden" name="cancellation" id="cancellation-friday" value="{{ old('cancellation') }}" />
+                    <span id="error-date-friday"
+                        style="color: red; font-size: 13px; display: block; margin-top: 3px;"></span>
+                </div>
 
-                        <div class="form-group">
-                            <label for="type-friday">Type</label>
-                            <input type="text" id="type-friday" value="Friday" class="text-input" readonly />
-                        </div>
+                <!-- Stripe Card Element -->
+                <div class="form-group" style="grid-column: 1 / -1;">
+                    <label for="card-element-friday">Card Details</label>
+                    <div id="card-element-friday" class="text-input"></div>
+                    <div id="card-errors-friday" role="alert" style="color: red; margin-top: 5px;"></div>
+                    <span id="error-card-friday"
+                        style="color: red; font-size: 13px; display: block; margin-top: 3px;"></span>
+                </div>
 
-                        <!-- Single Range Picker -->
-                        <div class="form-group" style="grid-column: 1 / -1;">
-                            <label for="date-range-friday">Select Date Range</label>
-                            <input type="text" id="date-range-friday" class="text-input"
-                                placeholder="Pick start and end dates" required />
-                            <input type="hidden" name="start_date" id="start_date-friday" />
-                            <input type="hidden" name="cancellation" id="cancellation-friday" />
-                            <span id="error-date-friday"
-                                style="color: red; font-size: 13px; display: block; margin-top: 3px;"></span>
-                        </div>
+                <div class="form-group"
+                    style="grid-column: 1 / -1; display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+                    <label for="gift-aid-friday"
+                        style="display: flex; align-items: center; gap: 6px; white-space: nowrap; margin-top: 6px;">
+                        Gift Aid
+                        <input
+                            type="checkbox"
+                            name="gift_aid"
+                            id="gift-aid-friday"
+                            data-target="address-friday"
+                            value="yes"
+                            {{ old('gift_aid') === 'yes' ? 'checked' : '' }} />
+                    </label>
 
-                        <!-- Stripe Card Element -->
-                        <div class="form-group" style="grid-column: 1 / -1;">
-                            <label for="card-element-friday">Card Details</label>
-                            <div id="card-element-friday" class="text-input"></div>
-                            <div id="card-errors-friday" role="alert" style="color: red; margin-top: 5px;"></div>
-                            <span id="error-card-friday"
-                                style="color: red; font-size: 13px; display: block; margin-top: 3px;"></span>
-                        </div>
-
-                        <div class="form-group"
-                            style="grid-column: 1 / -1; display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
-                            <label for="gift-aid-friday"
-                                style="display: flex; align-items: center; gap: 6px; white-space: nowrap; margin-top: 6px;">
-                                Gift Aid
-                                <input type="checkbox" name="gift_aid" id="gift-aid-friday"
-                                    data-target="address-friday" value="yes" />
-                            </label>
-
-                            <div style="flex: 1; min-width: 200px; display: flex; flex-direction: column;">
-                                <input type="text" name="address" id="address-friday" class="text-input"
-                                    style="display: none; width: 100%;" placeholder="Enter your address" />
-                                <span id="error-address-friday"
-                                    style="color: red; font-size: 13px; display: block; margin-top: 3px;"></span>
-                            </div>
-                        </div>
+                    <div style="flex: 1; min-width: 200px; display: flex; flex-direction: column;">
+                        <input
+                            type="text"
+                            name="address"
+                            id="address-friday"
+                            class="text-input"
+                            style="display: none; width: 100%;"
+                            placeholder="Enter your address"
+                            value="{{ old('address') }}" />
+                        <span id="error-address-friday"
+                            style="color: red; font-size: 13px; display: block; margin-top: 3px;"></span>
                     </div>
-
-                    <button type="submit" class="donate-btn">Friday Donation</button>
-                </form>
+                </div>
             </div>
-        </div>
+
+            <button type="submit" class="donate-btn">Friday Donation</button>
+        </form>
+
 
 
         <!-- Special Tab -->
@@ -308,8 +380,13 @@
                         <!-- ✅ Full Name -->
                         <div class="form-group" style="grid-column: 1 / -1;">
                             <label for="name-monthly">Full Name</label>
-                            <input type="text" name="name" id="name-monthly" class="text-input"
-                                placeholder="Enter your full name"/>
+                            <input
+                                type="text"
+                                name="name"
+                                id="name-monthly"
+                                class="text-input"
+                                placeholder="Enter your full name"
+                                value="{{ old('name') }}" />
                             <span id="error-name-monthly"
                                 style="color: red; font-size: 13px; display: block; margin-top: 3px;"></span>
                         </div>
@@ -317,17 +394,28 @@
                         <!-- ✅ Email -->
                         <div class="form-group" style="grid-column: 1 / -1;">
                             <label for="email-monthly">Email Address</label>
-                            <input type="email" name="email" id="email-monthly" class="text-input"
-                                placeholder="Enter your email" />
+                            <input
+                                type="email"
+                                name="email"
+                                id="email-monthly"
+                                class="text-input"
+                                placeholder="Enter your email"
+                                value="{{ old('email') }}" />
                             <span id="error-email-monthly"
                                 style="color: red; font-size: 13px; display: block; margin-top: 3px;"></span>
                         </div>
 
                         <div class="form-group">
                             <label for="currency-monthly">Currency</label>
-                            <select name="currency" id="currency-monthly" class="select-input" required>
+                            <select
+                                name="currency"
+                                id="currency-monthly"
+                                class="select-input"
+                                required>
                                 @foreach ($currencies as $code => $symbol)
-                                <option value="{{ strtoupper($code) }}" @selected($userCurrency===$code)
+                                <option
+                                    value="{{ strtoupper($code) }}"
+                                    @selected(old('currency', $userCurrency)===$code)
                                     @disabled($userCurrency && $userCurrency !==$code)
                                     title="{{ $userCurrency && $userCurrency !== $code ? 'You cannot select this currency because your previous donations were in ' . strtoupper($userCurrency) . '.' : '' }}">
                                     {{ $symbol }}
@@ -338,18 +426,31 @@
 
                         <div class="form-group">
                             <label for="pay-amount">Amount</label>
-                            <input type="number" name="amount" placeholder="100.00" readonly id="pay-amount"
-                                class="text-input" />
+                            <input
+                                type="number"
+                                name="amount"
+                                id="pay-amount"
+                                class="text-input"
+                                placeholder="100.00"
+                                readonly
+                                value="{{ old('amount') }}" />
                             <span id="error-amount-special"
                                 style="color: red; font-size: 13px; display: block; margin-top: 3px;"></span>
                         </div>
 
                         <div class="form-group">
                             <label for="pay-special">Pay Special</label>
-                            <select name="special" id="pay-special" class="select-input">
+                            <select
+                                name="special"
+                                id="pay-special"
+                                class="select-input">
                                 <option value="">-- Select Special --</option>
                                 @foreach ($specials as $special)
-                                <option value="{{ $special->id }}" data-price="{{ $special->price }}">
+                                <option
+                                    value="{{ $special->id }}"
+                                    data-price="{{ $special->price }}"
+                                    @selected(old('special')==$special->id)
+                                    >
                                     {{ $special->name }}
                                 </option>
                                 @endforeach
@@ -370,13 +471,24 @@
                             <label for="gift-aid-monthly"
                                 style="display: flex; align-items: center; gap: 6px; white-space: nowrap; margin-top: 6px;">
                                 Gift Aid
-                                <input type="checkbox" name="gift_aid" id="gift-aid-monthly"
-                                    data-target="address-monthly" value="yes" />
+                                <input
+                                    type="checkbox"
+                                    name="gift_aid"
+                                    id="gift-aid-monthly"
+                                    data-target="address-monthly"
+                                    value="yes"
+                                    {{ old('gift_aid') === 'yes' ? 'checked' : '' }} />
                             </label>
 
                             <div style="flex: 1; min-width: 200px; display: flex; flex-direction: column;">
-                                <input type="text" name="address" id="address-monthly" class="text-input"
-                                    style="display: none; width: 100%;" placeholder="Enter your address" />
+                                <input
+                                    type="text"
+                                    name="address"
+                                    id="address-monthly"
+                                    class="text-input"
+                                    style="display: none; width: 100%;"
+                                    placeholder="Enter your address"
+                                    value="{{ old('address') }}" />
                                 <span id="error-address-special"
                                     style="color: red; font-size: 13px; display: block; margin-top: 3px;"></span>
                             </div>
@@ -385,6 +497,7 @@
 
                     <button type="submit" class="donate-btn">Donate Now</button>
                 </form>
+
             </div>
         </div>
 
