@@ -145,8 +145,8 @@ class SubscriptionController extends Controller
                 'start_date'             => $subscription->current_period_start
                     ? Carbon::createFromTimestamp($subscription->current_period_start)
                     : $start,
-                'end_date'               => $endDate,
-                'canceled_at'            => $endDate,
+                'end_date'   => $request->type == 'day' ? $endDate->copy()->subDay()->subSecond() : ($request->type == 'week' ? ($endDate->copy()->subDays(7)->subSecond()) : ($request->type == 'month' ? $endDate->copy()->subMonth()->subSecond() : $endDate->copy()->subSecond())),
+                'canceled_at' => $request->type == 'day' ? $endDate->subDay() : ($request->type == 'week' ? ($endDate->copy()->subDays(7)) : ($request->type == 'month' ? $endDate->copy()->subMonth() : $endDate)),
             ]);
 
             DB::commit();
@@ -178,6 +178,9 @@ class SubscriptionController extends Controller
                 ? 'Donation successful! Invoice finalized & paid immediately.'
                 : 'Subscription scheduled. Billing will start on your selected start date.';
             return redirect()->back()->with('success', $msg);
+        } catch (\Stripe\Exception\CardException $e) {
+            DB::rollBack();
+            return back()->withInput()->with('error', 'Stripe card error: ' . $e->getMessage());
         } catch (Exception $e) {
             DB::rollBack();
             return back()->withInput()->with('error', 'Error: ' . $e->getMessage());
@@ -232,7 +235,7 @@ class SubscriptionController extends Controller
                     $customer = Stripe\Customer::retrieve($user->stripe_customer_id);
                 }
             }
-          
+
 
             // ✅ 3. Create or retrieve Stripe customer
 
@@ -265,7 +268,7 @@ class SubscriptionController extends Controller
             $forceChargeNow = (bool) $request->boolean('charge_now');
             $anchor = $forceChargeNow || !$startIsFuture ? Carbon::now() : $start->copy();
             $endDate = $anchor->copy()->addWeeks($weeks + 1);
-          
+
 
             $data = [
                 'customer'           => $customer->id,
@@ -277,7 +280,7 @@ class SubscriptionController extends Controller
 
             ];
             // ✅ 7. Create subscription
-              if ($forceChargeNow || !$startIsFuture) {
+            if ($forceChargeNow || !$startIsFuture) {
                 // Immediate charge
                 $data['expand'] = ['latest_invoice'];
             } else {
@@ -298,8 +301,8 @@ class SubscriptionController extends Controller
                 'start_date'             => $subscription->current_period_start
                     ? Carbon::createFromTimestamp($subscription->current_period_start)
                     : $start,
-                'end_date'               => $endDate->copy()->subWeek()->subSecond(),
-                'canceled_at'            => $endDate->copy()->subWeek(),
+                'end_date'   => $endDate->copy()->subDays(7)->subSecond(),
+                'canceled_at' => $endDate->copy()->subDays(7),
             ]);
 
             DB::commit();
@@ -359,7 +362,10 @@ class SubscriptionController extends Controller
                 : 'Subscription scheduled. Billing will start on your selected start date.';
 
             return redirect()->back()->with('success', $msg);
-        } catch (Exception $e) {    
+        } catch (\Stripe\Exception\CardException $e) {
+            DB::rollBack();
+            return back()->withInput()->with('error', 'Stripe card error: ' . $e->getMessage());
+        } catch (Exception $e) {
             DB::rollBack();
             return back()->withInput()->with('error', 'Error: ' . $e->getMessage());
         }
@@ -368,7 +374,7 @@ class SubscriptionController extends Controller
     {
         $request->validate([
             'name'      => 'required|string|max:255',
-            'email'     => 'required|email|max:255',
+            'email' => ['required', 'string', 'email:rfc', 'max:255', new HasValidMx],
             'special'   => 'required|exists:special_donations,id',
             'amount'    => 'required|numeric|min:1',
             'currency'  => 'required|in:GBP,USD,EUR',
@@ -382,6 +388,8 @@ class SubscriptionController extends Controller
         try {
             // ✅ 1. Create or find donor
             $user = User::where('email', $request->email)->first();
+
+            Stripe\Stripe::setApiKey(env('STRIPE_SECRET'));
             if (!$user) {
                 $user = User::create([
                     'name'     => $request->name,
@@ -390,20 +398,6 @@ class SubscriptionController extends Controller
                     'address'  => $request->gift_aid === 'yes' ? $request->address : null,
                     'role'     => 'donor',
                 ]);
-
-                // $user->sendEmailVerificationNotification();
-            } else {
-                // user exists → optional: update address only if new gift aid entered
-                if ($request->gift_aid === 'yes' && $request->filled('address')) {
-                    $user->update(['address' => $request->address]);
-                }
-            }
-
-            // ✅ 2. Stripe setup
-            Stripe\Stripe::setApiKey(env('STRIPE_SECRET'));
-
-            // ✅ 3. Create or retrieve Stripe Customer
-            if (!$user->stripe_customer_id) {
                 $customer = Stripe\Customer::create([
                     'name'   => $user->name,
                     'email'  => $user->email,
@@ -411,28 +405,36 @@ class SubscriptionController extends Controller
                 ]);
                 $user->update(['stripe_customer_id' => $customer->id]);
             } else {
-                $customer = Stripe\Customer::retrieve($user->stripe_customer_id);
+                // user exists → optional: update address only if new gift aid entered
+                if ($request->gift_aid === 'yes' && $request->filled('address')) {
+                    $user->update(['address' => $request->address]);
+                }
+                if ($user->stripe_customer_id) {
+
+                    $customer = Stripe\Customer::retrieve($user->stripe_customer_id);
+                }
             }
 
             // ✅ 4. Get selected special donation
             $donation = SpecialDonation::findOrFail($request->special);
 
             // ✅ 5. Create or get product in Stripe
-            $productCatalog = ProductCatalog::where('name', $donation->name)->first();
-            if (!$productCatalog) {
+
+            if (! ProductCatalog::where('name', $donation->name)->exists()) {
                 $stripeProduct = Stripe\Product::create(['name' => $donation->name]);
                 $productCatalog = ProductCatalog::create([
                     'name' => $donation->name,
                     'product_id' => $stripeProduct->id,
                 ]);
+            } else {
+                $stripeProduct = Stripe\Product::retrieve(ProductCatalog::where('name', $donation->name)->first()->product_id);
             }
-            $product = Stripe\Product::retrieve($productCatalog->product_id);
 
             // ✅ 6. Create one-time Price
             $price = Stripe\Price::create([
                 'unit_amount' => $request->amount * 100,
                 'currency'    => strtolower($request->currency),
-                'product'     => $product->id,
+                'product'     => $stripeProduct->id,
             ]);
 
             // ✅ 7. Create PaymentIntent (one-time payment)
@@ -510,6 +512,9 @@ class SubscriptionController extends Controller
             });
 
             return redirect()->back()->with('success', 'Special donation successful! Invoice finalized & paid immediately.');
+        }catch (\Stripe\Exception\CardException $e) {
+            DB::rollBack();
+            return back()->withInput()->with('error', 'Stripe card error: ' . $e->getMessage());
         } catch (Exception $e) {
             DB::rollBack();
             return back()->withInput()->with('error', 'Error: ' . $e->getMessage());
@@ -538,8 +543,8 @@ class SubscriptionController extends Controller
 
             $typeReadable = match ($subscription->type) {
                 'day'    => 'Daily',
-                'week'   => 'Weekly',
                 'month'  => 'Monthly',
+                'week'   => 'Weekly',
                 'friday' => 'Friday',
                 default  => ucfirst($subscription->type),
             };
@@ -554,26 +559,24 @@ class SubscriptionController extends Controller
                 // 🧍 USER Notification
                 $userTitle = "🚫 {$typeReadable} Donation Canceled";
                 $userMessage = "Your {$typeReadable} donation of {$currencySymbol}{$amount} has been canceled successfully.";
+                $adminTitle = "❌ {$typeReadable} Donation Canceled";
+                $adminMessage = "{$userName} has canceled their {$typeReadable} donation of {$currencySymbol}{$amount}.";
 
                 $subscription->user?->notify(new UserActionNotification(
                     $userTitle,
                     $userMessage,
                     'user'
                 ));
-
-                // 🧑‍💼 ADMIN Notification
-                if ($admin) {
-                    $adminTitle = "❌ {$typeReadable} Donation Canceled";
-                    $adminMessage = "{$userName} has canceled their {$typeReadable} donation of {$currencySymbol}{$amount}.";
-
-                    $admin->notify(new UserActionNotification(
-                        $adminTitle,
-                        $adminMessage,
-                        'admin'
-                    ));
-                }
+                $admin->notify(new UserActionNotification(
+                    $adminTitle,
+                    $adminMessage,
+                    'admin'
+                ));
             });
             return redirect()->back()->with('success', 'Subscription canceled successfully');
+        }catch (\Stripe\Exception\CardException $e) {
+            DB::rollBack();
+            return back()->withInput()->with('error', 'Stripe card error: ' . $e->getMessage());
         } catch (\Exception $e) {
             DB::rollBack();
             return redirect()->back()->with('error', 'Error canceling subscription: ' . $e->getMessage());
@@ -585,7 +588,7 @@ class SubscriptionController extends Controller
 
         $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email|max:255',
+            'email' => ['required', 'string', 'email:rfc', 'max:255', new HasValidMx],
             'currency' => 'required|in:gbp,usd,eur',
             'zakat' => 'required|numeric|min:1',
             'stripeToken' => 'required|string',
@@ -593,110 +596,125 @@ class SubscriptionController extends Controller
 
         DB::beginTransaction();
         try {
-            Stripe\Stripe::setApiKey(config('services.stripe.secret'));
 
-            // ✅ Create or find user
             $user = User::where('email', $request->email)->first();
-            if (!$user) {
-                $user = new User();
-                $user->name = $request->name;
-                $user->email = $request->email;
-                $user->password = Hash::make('password');
-                $user->save();
-            }
 
-            // ✅ Create Stripe customer if missing
-            if (!$user->stripe_customer_id) {
+            Stripe\Stripe::setApiKey(env('STRIPE_SECRET'));
+            if (!$user) {
+                $user = User::create([
+                    'name'     => $request->name,
+                    'email'    => $request->email,
+                    'password' => Hash::make('password'),
+                    'role'     => 'donor',
+                ]);
                 $customer = Stripe\Customer::create([
-                    'name'  => $user->name,
-                    'email' => $user->email,
+                    'name'   => $user->name,
+                    'email'  => $user->email,
                     'source' => $request->stripeToken,
                 ]);
                 $user->update(['stripe_customer_id' => $customer->id]);
             } else {
-                $customer = Stripe\Customer::retrieve($user->stripe_customer_id);
+                if ($user->stripe_customer_id) {
+                    $customer = Stripe\Customer::retrieve($user->stripe_customer_id);
+                }
             }
+
 
             // ✅ Create or retrieve Stripe Product for Zakat Donation
             $productName = 'Zakat Donation';
-            $productRecord = ProductCatalog::firstOrCreate(
-                ['name' => $productName],
-                ['product_id' => Stripe\Product::create(['name' => $productName])->id]
-            );
-            $product = Stripe\Product::retrieve($productRecord->product_id);
-
+            if (! ProductCatalog::where('name', $productName)->exists()) {
+                $stripeProduct = Stripe\Product::create(['name' => $productName]);
+                $productCatalog = ProductCatalog::create([
+                    'name' => $productName,
+                    'product_id' => $stripeProduct->id,
+                ]);
+            } else {
+                $stripeProduct = Stripe\Product::retrieve(ProductCatalog::where('name', $productName)->first()->product_id);
+            }
             // ✅ Create one-time Price
             $price = Stripe\Price::create([
                 'unit_amount' => $request->zakat * 100,
-                'currency'    => $stripeCurrency,
-                'product'     => $product->id,
+                'currency'    => $request->currency,
+                'product'     => $stripeProduct->id,
             ]);
 
-            DB::commit();
-            dd('Price created:', $price);
-            // ✅ Create one-time PaymentIntent
-            $paymentIntent = \Stripe\PaymentIntent::create([
+
+            // ✅ 7. Create PaymentIntent (one-time payment)
+            $paymentIntent = Stripe\PaymentIntent::create([
                 'amount'   => $request->zakat * 100,
-                'currency' => $stripeCurrency,
+                'currency' => strtolower($request->currency),
                 'customer' => $customer->id,
                 'confirm'  => true,
                 'automatic_payment_methods' => [
                     'enabled' => true,
                     'allow_redirects' => 'never',
                 ],
+                'payment_method_data' => [
+                    'type' => 'card',
+                    'card' => ['token' => $request->stripeToken],
+                ],
                 'description' => 'Zakat Donation',
+
             ]);
 
-            // ✅ Save invoice
-            // $invoice = Invoice::create([
-            //     'subscription_id'   => 123, // no subscription
-            //     'stripe_invoice_id' => $paymentIntent->id,
-            //     'amount_due'        => $request->zakat,
-            //     'currency'          => $stripeCurrency,
-            //     'invoice_date'      => now(),
-            //     'paid_at'           => now(),
-            // ]);
+            // ✅ 8. Save local subscription (one-time marker)
+            $localSubscription = $user->subscriptions()->create([
+                'stripe_subscription_id' => 'one-time-' . $paymentIntent->id,
+                'stripe_price_id'        => $price->id,
+                'status'                 => 'ended',
+                'price'                  => $request->zakat,
+                'currency'               => strtolower($request->currency),
+                'type'                   => $productName,
+                'gift_aid'               => $request->gift_aid === 'yes' ? 'yes' : 'no',
+                'start_date'             => now(),
+                'end_date'               => now()->addSecond(),
+                'canceled_at'            => now()->addSeconds(2),
+            ]);
 
-            // // ✅ Save transaction
-            // $transaction = Transaction::create([
-            //     'invoice_id'            => $invoice->id,
-            //     'stripe_transaction_id' => $paymentIntent->charges->data[0]->id ?? $paymentIntent->id,
-            //     'paid_at'               => now(),
-            //     'status'                => 'paid',
-            // ]);
+            // ✅ 9. Create local invoice
+            $invoice = Invoice::create([
+                'subscription_id'   => $localSubscription->id,
+                'stripe_invoice_id' => $paymentIntent->id,
+                'amount_due'        => $request->zakat,
+                'currency'          => strtolower($request->currency),
+                'invoice_date'      => now(),
+                'paid_at'           => now(),
+            ]);
+
+            // ✅ 10. Create local transaction
+            $transaction = Transaction::create([
+                'invoice_id'            => $invoice->id,
+                'stripe_transaction_id' => $paymentIntent->charges->data[0]->id ?? $paymentIntent->id,
+                'paid_at'               => now(),
+                'status'                => 'paid',
+            ]);
 
             DB::commit();
 
-            // ✅ Notifications + Emails
-            // DB::afterCommit(function () use ($user, $invoice, $transaction) {
-            //     $adminEmail = env('ADMIN_EMAIL');
-            //     $admin = User::where('role', 'admin')->first();
+            // ✅ 11. Notifications & Emails
+            DB::afterCommit(function () use ($user, $localSubscription, $invoice) {
+                $adminEmail = env('ADMIN_EMAIL');
+                $admin = User::where('role', 'admin')->first();
 
-            //     $currencySymbols = [
-            //         'usd' => '$',
-            //         'gbp' => '£',
-            //         'eur' => '€',
-            //     ];
-            //     $currencySymbol = $currencySymbols[strtolower($invoice->currency)] ?? strtoupper($invoice->currency);
+                $currencySymbols = ['usd' => '$', 'gbp' => '£', 'eur' => '€'];
+                $currencySymbol = $currencySymbols[strtolower($localSubscription->currency)] ?? strtoupper($localSubscription->currency);
+                $userName = Str::title($user->name);
+                $typeReadable = 'Zakat Donation';
 
-            //     $userName = Str::title($user->name);
-            //     $typeReadable = 'Zakat Donation';
+                // 🧍‍♂️ User + Admin Notifications
+                $userTitle = "💝 {$typeReadable} Successful";
+                $userMessage = "You donated {$currencySymbol}{$localSubscription->price} towards {$localSubscription->type}.";
+                $adminTitle = "💰 New {$typeReadable} Received";
+                $adminMessage = "{$userName} donated {$currencySymbol}{$localSubscription->price} towards {$localSubscription->type}.";
 
-            //     // 📢 Notifications
-            //     $adminTitle = "💰 New {$typeReadable} Received";
-            //     $adminMessage = "{$userName} donated {$currencySymbol}{$invoice->amount_due} as Zakat.";
-            //     $userTitle = "💝 {$typeReadable} Successful";
-            //     $userMessage = "Your Zakat of {$currencySymbol}{$invoice->amount_due} has been received successfully.";
+                $user->notify(new UserActionNotification($userTitle, $userMessage, 'user'));
+                $admin?->notify(new UserActionNotification($adminTitle, $adminMessage, 'admin'));
 
-            //     $user->notify(new UserActionNotification($userTitle, $userMessage, 'user'));
-            //     $admin?->notify(new UserActionNotification($adminTitle, $adminMessage, 'admin'));
-
-            //     // 📧 Emails
-            //     Mail::to($adminEmail)->send(new InvoicePaidMail($user, $invoice, true));
-            //     Mail::to($adminEmail)->send(new TransactionPaidMail($user, $transaction, true));
-            //     Mail::to($user->email)->send(new InvoicePaidMail($user, $invoice));
-            // });
-
+                // 📨 Emails
+                // Mail::to($user->email)->send(new SubscriptionStartedMail($user, $localSubscription));
+                // Mail::to($adminEmail)->send(new SubscriptionStartedMail($user, $localSubscription, true));
+            });
+          
             return redirect()->back()->with('success', 'Zakat donation successful! Payment received and invoice generated.');
         } catch (\Stripe\Exception\CardException $e) {
             DB::rollBack();
