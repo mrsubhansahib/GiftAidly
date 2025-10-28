@@ -52,12 +52,16 @@ Here are the details:
 ## 💰 **Donation Details**
 **Donation Type:** {{ $frequency }}  
 **Amount:** {{ $currencySymbol }} {{ number_format($subscription->price, 2) }}  
-**Gift Aid:** {{ $subscription->gift_aid === 'yes' ? '✅ Applied' : '❌ Not Applied' }}  
+
+@if ($subscription->gift_aid === 'yes')
+**Gift Aid:** ✅ Applied  
+@endif  
+
 **Start Date:** {{ $startDateFormatted }}  
 **End Date:** {{ $endDateFormatted }}  
 
 @if ($subscription->gift_aid === 'yes')
----
+---  
 💡 **Gift Aid Applied**  
 This donation includes Gift Aid, increasing its value by **25%**.
 @endif
@@ -76,12 +80,16 @@ Your support means the world to us and helps us continue our mission to make a d
 
 **Donation Type:** {{ $frequency }}  
 **Amount:** {{ $currencySymbol }} {{ number_format($subscription->price, 2) }}  
-**Gift Aid:** {{ $subscription->gift_aid === 'yes' ? '✅ Applied' : '❌ Not Applied' }}  
+
+@if ($subscription->gift_aid === 'yes')
+**Gift Aid:** ✅ Applied  
+@endif  
+
 **Start Date:** {{ $startDateFormatted }}  
 **End Date:** {{ $endDateFormatted }}  
 
 @if ($subscription->gift_aid === 'yes')
----
+---  
 💡 **Gift Aid Applied**  
 Thanks to Gift Aid, your donation will be worth **25% more** at no extra cost to you!
 @endif
