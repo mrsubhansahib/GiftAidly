@@ -124,35 +124,30 @@ class WebhookController extends Controller
 
     private function onInvoiceCreated($inv)
     {
-        $invoice = StripeInvoice::retrieve([
-            'id' => $inv->id,
-            'expand' => ['payment_intent', 'charge', 'subscription'],
-        ]);
-        $subscription = Subscription::where('stripe_subscription_id', $invoice->lines->data[0]->parent->subscription_item_details->subscription)->first();
-        $localInvoice = Invoice::updateOrCreate(
-            [
-                'stripe_invoice_id' => $inv->id,
-                'subscription_id' => $subscription->id,
-                'amount_due'      => $inv->amount_paid / 100,
-                'currency'        => $inv->currency,
-                'paid_at'        => $this->ts($inv->status_transitions->paid_at ?? now()),
-                'invoice_date'    => $this->ts($inv->created),
-            ]
-        );
-        if ($inv->status === 'draft') {
-            $inv = $inv->finalizeInvoice(); // instance method
-            invoiceMail($localInvoice);
-        } else if ($inv->collection_method === 'charge_automatically' && $inv->status !== 'paid') {
-            $inv = $inv->pay(); // instance method
-            invoiceMail($localInvoice);
-        } else {
-            Log::info("Invoice is already Paid");
+        if ($inv->amount_paid > 0) {
+            $invoice = StripeInvoice::retrieve([
+                'id' => $inv->id,
+                'expand' => ['payment_intent', 'charge', 'subscription'],
+            ]);
+            $subscription = Subscription::where('stripe_subscription_id', $invoice->lines->data[0]->parent->subscription_item_details->subscription)->first();
+            $localInvoice = Invoice::updateOrCreate(
+                [
+                    'stripe_invoice_id' => $inv->id,
+                    'subscription_id' => $subscription->id,
+                    'amount_due'      => $inv->amount_paid / 100,
+                    'currency'        => $inv->currency,
+                    'paid_at'        => $this->ts($inv->status_transitions->paid_at ?? now()),
+                    'invoice_date'    => $this->ts($inv->created),
+                ]
+            );
+            // if ($inv->status === 'draft') {
+            //     $inv = $inv->finalizeInvoice(); // instance method
+            // } else if ($inv->collection_method === 'charge_automatically' && $inv->status !== 'paid') {
+            //     $inv = $inv->pay(); // instance method
+            // } else {
+            //     Log::info("Invoice is already Paid");
+            // }
         }
-        // Mail::to(env('ADMIN_EMAIL'))
-        //     ->send(new InvoicePaidMail($localInvoice->subscription->user, $localInvoice, true));
-        // Mail::to($localInvoice->subscription->user->email)
-        //     ->send(new InvoicePaidMail($localInvoice->subscription->user, $localInvoice));
-        function invoiceMail($localInvoice) {}
     }
     private function onInvoicePaymentSucceeded($inv)
     {
@@ -242,7 +237,7 @@ class WebhookController extends Controller
             'id' => $inv->invoice,
             'expand' => ['payment_intent', 'charge', 'subscription'],
         ]);
-   
+
         // Log::info("Invoice Subscription Succeeded : {$invoice->lines->data[0]->parent->subscription_item_details->subscription}");
 
         DB::transaction(function () use ($inv, $invoice) {
@@ -258,9 +253,9 @@ class WebhookController extends Controller
                 ]
             );
             Mail::to(env('ADMIN_EMAIL'))
-                    ->send(new TransactionFailedMail($localInvoice->subscription->user,$inv->invoice, true));
+                ->send(new TransactionFailedMail($localInvoice->subscription->user, $inv->invoice, true));
             Mail::to($localInvoice->subscription->user->email)
-                    ->send(new TransactionFailedMail($localInvoice->subscription->user,$inv->invoice));
+                ->send(new TransactionFailedMail($localInvoice->subscription->user, $inv->invoice));
             $localInvoice = Invoice::where('stripe_invoice_id', $inv->invoice)->first();
             if ($inv->payment->payment_intent) {
                 $trans = Transaction::updateOrCreate(
