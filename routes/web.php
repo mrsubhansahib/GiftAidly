@@ -18,13 +18,13 @@ Route::get('/', [RoutingController::class, 'index'])->name('root');
 Route::middleware(['auth'])->group(function () {
     Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
     Route::post('/notifications/clear', [NotificationController::class, 'clearAll'])->name('notifications.clear');
-   
+
     Route::get('cancel/donation/{id}', [SubscriptionController::class, 'cancelSubscription'])->name('cancel.donation');
 
     Route::get('admin/donor/{id}', fn($id) => view('admin.donors.detail', ['id' => $id]))->name('admin.donor.detail');
     Route::get('admin/donation/{id}', fn($id) => view('admin.donations.detail', ['id' => $id]))->name('admin.donations.detail');
-   
-    Route::get('user/donation/{id}', fn($id) => view('user.donations.detail', ['id' => $id]))->name('user.donations.detail');
+
+    // Route::get('user/donation/{id}', fn($id) => view('user.donations.detail', ['id' => $id]))->name('user.donations.detail');
 });
 
 // 🕋 Donation routes (public)
@@ -36,14 +36,15 @@ Route::post('donate/special', [SubscriptionController::class, 'donateSpecial'])-
 Route::get('/receive-zakat', [zakahController::class, 'handle']);
 Route::post('/donate-zakat', [SubscriptionController::class, 'donateZakat'])->name('zakat.process');
 
+Route::get('user/donations/{reference_id}', fn($reference_id) => view('user.donations.index', ['reference_id' => $reference_id]))->name('user.donations');
+
 // 🌍 Dynamic public pages (no auth)
-    Route::get('{first}/{second}/{third}', [RoutingController::class, 'thirdLevel'])->name('third');
-    Route::get('{first}/{second}', [RoutingController::class, 'secondLevel'])->name('second');
-    Route::get('{any}', [RoutingController::class, 'root'])->name('any');
+Route::get('{first}/{second}/{third}', [RoutingController::class, 'thirdLevel'])->name('third');
+Route::get('{first}/{second}', [RoutingController::class, 'secondLevel'])->name('second');
+Route::get('{any}', [RoutingController::class, 'root'])->name('any');
 
 
 // 🧭 Fallback for true 404s
 Route::fallback(function () {
     return response()->view('pages.404', [], 404);
 });
-
