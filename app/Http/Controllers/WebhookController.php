@@ -124,7 +124,7 @@ class WebhookController extends Controller
 
     private function onInvoiceCreated($inv)
     {
-        if ($inv->amount_paid > 0) {
+        if (($inv->amount_paid / 100) > 0) {
             $invoice = StripeInvoice::retrieve([
                 'id' => $inv->id,
                 'expand' => ['payment_intent', 'charge', 'subscription'],
@@ -147,6 +147,8 @@ class WebhookController extends Controller
             // } else {
             //     Log::info("Invoice is already Paid");
             // }
+        }else{
+            Log::info("Invoice with 0 amount created: {$inv->id}");
         }
     }
     private function onInvoicePaymentSucceeded($inv)
