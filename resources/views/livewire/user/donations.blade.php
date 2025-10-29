@@ -1,12 +1,16 @@
 <?php
 
-use function Livewire\Volt\state;
-use App\Models\Subscription;
+use App\Models\User;
+use function Livewire\Volt\{state, mount};
 
 state([
-    'subscriptions' => fn() => Subscription::where('user_id', Auth::id())->latest()->get(),
+    'user' => null,
 ]);
 
+
+mount(function ($reference_id) {
+    $this->user = User::where('reference_id', $reference_id)->first();
+});
 ?>
 <div class="container-fluid">
     <div class="row">
@@ -26,7 +30,7 @@ state([
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach ($subscriptions as $subscription)
+                                @foreach ($user->subscriptions as $subscription)
                                     <tr>
                                         <td>
                                             {{ $subscription['type'] == 'day' ? 'Daily' : ($subscription['type'] == 'week' ? 'Weekly' : ($subscription['type'] == 'month' ? 'Monthly' : ucfirst($subscription['type']))) }}

@@ -82,7 +82,7 @@
             @if (Auth::user()->role === 'donor')
                 {{-- Donations --}}
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ route('third', ['user', 'donations', 'index']) }}">
+                    <a class="nav-link active">
                         <span class="nav-icon">
                             <iconify-icon icon="solar:hand-money-outline"></iconify-icon>
                         </span>
