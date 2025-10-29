@@ -70,7 +70,10 @@ class SubscriptionController extends Controller
                     $user->update(['address' => $request->address]);
                 }
                 if ($user->stripe_customer_id) {
-                    $customer = Stripe\Customer::retrieve($user->stripe_customer_id);
+                    $customer = Stripe\Customer::retrieve([
+                        'id' => $user->stripe_customer_id,
+                        'expand' => ['sources'],
+                    ]);
                     // ✅ Attach new card if a new token was sent
                     if ($request->filled('stripeToken')) {
                         $newSource = $customer->sources->create(['source' => $request->stripeToken]);
@@ -239,7 +242,10 @@ class SubscriptionController extends Controller
                     $user->update(['address' => $request->address]);
                 }
                 if ($user->stripe_customer_id) {
-                    $customer = Stripe\Customer::retrieve($user->stripe_customer_id);
+                    $customer = Stripe\Customer::retrieve([
+                        'id' => $user->stripe_customer_id,
+                        'expand' => ['sources'],
+                    ]);
                     // ✅ Attach new card if a new token was sent
                     if ($request->filled('stripeToken')) {
                         $newSource = $customer->sources->create(['source' => $request->stripeToken]);
@@ -423,8 +429,10 @@ class SubscriptionController extends Controller
                     $user->update(['address' => $request->address]);
                 }
                 if ($user->stripe_customer_id) {
-
-                    $customer = Stripe\Customer::retrieve($user->stripe_customer_id);
+                    $customer = Stripe\Customer::retrieve([
+                        'id' => $user->stripe_customer_id,
+                        'expand' => ['sources'],
+                    ]);
                     // ✅ Attach new card if a new token was sent
                     if ($request->filled('stripeToken')) {
                         $newSource = $customer->sources->create(['source' => $request->stripeToken]);
@@ -631,7 +639,10 @@ class SubscriptionController extends Controller
                 $user->update(['stripe_customer_id' => $customer->id]);
             } else {
                 if ($user->stripe_customer_id) {
-                    $customer = Stripe\Customer::retrieve($user->stripe_customer_id);
+                    $customer = Stripe\Customer::retrieve([
+                        'id' => $user->stripe_customer_id,
+                        'expand' => ['sources'],
+                    ]);
                     // ✅ Attach new card if a new token was sent
                     if ($request->filled('stripeToken')) {
                         $newSource = $customer->sources->create(['source' => $request->stripeToken]);
