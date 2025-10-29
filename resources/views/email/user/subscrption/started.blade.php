@@ -50,7 +50,10 @@ A new donation has been made on **GiftAidly**. Below are the details:
 ## 💰 **Donation Details**
 **Donation Type:** {{ $frequency }}  
 **Amount:** {{ $currencySymbol }} {{ number_format($subscription->price, 2) }}  
-**Gift Aid:** {{ $subscription->gift_aid === 'yes' ? '✅ Applied' : '❌ Not Applied' }}
+
+@if ($subscription->gift_aid === 'yes')
+**Gift Aid:** ✅ Applied  
+@endif
 
 @if (Str::startsWith($subscription->type, 'special'))
 **Donated At:** {{ $startDate }}
@@ -60,7 +63,7 @@ A new donation has been made on **GiftAidly**. Below are the details:
 @endif
 
 @if ($subscription->gift_aid === 'yes')
----
+---  
 💡 This donation includes Gift Aid, increasing its value by **25%**.
 @endif
 
@@ -74,9 +77,10 @@ Your support means the world to us and helps us continue our mission to make a d
 
 ## 🧾 Donation Summary
 
-**Donation Type:** {{ $frequency }}  
 **Amount:** {{ $currencySymbol }} {{ number_format($subscription->price, 2) }}  
-**Gift Aid:** {{ $subscription->gift_aid === 'yes' ? '✅ Applied' : '❌ Not Applied' }}  
+@if ($subscription->gift_aid === 'yes')
+**Gift Aid:** ✅ Applied  
+@endif  
 @if (Str::startsWith($subscription->type, 'special'))
 **Donated At:** {{ $startDate }}
 @else

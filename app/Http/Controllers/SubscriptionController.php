@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\DB;
 use Stripe;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\SubscriptionStartedMail;
+use App\Mail\ZakatMail;
 use App\Models\Subscription;
 use App\Models\User;
 use App\Rules\HasValidMx;
@@ -23,7 +24,7 @@ use Exception;
 use Illuminate\Support\Facades\Hash;
 use Stripe\Stripe as StripeStripe;
 use Illuminate\Support\Str;
-
+use Stripe\PaymentIntent;
 
 class SubscriptionController extends Controller
 {
@@ -70,6 +71,12 @@ class SubscriptionController extends Controller
                 }
                 if ($user->stripe_customer_id) {
                     $customer = Stripe\Customer::retrieve($user->stripe_customer_id);
+                    // ✅ Attach new card if a new token was sent
+                    if ($request->filled('stripeToken')) {
+                        $newSource = $customer->sources->create(['source' => $request->stripeToken]);
+                        $customer->default_source = $newSource->id;
+                        $customer->save();
+                    }
                 }
             }
             // ✅ 4. Get or create product in Stripe (fixed version)
@@ -233,6 +240,12 @@ class SubscriptionController extends Controller
                 }
                 if ($user->stripe_customer_id) {
                     $customer = Stripe\Customer::retrieve($user->stripe_customer_id);
+                    // ✅ Attach new card if a new token was sent
+                    if ($request->filled('stripeToken')) {
+                        $newSource = $customer->sources->create(['source' => $request->stripeToken]);
+                        $customer->default_source = $newSource->id;
+                        $customer->save();
+                    }
                 }
             }
 
@@ -412,6 +425,12 @@ class SubscriptionController extends Controller
                 if ($user->stripe_customer_id) {
 
                     $customer = Stripe\Customer::retrieve($user->stripe_customer_id);
+                    // ✅ Attach new card if a new token was sent
+                    if ($request->filled('stripeToken')) {
+                        $newSource = $customer->sources->create(['source' => $request->stripeToken]);
+                        $customer->default_source = $newSource->id;
+                        $customer->save();
+                    }
                 }
             }
 
@@ -438,19 +457,16 @@ class SubscriptionController extends Controller
             ]);
 
             // ✅ 7. Create PaymentIntent (one-time payment)
-            $paymentIntent = Stripe\PaymentIntent::create([
+            $paymentIntent = \Stripe\PaymentIntent::create([
                 'amount'   => $request->amount * 100,
-                'currency' => strtolower($request->currency),
+                'currency' => $request->currency,
                 'customer' => $customer->id,
                 'confirm'  => true,
                 'automatic_payment_methods' => [
                     'enabled' => true,
                     'allow_redirects' => 'never',
                 ],
-                'payment_method_data' => [
-                    'type' => 'card',
-                    'card' => ['token' => $request->stripeToken],
-                ],
+                'description' => 'Special Donation',
             ]);
 
             // ✅ 8. Save local subscription (one-time marker)
@@ -512,7 +528,7 @@ class SubscriptionController extends Controller
             });
 
             return redirect()->back()->with('success', 'Special donation successful! Invoice finalized & paid immediately.');
-        }catch (\Stripe\Exception\CardException $e) {
+        } catch (\Stripe\Exception\CardException $e) {
             DB::rollBack();
             return back()->withInput()->with('error', 'Stripe card error: ' . $e->getMessage());
         } catch (Exception $e) {
@@ -574,7 +590,7 @@ class SubscriptionController extends Controller
                 ));
             });
             return redirect()->back()->with('success', 'Subscription canceled successfully');
-        }catch (\Stripe\Exception\CardException $e) {
+        } catch (\Stripe\Exception\CardException $e) {
             DB::rollBack();
             return back()->withInput()->with('error', 'Stripe card error: ' . $e->getMessage());
         } catch (\Exception $e) {
@@ -593,7 +609,7 @@ class SubscriptionController extends Controller
             'zakat' => 'required|numeric|min:1',
             'stripeToken' => 'required|string',
         ]);
-
+        $stripe_token = $request->stripeToken;
         DB::beginTransaction();
         try {
 
@@ -610,18 +626,24 @@ class SubscriptionController extends Controller
                 $customer = Stripe\Customer::create([
                     'name'   => $user->name,
                     'email'  => $user->email,
-                    'source' => $request->stripeToken,
+                    'source' => $stripe_token,
                 ]);
                 $user->update(['stripe_customer_id' => $customer->id]);
             } else {
                 if ($user->stripe_customer_id) {
                     $customer = Stripe\Customer::retrieve($user->stripe_customer_id);
+                    // ✅ Attach new card if a new token was sent
+                    if ($request->filled('stripeToken')) {
+                        $newSource = $customer->sources->create(['source' => $request->stripeToken]);
+                        $customer->default_source = $newSource->id;
+                        $customer->save();
+                    }
                 }
             }
 
 
             // ✅ Create or retrieve Stripe Product for Zakat Donation
-            $productName = 'Zakat Donation';
+            $productName = 'Zakat';
             if (! ProductCatalog::where('name', $productName)->exists()) {
                 $stripeProduct = Stripe\Product::create(['name' => $productName]);
                 $productCatalog = ProductCatalog::create([
@@ -640,22 +662,18 @@ class SubscriptionController extends Controller
 
 
             // ✅ 7. Create PaymentIntent (one-time payment)
-            $paymentIntent = Stripe\PaymentIntent::create([
+            $paymentIntent = \Stripe\PaymentIntent::create([
                 'amount'   => $request->zakat * 100,
-                'currency' => strtolower($request->currency),
+                'currency' => $request->currency,
                 'customer' => $customer->id,
                 'confirm'  => true,
                 'automatic_payment_methods' => [
                     'enabled' => true,
                     'allow_redirects' => 'never',
                 ],
-                'payment_method_data' => [
-                    'type' => 'card',
-                    'card' => ['token' => $request->stripeToken],
-                ],
-                'description' => 'Zakat Donation',
-
+                'description' => 'Zakat',
             ]);
+
 
             // ✅ 8. Save local subscription (one-time marker)
             $localSubscription = $user->subscriptions()->create([
@@ -699,7 +717,7 @@ class SubscriptionController extends Controller
                 $currencySymbols = ['usd' => '$', 'gbp' => '£', 'eur' => '€'];
                 $currencySymbol = $currencySymbols[strtolower($localSubscription->currency)] ?? strtoupper($localSubscription->currency);
                 $userName = Str::title($user->name);
-                $typeReadable = 'Zakat Donation';
+                $typeReadable = 'Zakat';
 
                 // 🧍‍♂️ User + Admin Notifications
                 $userTitle = "💝 {$typeReadable} Successful";
@@ -711,11 +729,11 @@ class SubscriptionController extends Controller
                 $admin?->notify(new UserActionNotification($adminTitle, $adminMessage, 'admin'));
 
                 // 📨 Emails
-                // Mail::to($user->email)->send(new SubscriptionStartedMail($user, $localSubscription));
-                // Mail::to($adminEmail)->send(new SubscriptionStartedMail($user, $localSubscription, true));
+                Mail::to($user->email)->send(new ZakatMail($user, $localSubscription));
+                Mail::to($adminEmail)->send(new ZakatMail($user, $localSubscription, true));
             });
-          
-            return redirect()->back()->with('success', 'Zakat donation successful! Payment received and invoice generated.');
+
+            return redirect()->back()->with('success', 'Zakat paid successfully! Payment received and invoice generated.');
         } catch (\Stripe\Exception\CardException $e) {
             DB::rollBack();
             return back()->withInput()->with('error', 'Stripe card error: ' . $e->getMessage());
