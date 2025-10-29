@@ -90,40 +90,49 @@ class="authentication-bg"
                             @csrf
 
                             <div class="mb-3">
-                                <label for="email" class="form-label">Email Address</label>
-                                <input type="email" 
-                                       class="form-control @error('email') is-invalid @enderror" 
-                                       id="email" name="email" 
-                                       placeholder="user@demo.com" 
-                                       value="{{ old('email') }}">
+                                <label for="email-signin" class="form-label">Email Address</label>
+                                <input
+                                    type="email"
+                                    class="form-control @error('email') is-invalid @enderror"
+                                    id="email-signin"
+                                    name="email"
+                                    placeholder="user@demo.com"
+                                    value="{{ old('email') }}"
+                                    required>
                                 @error('email')
                                 <div class="text-danger text-sm mt-1">{{ $message }}</div>
                                 @enderror
                             </div>
+
                             <div class="mb-3">
                                 <div class="d-flex justify-content-between align-items-center">
-                                    <label for="password" class="form-label">Password</label>
+                                    <label for="password-signin" class="form-label">Password</label>
                                     <a href="{{ route('password.request') }}" class="text-decoration-none small text-muted">Forgot password?</a>
                                 </div>
                                 <div class="password-input-container">
-                                    <input type="password" 
-                                           class="form-control form-control-password" 
-                                           id="password" name="password" 
-                                           placeholder="Enter your password" required>
-                                    <span class="password-toggle-icon" onclick="togglePassword('password', this)">
+                                    <input
+                                        type="password"
+                                        class="form-control form-control-password"
+                                        id="password-signin"
+                                        name="password"
+                                        placeholder="Enter your password"
+                                        required>
+                                    <span class="password-toggle-icon" onclick="togglePassword('password-signin', this)">
                                         <iconify-icon icon="mdi:eye-outline" width="24" height="24"></iconify-icon>
                                     </span>
                                 </div>
                             </div>
 
                             <div class="d-grid">
-                                <button style="background: linear-gradient(45deg, #1d43ab, #94740dff);" 
-                                        class="btn btn-lg fw-medium text-light" 
-                                        type="submit">
+                                <button
+                                    style="background: linear-gradient(45deg, #1d43ab, #94740dff);"
+                                    class="btn btn-lg fw-medium text-light"
+                                    type="submit">
                                     Sign In
                                 </button>
                             </div>
                         </form>
+
                     </div>
                 </div>
             </div>
