@@ -10,15 +10,20 @@ class RoutingController extends Controller
 {
     public function index(Request $request)
     {
-        if (Auth::check()) {
-            return view('index');
-        } else {
 
-            if (View::exists('index')) {
-                return view('donation.index');
-            }
-            return view('pages.404'); // fallback view
+        if (View::exists('donation.index')) {
+            return view('donation.index');
         }
+        return view('pages.404'); // fallback view
+
+    }
+    public function adminDashboard(Request $request)
+    {
+        if (View::exists('index')) {
+            return view('index');
+        }
+        return view('pages.404'); // fallback view
+
     }
 
     /**
