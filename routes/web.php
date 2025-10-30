@@ -24,7 +24,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('admin/donor/{id}', fn($id) => view('admin.donors.detail', ['id' => $id]))->name('admin.donor.detail');
     Route::get('admin/donation/{id}', fn($id) => view('admin.donations.detail', ['id' => $id]))->name('admin.donations.detail');
 
-    // Route::get('user/donation/{id}', fn($id) => view('user.donations.detail', ['id' => $id]))->name('user.donations.detail');
+    Route::get('user/donation/{id}', fn($id) => view('user.donations.detail', ['id' => $id]))->name('user.donations.detail');
 });
 
 // 🕋 Donation routes (public)
@@ -35,8 +35,6 @@ Route::post('donate/special', [SubscriptionController::class, 'donateSpecial'])-
 // 💰 Zakat routes
 Route::get('/receive-zakat', [zakahController::class, 'handle']);
 Route::post('/donate-zakat', [SubscriptionController::class, 'donateZakat'])->name('zakat.process');
-
-Route::get('user/donations/{reference_id}', fn($reference_id) => view('user.donations.index', ['reference_id' => $reference_id]))->name('user.donations');
 
 // 🌍 Dynamic public pages (no auth)
 Route::get('{first}/{second}/{third}', [RoutingController::class, 'thirdLevel'])->name('third');

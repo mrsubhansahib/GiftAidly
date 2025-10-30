@@ -33,30 +33,18 @@
                                 @csrf
                                 <div class="mb-3">
                                     <label class="form-label" for="example-password">Password</label>
-                                    <input type="password" name="password" required id="example-password" class="form-control"
-                                        placeholder="Enter your password">
+                                    <input type="password" name="password" required id="example-password"
+                                        class="form-control" placeholder="Enter your password">
                                     @error('password')
                                         <span class="text-danger">{{ $message }}</span>
                                     @enderror
                                 </div>
-                                <div class="mb-3">
-                                    <div class="form-check">
-                                        <input type="checkbox" required class="form-check-input" id="checkbox-signin">
-                                        <label class="form-check-label" for="checkbox-signin">I accept Terms and
-                                            Condition</label>
-                                    </div>
-                                </div>
-
                                 <div class="mb-1 text-center d-grid">
                                     <button class="btn btn-dark btn-lg fw-medium" type="submit">Sign In</button>
                                 </div>
                             </form>
                         </div>
                     </div>
-                    <p class="text-center mt-4 text-white text-opacity-50">Not you? return
-                        <a href="{{ route('second', ['auth', 'signup']) }}"
-                            class="text-decoration-none text-white fw-bold">Sign Up</a>
-                    </p>
                 </div>
             </div>
         </div>

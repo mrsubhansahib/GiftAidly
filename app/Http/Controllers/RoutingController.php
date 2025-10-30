@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\View;
 
@@ -9,7 +10,15 @@ class RoutingController extends Controller
 {
     public function index(Request $request)
     {
-            return view('donation.index');
+        if (Auth::check()) {
+            return view('index');
+        } else {
+
+            if (View::exists('index')) {
+                return view('donation.index');
+            }
+            return view('pages.404'); // fallback view
+        }
     }
 
     /**
@@ -22,7 +31,7 @@ class RoutingController extends Controller
         }
 
         return view('pages.404'); // fallback view
-    } 
+    }
 
     /**
      * Second level route
