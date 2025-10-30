@@ -1,4 +1,4 @@
-@extends('layouts.vertical', ['subtitle' => 'Donations'])
+@extends('layouts.vertical', ['subtitle' => 'Donations', 'reference_id' => $reference_id])
 
 @section('content')
     @include('layouts.partials.page-title', ['title' => 'Donations', 'subtitle' => 'List'])

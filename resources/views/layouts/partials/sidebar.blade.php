@@ -18,7 +18,7 @@
 
             <li class="menu-title">Menu...</li>
 
-            @if (Auth::user()->role === 'admin')
+            @if (auth()->check() && Auth::user()->role === 'admin')
                 <li class="nav-item">
                     <a class="nav-link" href="{{ route('any', 'index') }}">
                         <span class="nav-icon">
@@ -37,7 +37,6 @@
                         <span class="nav-text"> Donors </span>
                     </a>
                 </li>
-
                 {{-- Donations --}}
                 <li class="nav-item">
                     <a class="nav-link" href="{{ route('third', ['admin', 'donations', 'index']) }}">
@@ -47,17 +46,6 @@
                         <span class="nav-text"> Donations </span>
                     </a>
                 </li>
-
-                {{-- Invoices --}}
-                {{-- <li class="nav-item">
-                    <a class="nav-link" href="{{ route('third', ['admin', 'invoices', 'index']) }}">
-                        <span class="nav-icon">
-                            <iconify-icon icon="solar:bill-list-outline"></iconify-icon>
-                        </span>
-                        <span class="nav-text"> Invoices </span>
-                    </a>
-                </li> --}}
-
                 {{-- Transactions --}}
                 <li class="nav-item">
                     <a class="nav-link" href="{{ route('third', ['admin', 'transactions', 'index']) }}">
@@ -77,28 +65,16 @@
                         <span class="nav-text"> Special Donations </span>
                     </a>
                 </li>
-            @endif
-
-            @if (Auth::user()->role === 'donor')
+            @else
                 {{-- Donations --}}
                 <li class="nav-item">
-                    <a class="nav-link active">
+                    <a class="nav-link active" href="{{ route('user.donations', ['reference_id' => $reference_id]) }}">
                         <span class="nav-icon">
                             <iconify-icon icon="solar:hand-money-outline"></iconify-icon>
                         </span>
                         <span class="nav-text"> My Donations </span>
                     </a>
                 </li>
-
-                {{-- Invoices --}}
-                {{-- <li class="nav-item">
-                    <a class="nav-link" href="{{ route('third', ['user', 'invoices', 'index']) }}">
-                        <span class="nav-icon">
-                            <iconify-icon icon="solar:bill-list-outline"></iconify-icon>
-                        </span>
-                        <span class="nav-text"> My Invoices </span>
-                    </a>
-                </li> --}}
             @endif
 
             {{-- <li class="nav-item">

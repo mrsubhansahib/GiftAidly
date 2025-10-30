@@ -2,7 +2,6 @@
 
 @section('content')
     @include('layouts.partials.page-title', ['title' => 'Profile', 'subtitle' => 'View'])
-    @include('layouts.partials.alert')
     <livewire:shared.profile />
 @endsection
 
