@@ -99,7 +99,7 @@
                                     @enderror
                                 </div>
 
-                                {{-- <div class="mb-3">
+                                <div class="mb-3">
                                     <div class="d-flex justify-content-between align-items-center">
                                         <label for="password-signin" class="form-label">Password</label>
                                         <a href="{{ route('password.request') }}"
@@ -114,7 +114,7 @@
                                                 height="24"></iconify-icon>
                                         </span>
                                     </div>
-                                </div> --}}
+                                </div>
 
                                 <div class="d-grid">
                                     <button style="background: linear-gradient(45deg, #1d43ab, #94740dff);"
