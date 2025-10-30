@@ -62,7 +62,7 @@ class AuthenticatedSessionController extends Controller
 
             $request->session()->regenerate();
 
-            return redirect('/')
+            return redirect('/admin/dashboard')
                 ->with('success', 'Welcome back, Admin!');
         }
 
