@@ -16,6 +16,7 @@ Route::get('/', [RoutingController::class, 'index'])->name('root');
 
 // 🔒 Authenticated routes
 Route::middleware(['auth'])->group(function () {
+    Route::get('admin/dashboard', [RoutingController::class, 'adminDashboard'])->name('admin.dashboard');
     Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
     Route::post('/notifications/clear', [NotificationController::class, 'clearAll'])->name('notifications.clear');
 
