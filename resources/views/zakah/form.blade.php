@@ -4,7 +4,6 @@
 class="authentication-bg"
 @endsection
 @section('content')
-@include('layouts.partials.alert')
 
 <div class="container py-5">
     <div class="row justify-content-center">
