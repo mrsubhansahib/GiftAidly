@@ -10,62 +10,91 @@ class="authentication-bg"
 
             <div class="card shadow-sm rounded-3">
                 <div class="card-body">
-                    <h3 class="text-center mb-4 fw-bold">Zakat Payment</h3>
+                    <h3 class="text-center my-4 fw-bold">Zakat Payment</h3>
 
 
 
                     
                     <form action="<?php echo e(route('zakat.process')); ?>" method="POST" id="zakatForm">
-
                         <?php echo csrf_field(); ?>
                         <?php
                         // Normalize any symbol to valid ISO code
                         $currency = match($currency) {
-                        '£' => 'GBP',
-                        '$' => 'USD',
-                        '€' => 'EUR',
+                        '£' => 'gbp',
+                        '$' => 'usd',
+                        '€' => 'eur',
                         };
                         ?>
 
                         <input type="hidden" name="currency" value="<?php echo e($currency); ?>">
-
-
                         <input type="hidden" name="zakat" value="<?php echo e($zakat); ?>">
 
                         <div class="mb-3">
-                            <label class="form-label">Full Name <span class="text-danger">*</span></label>
-                            <input type="text" name="name" class="form-control" placeholder="Enter your full name" required>
+                            <label for="name-zakat" class="form-label">Full Name <span class="text-danger">*</span></label>
+                            <input
+                                type="text"
+                                name="name"
+                                id="name-zakat"
+                                class="form-control"
+                                placeholder="Enter your full name"
+                                required
+                                value="<?php echo e(old('name')); ?>">
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label">Email Address <span class="text-danger">*</span></label>
-                            <input type="email" name="email" class="form-control" placeholder="Enter your email" required>
+                            <label for="email-zakat" class="form-label">Email Address <span class="text-danger">*</span></label>
+                            <input
+                                type="email"
+                                name="email"
+                                id="email-zakat"
+                                class="form-control"
+                                placeholder="Enter your email"
+                                required
+                                value="<?php echo e(old('email')); ?>">
                         </div>
 
                         
                         <div class="mb-3">
-                            <label class="form-label fw-semibold">Currency:</label>
-                            <input type="text" class="form-control" value="<?php echo e(strtoupper($currency)); ?>" readonly>
+                            <label for="currency-display" class="form-label fw-semibold">Currency:</label>
+                            <input
+                                type="text"
+                                id="currency-display"
+                                class="form-control"
+                                value="<?php echo e(strtoupper($currency)); ?>"
+                                readonly>
                         </div>
+
                         <div class="mb-3">
-                            <label class="form-label fw-semibold">Zakat Amount:</label>
-                            <input type="text" class="form-control" value="<?php echo e(number_format($zakat, 2)); ?>" readonly>
+                            <label for="zakat-display" class="form-label fw-semibold">Zakat Amount:</label>
+                            <input
+                                type="text"
+                                id="zakat-display"
+                                class="form-control"
+                                value="<?php echo e(number_format($zakat, 2)); ?>"
+                                readonly>
                         </div>
 
                         
                         <div class="mb-3">
-                            <label class="form-label">Card Details <span class="text-danger">*</span></label>
+                            <label for="card-element" class="form-label">Card Details <span class="text-danger">*</span></label>
                             <div id="card-element" class="form-control p-2" style="height:auto;"></div>
                             <small id="card-errors" class="text-danger mt-2 d-block"></small>
                         </div>
 
                         <input type="hidden" name="stripeToken" id="stripeToken">
 
-                        <button type="submit" id="submitBtn" class="btn btn-primary w-100 fw-semibold">
-                            <span id="btnText">Pay Now</span>
-                            <span id="btnLoader" class="spinner-border spinner-border-sm d-none"></span>
-                        </button>
+                        <div class="d-grid">
+                            <button
+                                type="submit"
+                                id="submitBtn"
+                                style="background: linear-gradient(45deg, #1d43ab, #94740dff);"
+                                class="btn btn-lg fw-medium text-light">
+                                <span id="btnText">Pay Now</span>
+                                <span id="btnLoader" class="spinner-border spinner-border-sm d-none"></span>
+                            </button>
+                        </div>
                     </form>
+
                 </div>
             </div>
 

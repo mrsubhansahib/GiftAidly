@@ -60,8 +60,10 @@ A new donation has been made on **GiftAidly**. Below are the details:
 ## 💰 **Donation Details**
 **Donation Type:** <?php echo new \Illuminate\Support\EncodedHtmlString($frequency); ?>  
 **Amount:** <?php echo new \Illuminate\Support\EncodedHtmlString($currencySymbol); ?> <?php echo new \Illuminate\Support\EncodedHtmlString(number_format($subscription->price, 2)); ?>  
-**Gift Aid:** <?php echo new \Illuminate\Support\EncodedHtmlString($subscription->gift_aid === 'yes' ? '✅ Applied' : '❌ Not Applied'); ?>
 
+<?php if($subscription->gift_aid === 'yes'): ?>
+**Gift Aid:** ✅ Applied  
+<?php endif; ?>
 
 <?php if(Str::startsWith($subscription->type, 'special')): ?>
 **Donated At:** <?php echo new \Illuminate\Support\EncodedHtmlString($startDate); ?>
@@ -69,12 +71,10 @@ A new donation has been made on **GiftAidly**. Below are the details:
 <?php else: ?>
 **Start Date:** <?php echo new \Illuminate\Support\EncodedHtmlString($startDate); ?>  
 **End Date:** <?php echo new \Illuminate\Support\EncodedHtmlString($endDate); ?>  
-**Status:** <?php echo new \Illuminate\Support\EncodedHtmlString(ucfirst($subscription->status)); ?>
-
 <?php endif; ?>
 
 <?php if($subscription->gift_aid === 'yes'): ?>
----
+---  
 💡 This donation includes Gift Aid, increasing its value by **25%**.
 <?php endif; ?>
 
@@ -88,17 +88,16 @@ Your support means the world to us and helps us continue our mission to make a d
 
 ## 🧾 Donation Summary
 
-**Donation Type:** <?php echo new \Illuminate\Support\EncodedHtmlString($frequency); ?>  
 **Amount:** <?php echo new \Illuminate\Support\EncodedHtmlString($currencySymbol); ?> <?php echo new \Illuminate\Support\EncodedHtmlString(number_format($subscription->price, 2)); ?>  
-**Gift Aid:** <?php echo new \Illuminate\Support\EncodedHtmlString($subscription->gift_aid === 'yes' ? '✅ Applied' : '❌ Not Applied'); ?>  
+<?php if($subscription->gift_aid === 'yes'): ?>
+**Gift Aid:** ✅ Applied  
+<?php endif; ?>  
 <?php if(Str::startsWith($subscription->type, 'special')): ?>
 **Donated At:** <?php echo new \Illuminate\Support\EncodedHtmlString($startDate); ?>
 
 <?php else: ?>
 **Start Date:** <?php echo new \Illuminate\Support\EncodedHtmlString($startDate); ?>  
 **End Date:** <?php echo new \Illuminate\Support\EncodedHtmlString($endDate); ?>  
-**Status:** <?php echo new \Illuminate\Support\EncodedHtmlString(ucfirst($subscription->status)); ?>
-
 <?php endif; ?>
 
 <?php if($subscription->gift_aid === 'yes'): ?>

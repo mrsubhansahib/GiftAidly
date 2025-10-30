@@ -97,14 +97,14 @@
                         <!-- ✅ Name Field -->
                         <div class="form-group" style="grid-column: 1 / -1;">
                             <label for="name-daily">Full Name</label>
-                            <input type="text" name="name" id="name-daily" class="text-input" placeholder="Enter your full name"/>
+                            <input type="text" name="name" id="name-daily" value="<?php echo e(old('name')); ?>" class="text-input" placeholder="Enter your full name"/>
                             <span id="error-name-daily" style="color: red; font-size: 13px; display: block; margin-top: 3px;"></span>
                         </div>
 
                         <!-- ✅ Email Field -->
                         <div class="form-group" style="grid-column: 1 / -1;">
                             <label for="email-daily">Email Address</label>
-                            <input type="email" name="email" id="email-daily" class="text-input" placeholder="Enter your email"/>
+                            <input type="email" name="email" id="email-daily" value="<?php echo e(old('email')); ?>" class="text-input" placeholder="Enter your email"/>
                             <span id="error-email-daily" style="color: red; font-size: 13px; display: block; margin-top: 3px;"></span>
                         </div>
 
@@ -112,7 +112,7 @@
                             <label for="currency">Currency</label>
                             <select name="currency" id="currency" required class="select-input">
                                 <?php $__currentLoopData = $currencies; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $code => $symbol): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                <option value="<?php echo e($code); ?>" <?php if($userCurrency===$code): echo 'selected'; endif; ?>
+                                <option value="<?php echo e($code); ?>" <?php if(old('currency', $userCurrency) === $code): echo 'selected'; endif; ?>
                                     <?php if($userCurrency && $userCurrency !==$code): echo 'disabled'; endif; ?>
                                     title="<?php echo e($userCurrency && $userCurrency !== $code ? 'You cannot select this currency because your previous donations were in ' . strtoupper($userCurrency) . '.' : ''); ?>">
                                     <?php echo e($symbol); ?>
@@ -124,16 +124,16 @@
 
                         <div class="form-group">
                             <label for="amount-daily">Amount</label>
-                            <input type="number" name="amount" id="amount-daily" class="text-input" min="1" />
+                            <input type="number" name="amount" id="amount-daily" value="<?php echo e(old('amount')); ?>" class="text-input" min="1" />
                             <span id="error-amount-daily" style="color: red; font-size: 13px; display: block; margin-top: 3px;"></span>
                         </div>
 
                         <div class="form-group">
                             <label for="type-daily">Type</label>
                             <select name="type" id="type-daily" required class="select-input">
-                                <option value="day">Daily</option>
-                                <option value="week">Weekly</option>
-                                <option value="month">Monthly</option>
+                                <option  value="day" <?php if(old('type') === 'day'): echo 'selected'; endif; ?>>Daily</option>
+                                <option value="week" <?php if(old('type') === 'week'): echo 'selected'; endif; ?>>Weekly</option>
+                                <option value="month" <?php if(old('type') === 'month'): echo 'selected'; endif; ?>>Monthly</option>
                             </select>
                         </div>
 
@@ -162,12 +162,12 @@
                                 style="display: flex; align-items: center; gap: 6px; white-space: nowrap; margin-top: 6px;">
                                 Gift Aid
                                 <input type="checkbox" name="gift_aid" id="gift-aid-daily" data-target="address-daily"
-                                    value="yes" />
+                                   value="yes" <?php echo e(old('gift_aid') === 'yes' ? 'checked' : ''); ?> />
                             </label>
 
                             <div style="flex: 1; min-width: 200px; display: flex; flex-direction: column;">
                                 <input type="text" name="address" id="address-daily" class="text-input"
-                                    style="display: none; width: 100%;" placeholder="Enter your address" />
+                                    style="display: none; width: 100%;" value="<?php echo e(old('gift_aid') === 'yes' ? '' : 'display: none;'); ?>"  placeholder="Enter your address" />
                                 <span id="error-address-daily" style="color: red; font-size: 13px; display: block; margin-top: 3px;"></span>
                             </div>
                         </div>
@@ -200,7 +200,7 @@
                         <!-- ✅ Full Name -->
                         <div class="form-group" style="grid-column: 1 / -1;">
                             <label for="name-friday">Full Name</label>
-                            <input type="text" name="name" id="name-friday" class="text-input"
+                            <input type="text" name="name" value="<?php echo e(old('name')); ?>" id="name-friday" class="text-input"
                                 placeholder="Enter your full name"/>
                             <span id="error-name-friday"
                                 style="color: red; font-size: 13px; display: block; margin-top: 3px;"></span>
@@ -209,7 +209,7 @@
                         <!-- ✅ Email -->
                         <div class="form-group" style="grid-column: 1 / -1;">
                             <label for="email-friday">Email Address</label>
-                            <input type="email" name="email" id="email-friday" class="text-input"
+                            <input type="email" name="email"  value="<?php echo e(old(key: 'email')); ?>" id="email-friday" class="text-input"
                                 placeholder="Enter your email" />
                             <span id="error-email-friday"
                                 style="color: red; font-size: 13px; display: block; margin-top: 3px;"></span>
@@ -219,7 +219,7 @@
                             <label for="currency-friday">Currency</label>
                             <select name="currency" id="currency-friday" class="select-input" required>
                                 <?php $__currentLoopData = $currencies; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $code => $symbol): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                <option value="<?php echo e($code); ?>" <?php if($userCurrency===$code): echo 'selected'; endif; ?>
+                                <option value="<?php echo e($code); ?>" <?php if(old('currency', $userCurrency) === $code): echo 'selected'; endif; ?>
                                     <?php if($userCurrency && $userCurrency !==$code): echo 'disabled'; endif; ?>
                                     title="<?php echo e($userCurrency && $userCurrency !== $code ? 'You cannot select this currency because your previous donations were in ' . strtoupper($userCurrency) . '.' : ''); ?>">
                                     <?php echo e($symbol); ?>
@@ -267,11 +267,11 @@
                                 style="display: flex; align-items: center; gap: 6px; white-space: nowrap; margin-top: 6px;">
                                 Gift Aid
                                 <input type="checkbox" name="gift_aid" id="gift-aid-friday"
-                                    data-target="address-friday" value="yes" />
+                                    data-target="address-friday" value="<?php echo e(old('gift_aid') === 'yes' ? '' : 'display: none;'); ?>" />
                             </label>
 
                             <div style="flex: 1; min-width: 200px; display: flex; flex-direction: column;">
-                                <input type="text" name="address" id="address-friday" class="text-input"
+                                <input type="text" name="address" value="<?php echo e(old('address')); ?>" id="address-friday" class="text-input"
                                     style="display: none; width: 100%;" placeholder="Enter your address" />
                                 <span id="error-address-friday"
                                     style="color: red; font-size: 13px; display: block; margin-top: 3px;"></span>
@@ -309,7 +309,7 @@
                         <!-- ✅ Full Name -->
                         <div class="form-group" style="grid-column: 1 / -1;">
                             <label for="name-monthly">Full Name</label>
-                            <input type="text" name="name" id="name-monthly" class="text-input"
+                            <input type="text" name="name" value="<?php echo e(old('name')); ?>" id="name-monthly" class="text-input"
                                 placeholder="Enter your full name"/>
                             <span id="error-name-monthly"
                                 style="color: red; font-size: 13px; display: block; margin-top: 3px;"></span>
@@ -318,7 +318,7 @@
                         <!-- ✅ Email -->
                         <div class="form-group" style="grid-column: 1 / -1;">
                             <label for="email-monthly">Email Address</label>
-                            <input type="email" name="email" id="email-monthly" class="text-input"
+                            <input type="email" name="email"  value="<?php echo e(old('email')); ?>" id="email-monthly" class="text-input"
                                 placeholder="Enter your email" />
                             <span id="error-email-monthly"
                                 style="color: red; font-size: 13px; display: block; margin-top: 3px;"></span>
@@ -328,7 +328,7 @@
                             <label for="currency-monthly">Currency</label>
                             <select name="currency" id="currency-monthly" class="select-input" required>
                                 <?php $__currentLoopData = $currencies; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $code => $symbol): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                <option value="<?php echo e(strtoupper($code)); ?>" <?php if($userCurrency===$code): echo 'selected'; endif; ?>
+                                <option value="<?php echo e($code); ?>" <?php if(old('currency', $userCurrency) === $code): echo 'selected'; endif; ?>
                                     <?php if($userCurrency && $userCurrency !==$code): echo 'disabled'; endif; ?>
                                     title="<?php echo e($userCurrency && $userCurrency !== $code ? 'You cannot select this currency because your previous donations were in ' . strtoupper($userCurrency) . '.' : ''); ?>">
                                     <?php echo e($symbol); ?>
@@ -340,7 +340,7 @@
 
                         <div class="form-group">
                             <label for="pay-amount">Amount</label>
-                            <input type="number" name="amount" placeholder="100.00" readonly id="pay-amount"
+                            <input type="number" name="amount"  value="<?php echo e(old('amount')); ?>" placeholder="100.00" readonly id="pay-amount"
                                 class="text-input" />
                             <span id="error-amount-special"
                                 style="color: red; font-size: 13px; display: block; margin-top: 3px;"></span>
@@ -374,11 +374,11 @@
                                 style="display: flex; align-items: center; gap: 6px; white-space: nowrap; margin-top: 6px;">
                                 Gift Aid
                                 <input type="checkbox" name="gift_aid" id="gift-aid-monthly"
-                                    data-target="address-monthly" value="yes" />
+                                    data-target="address-monthly" value="<?php echo e(old('gift_aid') === 'yes' ? '' : 'display: none;'); ?>" />
                             </label>
 
                             <div style="flex: 1; min-width: 200px; display: flex; flex-direction: column;">
-                                <input type="text" name="address" id="address-monthly" class="text-input"
+                                <input type="text" name="address" value="<?php echo e(old('address')); ?>" id="address-monthly" class="text-input"
                                     style="display: none; width: 100%;" placeholder="Enter your address" />
                                 <span id="error-address-special"
                                     style="color: red; font-size: 13px; display: block; margin-top: 3px;"></span>

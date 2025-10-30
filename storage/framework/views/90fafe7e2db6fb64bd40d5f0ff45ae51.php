@@ -803,9 +803,9 @@
                 minDate: "today",
 
                 onChange(selectedDates, dateStr, instance) {
-                    if (selectedDates.length === 2) {
+                    if (selectedDates.length >= 1) {
                         const start = selectedDates[0];
-                        const end = selectedDates[1];
+                        const end = selectedDates[1] || selectedDates[0]; // ✅ if only one selected, use same date
 
                         // ✅ get all Fridays
                         let fridays = [];
@@ -815,21 +815,31 @@
                             current.setDate(current.getDate() + 1);
                         }
 
+                        // ✅ enforce at least 2 Fridays
+                        if (fridays.length < 2) {
+                            dateError.textContent = "Please select at least 2 Fridays.";
+                            startEl.value = "";
+                            endEl.value = "";
+                            fridaysHidden.value = "";
+                            return;
+                        }
+
                         // ✅ backend hidden fields
-                        startEl.value = fridays.length ? fridays[0] : "";
-                        endEl.value = fridays.length ? fridays[fridays.length - 1] : "";
+                        startEl.value = fridays[0];
+                        endEl.value = fridays[fridays.length - 1];
                         fridaysHidden.value = fridays.join(",");
 
-                        // ✅ input me sirf range show
+                        // ✅ show range on input
                         instance._input.value =
                             `${instance.formatDate(start, "F j, Y")} → ${instance.formatDate(end, "F j, Y")}`;
 
-                        // ✅ update UI (highlight Fridays, disable others)
+                        // ✅ highlight Fridays
                         highlightFridays(instance, start, end);
 
-                        dateError.textContent = (fridays.length < 1) ? "No Fridays found in selected range." : "";
+                        dateError.textContent = "";
                     }
                 },
+
 
                 onMonthChange: (sel, str, inst) => {
                     if (sel.length === 2) highlightFridays(inst, sel[0], sel[1]);
@@ -1161,7 +1171,7 @@
     <script>
         $(document).ready(function() {
             <?php if(!$userCurrency): ?>
-                $('#currency-monthly').val('GBP');
+            $('#currency-monthly').val('GBP');
             <?php endif; ?>
             let rates = {}; // cache conversion rates
             // ✅ Fetch rates once on page load (Frankfurter API - no key required)
@@ -1207,5 +1217,4 @@
     </script>
 </body>
 
-</html>
-<?php /**PATH D:\Laravel\Softic-Era\Current Projects\GiftAidly\resources\views/layouts/master-frontend.blade.php ENDPATH**/ ?>
+</html><?php /**PATH D:\Laravel\Softic-Era\Current Projects\GiftAidly\resources\views/layouts/master-frontend.blade.php ENDPATH**/ ?>

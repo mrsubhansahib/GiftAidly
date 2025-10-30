@@ -60,7 +60,6 @@ A donation subscription has been **canceled** on **GiftAidly**. Below are the de
 ## 💸 **Donation Details**
 **Donation Type:** <?php echo new \Illuminate\Support\EncodedHtmlString($frequency); ?>  
 **Amount:** <?php echo new \Illuminate\Support\EncodedHtmlString($currencySymbol); ?> <?php echo new \Illuminate\Support\EncodedHtmlString(number_format($subscription->price, 2)); ?>  
-**Frequency:** <?php echo new \Illuminate\Support\EncodedHtmlString($frequency); ?>  
 **Gift Aid:** <?php echo new \Illuminate\Support\EncodedHtmlString($subscription->gift_aid === 'yes' ? '✅ Applied' : '❌ Not Applied'); ?>
 
 
@@ -70,8 +69,6 @@ A donation subscription has been **canceled** on **GiftAidly**. Below are the de
 <?php else: ?>
 **Start Date:** <?php echo new \Illuminate\Support\EncodedHtmlString($startDate); ?>  
 **End Date:** <?php echo new \Illuminate\Support\EncodedHtmlString($endDate); ?>  
-**Status:** <?php echo new \Illuminate\Support\EncodedHtmlString(ucfirst($subscription->status)); ?>
-
 <?php endif; ?>
 
 ---
@@ -90,8 +87,7 @@ We truly appreciate your previous support — your generosity made a real impact
 ## 🧾 Donation Summary
 
 **Donation Type:** <?php echo new \Illuminate\Support\EncodedHtmlString($frequency); ?>  
-**Amount:** <?php echo new \Illuminate\Support\EncodedHtmlString($currencySymbol); ?> <?php echo new \Illuminate\Support\EncodedHtmlString(number_format($subscription->price, 2)); ?>  
-**Frequency:** <?php echo new \Illuminate\Support\EncodedHtmlString($frequency); ?>  
+**Amount:** <?php echo new \Illuminate\Support\EncodedHtmlString($currencySymbol); ?> <?php echo new \Illuminate\Support\EncodedHtmlString(number_format($subscription->price, 2)); ?>   
 **Gift Aid:** <?php echo new \Illuminate\Support\EncodedHtmlString($subscription->gift_aid === 'yes' ? '✅ Applied' : '❌ Not Applied'); ?>  
 <?php if(Str::startsWith($subscription->type, 'special')): ?>
 **Donated At:** <?php echo new \Illuminate\Support\EncodedHtmlString($startDate); ?>
@@ -99,8 +95,6 @@ We truly appreciate your previous support — your generosity made a real impact
 <?php else: ?>
 **Start Date:** <?php echo new \Illuminate\Support\EncodedHtmlString($startDate); ?>  
 **End Date:** <?php echo new \Illuminate\Support\EncodedHtmlString($endDate); ?>  
-**Status:** <?php echo new \Illuminate\Support\EncodedHtmlString(ucfirst($subscription->status)); ?>
-
 <?php endif; ?>
 
 <?php if($subscription->gift_aid === 'yes'): ?>

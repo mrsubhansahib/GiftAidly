@@ -190,10 +190,10 @@ class SubscriptionController extends Controller
             return redirect()->back()->with('success', $msg);
         } catch (\Stripe\Exception\CardException $e) {
             DB::rollBack();
-            return back()->withInput()->with('error', 'Stripe card error: ' . $e->getMessage());
-        } catch (Exception $e) {
+            return back()->withInput()->withErrors($e->getMessage());
+        } catch (\Exception $e) {
             DB::rollBack();
-            return back()->withInput()->with('error', 'Error: ' . $e->getMessage());
+            return back()->withInput()->withErrors($e->getMessage());
         }
     }
     public function donateFriday(Request $request)
@@ -383,10 +383,10 @@ class SubscriptionController extends Controller
             return redirect()->back()->with('success', $msg);
         } catch (\Stripe\Exception\CardException $e) {
             DB::rollBack();
-            return back()->withInput()->with('error', 'Stripe card error: ' . $e->getMessage());
-        } catch (Exception $e) {
+            return back()->withInput()->withErrors($e->getMessage());
+        } catch (\Exception $e) {
             DB::rollBack();
-            return back()->withInput()->with('error', 'Error: ' . $e->getMessage());
+            return back()->withInput()->withErrors($e->getMessage());
         }
     }
     public function donateSpecial(Request $request)
@@ -538,10 +538,10 @@ class SubscriptionController extends Controller
             return redirect()->back()->with('success', 'Special donation successful! Invoice finalized & paid immediately.');
         } catch (\Stripe\Exception\CardException $e) {
             DB::rollBack();
-            return back()->withInput()->with('error', 'Stripe card error: ' . $e->getMessage());
-        } catch (Exception $e) {
+            return back()->withInput()->withErrors($e->getMessage());
+        } catch (\Exception $e) {
             DB::rollBack();
-            return back()->withInput()->with('error', 'Error: ' . $e->getMessage());
+            return back()->withInput()->withErrors($e->getMessage());
         }
     }
     public function cancelSubscription($id)
@@ -600,10 +600,10 @@ class SubscriptionController extends Controller
             return redirect()->back()->with('success', 'Subscription canceled successfully');
         } catch (\Stripe\Exception\CardException $e) {
             DB::rollBack();
-            return back()->withInput()->with('error', 'Stripe card error: ' . $e->getMessage());
+            return back()->withInput()->withErrors($e->getMessage());
         } catch (\Exception $e) {
             DB::rollBack();
-            return redirect()->back()->with('error', 'Error canceling subscription: ' . $e->getMessage());
+            return back()->withInput()->withErrors($e->getMessage());
         }
     }
     public function donateZakat(Request $request)
@@ -747,10 +747,10 @@ class SubscriptionController extends Controller
             return redirect()->back()->with('success', 'Zakat paid successfully! Payment received and invoice generated.');
         } catch (\Stripe\Exception\CardException $e) {
             DB::rollBack();
-            return back()->withInput()->with('error', 'Stripe card error: ' . $e->getMessage());
+            return back()->withInput()->withErrors($e->getMessage());
         } catch (\Exception $e) {
             DB::rollBack();
-            return back()->withInput()->with('error', 'Error: ' . $e->getMessage());
+            return back()->withInput()->withErrors($e->getMessage());
         }
     }
 }
