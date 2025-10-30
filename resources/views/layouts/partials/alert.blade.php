@@ -69,15 +69,18 @@
             card.className = `alert alert-${type} alert-icon toast-card`;
             card.setAttribute('role', 'alert');
 
+            const noIcon = ["/", "/receive-zakat"].some(p => location.pathname === p);
+
             card.innerHTML = `
-      <div class="d-flex align-items-center">
-        <div class="avatar-sm rounded bg-${type} d-flex justify-content-center align-items-center fs-18 me-2 flex-shrink-0">
-          <i class="${icon} text-white"></i>
-        </div>
-        <div class="flex-grow-1">${message}</div>
-        <button type="button" class="btn-close ms-2" aria-label="Close"></button>
-      </div>
-    `;
+            <div class="d-flex align-items-center">
+                ${noIcon ? '' : `
+                <div class="avatar-sm rounded bg-${type} d-flex justify-content-center align-items-center fs-18 me-2 flex-shrink-0">
+                    <i class="${icon} text-white"></i>
+                </div>`}
+                <div class="flex-grow-1">${message}</div>
+                <button type="button" class="btn-close ms-2" aria-label="Close"></button>
+            </div>
+            `;
 
             const hide = () => {
                 card.classList.add('hide');

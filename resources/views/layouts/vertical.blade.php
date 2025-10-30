@@ -13,9 +13,9 @@
 
     <div class="app-wrapper">
 
-        @include('layouts.partials/sidebar')
+        @include('layouts.partials.sidebar', ['reference_id' => $reference_id ?? null])
 
-        @include('layouts.partials/topbar')
+        @include('layouts.partials/topbar', ['reference_id' => $reference_id ?? null])
 
         <div class="page-content">
 

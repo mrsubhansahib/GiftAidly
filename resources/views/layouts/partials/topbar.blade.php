@@ -20,7 +20,7 @@
             </div>
 
             <div class="d-flex align-items-center gap-2">
-                @if (auth()->user()->role === 'donor')
+                @if (auth()->check() && auth()->user()->role === 'donor')
                 <div class="topbar-item">
                     <a type="button" href="{{ route('second', ['donation', 'index']) }}"
                         style="background: linear-gradient(45deg, #1d43ab, #f9c001); 
@@ -64,16 +64,17 @@
                         <iconify-icon icon="solar:bell-bing-outline" class="fs-22 align-middle"></iconify-icon>
 
                         @php
-                        if (auth()->user()->role === 'admin') {
+                        use App\Models\User;
+                        if (auth()->check() && auth()->user()->role === 'admin') {
                         $notificationCount = auth()->user()
                         ->unreadNotifications()
                         ->whereJsonContains('data->type', 'admin')
                         ->count();
                         } else {
-                        $notificationCount = auth()->user()
-                        ->unreadNotifications()
-                        ->whereJsonContains('data->type', 'user')
-                        ->count();
+                        $user = User::where('reference_id', $reference_id)->first();
+                        $notificationCount = $user?->unreadNotifications()
+                            ->whereJsonContains('data->type', 'user')
+                            ->count() ?? 0;
                         }
                         @endphp
 
@@ -106,7 +107,7 @@
 
                         <div data-simplebar style="max-height: 250px;">
                             @php
-                            if (auth()->user()->role === 'admin') {
+                            if (auth()->check() && auth()->user()->role === 'admin') {
                             // Admin ko sirf admin-type notifications dikhani hain
                             $notifications = auth()
                             ->user()
@@ -114,14 +115,13 @@
                             ->whereJsonContains('data->type', 'admin')
                             ->latest()
                             ->get();
-                            } else {
-                            // User ko sirf user-type notifications dikhani hain
-                            $notifications = auth()
-                            ->user()
-                            ->notifications()
-                            ->whereJsonContains('data->type', 'user')
-                            ->latest()
-                            ->get();
+                            }  else {
+                            // Donor notifications (fetched via reference_id)
+                            $user = User::where('reference_id', $reference_id)->first();
+                            $notifications = $user?->notifications()
+                                ->whereJsonContains('data->type', 'user')
+                                ->latest()
+                                ->get() ?? collect();
                             }
                             @endphp
 
@@ -179,40 +179,23 @@
                                 Account</span>
                         </a>
 
-                        @if (Auth::user()->role === 'admin')
+                        @if (auth()->check() && Auth::user()->role === 'admin')
                         <a class="dropdown-item" href="{{ route('third', ['admin', 'change-password', 'index']) }}">
                             <iconify-icon icon="mdi:form-textbox-password" class="align-middle me-2 fs-18"></iconify-icon>
 
                             <span class="align-middle">Change Password</span>
                         </a>
-                        @endif
-
-
-                        {{-- <a class="dropdown-item" href="#">
-                            <iconify-icon icon="solar:wallet-outline"
-                                class="align-middle me-2 fs-18"></iconify-icon><span
-                                class="align-middle">Pricing</span>
-                        </a> --}}
-                        {{-- <a class="dropdown-item" href="#">
-                            <iconify-icon icon="solar:help-outline"
-                                class="align-middle me-2 fs-18"></iconify-icon><span class="align-middle">Help</span>
-                        </a> --}}
-                        {{-- <a class="dropdown-item" href="{{ route('second', ['auth', 'lock-screen']) }}">
-                        <iconify-icon icon="solar:lock-keyhole-outline"
-                            class="align-middle me-2 fs-18"></iconify-icon><span class="align-middle">Lock
-                            screen</span>
-                        </a> --}}
-
                         <div class="dropdown-divider my-1"></div>
                         <form action="{{ route('logout') }}" method="POST">
                             @csrf
 
                             <button class="dropdown-item text-danger" href="#" type="submit">
                                 <iconify-icon icon="solar:logout-3-outline"
-                                    class="align-middle me-2 fs-18"></iconify-icon><span
-                                    class="align-middle">Logout</span>
+                                class="align-middle me-2 fs-18"></iconify-icon><span
+                                class="align-middle">Logout</span>
                             </button>
                         </form>
+                        @endif
                     </div>
                 </div>
             </div>
