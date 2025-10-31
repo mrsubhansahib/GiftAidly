@@ -193,7 +193,25 @@ class SubscriptionController extends Controller
             return back()->withInput()->withErrors($e->getMessage());
         } catch (\Exception $e) {
             DB::rollBack();
-            return back()->withInput()->withErrors($e->getMessage());
+
+            $errorMessage = $e->getMessage();
+
+            // 🎯 Detect Stripe multi-currency conflict and extract currency from the error message
+            if (Str::contains($errorMessage, 'You cannot combine currencies on a single customer')) {
+
+                // Extract currency (e.g., "usd", "gbp", "eur") from the Stripe error text
+                preg_match('/currency\s+([a-zA-Z]+)/i', $errorMessage, $matches);
+                $existingCurrency = strtoupper($matches[1] ?? 'your existing subscription currency');
+
+                // Map code → symbol
+                // $symbols = ['USD' => '$', 'GBP' => '£', 'EUR' => '€'];
+                // $symbol = $symbols[$existingCurrency] ?? $existingCurrency;
+
+                // ✅ User-friendly short message
+                $errorMessage = "Please use the same currency as your existing active subscription {$existingCurrency}).";
+            }
+
+            return back()->withInput()->withErrors($errorMessage);
         }
     }
     public function donateFriday(Request $request)
@@ -386,7 +404,25 @@ class SubscriptionController extends Controller
             return back()->withInput()->withErrors($e->getMessage());
         } catch (\Exception $e) {
             DB::rollBack();
-            return back()->withInput()->withErrors($e->getMessage());
+
+            $errorMessage = $e->getMessage();
+
+            // 🎯 Detect Stripe multi-currency conflict and extract currency from the error message
+            if (Str::contains($errorMessage, 'You cannot combine currencies on a single customer')) {
+
+                // Extract currency (e.g., "usd", "gbp", "eur") from the Stripe error text
+                preg_match('/currency\s+([a-zA-Z]+)/i', $errorMessage, $matches);
+                $existingCurrency = strtoupper($matches[1] ?? 'your existing subscription currency');
+
+                // Map code → symbol
+                $symbols = ['USD' => '$', 'GBP' => '£', 'EUR' => '€'];
+                $symbol = $symbols[$existingCurrency] ?? $existingCurrency;
+
+                // ✅ User-friendly short message
+                $errorMessage = "Please use the same currency as your existing active subscription ({$symbol} {$existingCurrency}).";
+            }
+
+            return back()->withInput()->withErrors($errorMessage);
         }
     }
     public function donateSpecial(Request $request)
@@ -573,7 +609,7 @@ class SubscriptionController extends Controller
                 default  => ucfirst($subscription->type),
             };
 
-            $userName = Str::title($subscription->user->name ?? 'User');
+            $userName = \Illuminate\Support\Str::title($subscription->user->name ?? 'User');
             $amount = $subscription->price;
             DB::commit();
 
