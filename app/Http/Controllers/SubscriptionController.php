@@ -573,7 +573,7 @@ class SubscriptionController extends Controller
                 default  => ucfirst($subscription->type),
             };
 
-            $userName = \Illuminate\Support\Str::title($subscription->user->name ?? 'User');
+            $userName = Str::title($subscription->user->name ?? 'User');
             $amount = $subscription->price;
             DB::commit();
 
