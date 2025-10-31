@@ -195,19 +195,9 @@ class SubscriptionController extends Controller
             DB::rollBack();
 
             $errorMessage = $e->getMessage();
-
-            // 🎯 Detect Stripe multi-currency conflict and extract currency from the error message
             if (Str::contains($errorMessage, 'You cannot combine currencies on a single customer')) {
-
-                // Extract currency (e.g., "usd", "gbp", "eur") from the Stripe error text
                 preg_match('/currency\s+([a-zA-Z]+)/i', $errorMessage, $matches);
                 $existingCurrency = strtoupper($matches[1] ?? 'your existing subscription currency');
-
-                // Map code → symbol
-                // $symbols = ['USD' => '$', 'GBP' => '£', 'EUR' => '€'];
-                // $symbol = $symbols[$existingCurrency] ?? $existingCurrency;
-
-                // ✅ User-friendly short message
                 $errorMessage = "Please use the same currency as your existing active subscription {$existingCurrency}).";
             }
 
