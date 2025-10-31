@@ -17,16 +17,17 @@ Route::get('/', [RoutingController::class, 'index'])->name('root');
 // 🔒 Authenticated routes
 Route::middleware(['auth'])->group(function () {
     Route::get('admin/dashboard', [RoutingController::class, 'adminDashboard'])->name('admin.dashboard');
-    Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
-    Route::post('/notifications/clear', [NotificationController::class, 'clearAll'])->name('notifications.clear');
-
-    Route::get('cancel/donation/{id}', [SubscriptionController::class, 'cancelSubscription'])->name('cancel.donation');
-
     Route::get('admin/donor/{id}', fn($id) => view('admin.donors.detail', ['id' => $id]))->name('admin.donor.detail');
     Route::get('admin/donation/{id}', fn($id) => view('admin.donations.detail', ['id' => $id]))->name('admin.donations.detail');
 
     // Route::get('user/donation/{id}', fn($id) => view('user.donations.detail', ['id' => $id]))->name('user.donations.detail');
 });
+
+// 📬 routes (no auth)
+Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
+Route::post('/notifications/clear', [NotificationController::class, 'clearAll'])->name('notifications.clear');
+Route::get('cancel/donation/{id}', [SubscriptionController::class, 'cancelSubscription'])->name('cancel.donation');
+
 
 // 🕋 Donation routes (public)
 Route::post('donate/daily-weekly-monthly', [SubscriptionController::class, 'donateDailyWeeklyMonthly'])->name('donation.daily_weekly_monthly');
