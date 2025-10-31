@@ -68,7 +68,7 @@
             @else
                 {{-- Donations --}}
                 <li class="nav-item">
-                    <a class="nav-link active" href="{{ route('user.donations', ['reference_id' => $reference_id]) }}">
+                    <a class="nav-link" href="{{ route('user.donations', ['reference_id' => $reference_id]) }}">
                         <span class="nav-icon">
                             <iconify-icon icon="solar:hand-money-outline"></iconify-icon>
                         </span>

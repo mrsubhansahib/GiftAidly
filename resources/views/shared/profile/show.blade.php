@@ -1,8 +1,8 @@
-@extends('layouts.vertical', ['subtitle' => 'Profile'])
+@extends('layouts.vertical', ['subtitle' => 'Profile', 'reference_id' => request('reference_id')])
 
 @section('content')
     @include('layouts.partials.page-title', ['title' => 'Profile', 'subtitle' => 'View'])
-    <livewire:shared.profile />
+        <livewire:shared.profile :reference_id="request('reference_id')" />
 @endsection
 
 @section('scripts')

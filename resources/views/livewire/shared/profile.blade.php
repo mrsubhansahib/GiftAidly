@@ -2,10 +2,25 @@
 
 use function Livewire\Volt\{state, rules};
 use Illuminate\Support\Facades\Auth;
+use App\Models\User;
 
 state([
-    'user' => fn() => Auth::user()->only(['name', 'title', 'city', 'country', 'address', 'zip_code']),
+    'reference_id' => request('reference_id'),
+    'user' => function () {
+        if (Auth::check()) {
+            // Logged-in admin
+            return Auth::user()->only(['name', 'title', 'city', 'country', 'address', 'zip_code']);
+        }
+        // Donor (via reference_id)
+        $reference_id = request('reference_id');
+        if (!$reference_id) {
+            return [];
+        }
+        $user = User::where('reference_id', $reference_id)->first();
+        return $user?->only(['name', 'title', 'city', 'country', 'address', 'zip_code']) ?? [];
+    },
 ]);
+
 rules([
     'user.name' => 'required|string|max:255',
     'user.title' => 'nullable|string|max:255',
@@ -23,8 +38,25 @@ rules([
 
 $updateProfile = function () {
     $this->validate();
-    Auth::user()->update($this->user);
-    $this->dispatch('profile-updated', message: 'Profile updated successfully!');
+    // Case 1: Admin
+    if (Auth::check()) {
+        Auth::user()->update($this->user);
+        $this->dispatch('profile-updated', message: 'Profile updated successfully!');
+        return;
+    }
+    // Case 2: Donor
+    $reference_id = $this->reference_id;
+    if (!$reference_id) {
+        $this->dispatch('profile-updated', message: 'Error: Missing reference ID.');
+        return;
+    }
+    $user = User::where('reference_id', $reference_id)->first();
+    if ($user) {
+        $user->update($this->user);
+        $this->dispatch('profile-updated', message: 'Profile updated successfully!');
+    } else {
+        $this->dispatch('profile-updated', message: 'Error: User not found.');
+    }
 };
 ?>
 

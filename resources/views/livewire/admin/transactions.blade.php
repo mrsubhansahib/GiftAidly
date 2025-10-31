@@ -82,9 +82,7 @@ state([
                                                 <div class="modal-header border-0 pb-0">
                                                     <h4 class="modal-title text-dark fw-semibold"
                                                         id="transactionModalLabel{{ $transaction->id }}">
-                                                        Transaction
-                                                        #{{ substr($transaction->stripe_transaction_id ?? 'N/A', -8) }}
-                                                    </h4>
+                                                        Transaction Details</h4>
                                                     <button type="button" class="btn-close"
                                                         data-bs-dismiss="modal"></button>
                                                 </div>

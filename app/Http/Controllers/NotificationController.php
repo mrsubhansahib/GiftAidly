@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -19,14 +20,18 @@ class NotificationController extends Controller
     /**
      * Clear all notifications (admin clears global, donor clears own)
      */
-    public function clearAll()
+    public function clearAll(Request $request)
     {
-        if (auth()->user()->role === 'admin') {
-            DB::table('notifications')->delete(); // clear global for admin
-        } else {
-            auth()->user()->notifications()->delete();
+        // Admin: clear all notifications
+        if (auth()->check() && auth()->user()->role === 'admin') {
+            DB::table('notifications')->delete();
+            return back();
         }
-
+        // Donor: clear notifications by reference_id
+        if ($request->filled('reference_id')) {
+            User::where('reference_id', $request->reference_id)
+                ->first()?->notifications()->delete();
+        }
         return back();
     }
 }
