@@ -18,6 +18,7 @@ use App\Models\Transaction;
 use App\Mail\SubscriptionCanceledMail;
 use App\Mail\TransactionPaidMail;
 use App\Mail\TransactionFailedMail;
+use App\Notifications\UserActionNotification;
 use Stripe\Charge;
 use Stripe\Invoice as StripeInvoice;
 
@@ -97,27 +98,67 @@ class WebhookController extends Controller
 
     private function onSubscriptionUpdated($sub)
     {
-        // DB::transaction(function () use ($sub) {
-        //     $local = Subscription::where('stripe_subscription_id', $sub->id)->first();
-        //     if (!$local) return;
-
-        //     $local->status      = $sub->status;
-        //     $local->start_date  = $this->ts($sub->current_period_start);
-        //     $local->end_date    = $this->ts($sub->current_period_end);
-        //     $local->canceled_at = $this->ts($sub->cancel_at);
-        //     $local->save();
-        // });
+        //
     }
 
     private function onSubscriptionDeleted($sub)
     {
         DB::transaction(function () use ($sub) {
-            $local = Subscription::where('stripe_subscription_id', $sub->id)->first();
+            try {
+                $subscription = Subscription::where('stripe_subscription_id', $sub->id)->first();
+                if (!$subscription) {
+                    Log::warning("Subscription with Stripe ID {$sub->id} not found.");
+                    return;
+                }
 
-            Mail::to(env('ADMIN_EMAIL'))->send(new SubscriptionCanceledMail($local, true));
-            Mail::to($local->user->email)->send(new SubscriptionCanceledMail($local));
+                $status = 'ended';
+                $isEarlyCancel = $subscription->end_date && $subscription->end_date->isFuture();
+
+                if ($isEarlyCancel) {
+                    $status = 'canceled';
+                }
+
+                $subscription->update([
+                    'status' => $status,
+                    'canceled_at' => now(),
+                ]);
+
+                Log::info("Subscription {$sub->id} marked as {$status}.");
+
+                DB::afterCommit(function () use ($subscription, $status) {
+                    $currencySymbols = ['usd' => '$', 'gbp' => '£', 'eur' => '€'];
+                    $currencySymbol = $currencySymbols[strtolower($subscription->currency)] ?? strtoupper($subscription->currency);
+
+                    $typeReadable = match ($subscription->type) {
+                        'day'    => 'Daily',
+                        'month'  => 'Monthly',
+                        'week'   => 'Weekly',
+                        'friday' => 'Friday',
+                        default  => ucfirst($subscription->type),
+                    };
+
+                    $userName = \Illuminate\Support\Str::title($subscription->user->name ?? 'User');
+                    $amount = $subscription->price;
+                    $admin = User::where('role', 'admin')->first();
+
+                    $statusLabel = $status === 'ended' ? 'Ended' : 'Canceled';
+                    $userTitle = "🚫 {$typeReadable} Donation {$statusLabel}";
+                    $userMessage = "Your {$typeReadable} donation of {$currencySymbol}{$amount} has {$statusLabel} successfully.";
+                    $adminTitle = "❌ {$typeReadable} Donation {$statusLabel}";
+                    $adminMessage = "{$userName}'s {$typeReadable} donation of {$currencySymbol}{$amount} has {$statusLabel}.";
+
+                    $subscription->user?->notify(new UserActionNotification($userTitle, $userMessage, 'user'));
+                    $admin?->notify(new UserActionNotification($adminTitle, $adminMessage, 'admin'));
+
+                    Mail::to(env('ADMIN_EMAIL'))->send(new SubscriptionCanceledMail($subscription, true));
+                    Mail::to($subscription->user->email)->send(new SubscriptionCanceledMail($subscription));
+                });
+            } catch (\Exception $e) {
+                Log::error("Failed to update subscription {$sub->id}: " . $e->getMessage());
+            }
         });
     }
+
 
     /* ---------- INVOICE EVENTS ---------- */
 
@@ -147,7 +188,7 @@ class WebhookController extends Controller
             // } else {
             //     Log::info("Invoice is already Paid");
             // }
-        }else{
+        } else {
             Log::info("Invoice with 0 amount created: {$inv->id}");
         }
     }

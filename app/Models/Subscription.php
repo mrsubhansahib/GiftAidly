@@ -31,4 +31,9 @@ class Subscription extends Model
     {
         return $this->hasMany(Invoice::class);
     }
+    protected $casts = [
+        'start_date'  => 'datetime',
+        'end_date'    => 'datetime',
+        'canceled_at' => 'datetime',
+    ];
 }

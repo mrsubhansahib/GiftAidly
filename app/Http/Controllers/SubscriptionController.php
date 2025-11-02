@@ -579,50 +579,7 @@ class SubscriptionController extends Controller
             \Stripe\Stripe::setApiKey(env('STRIPE_SECRET'));
             $stripeSub = \Stripe\Subscription::retrieve($subscription->stripe_subscription_id);
             $stripeSub->cancel();
-            $subscription->update([
-                'status' => 'canceled',
-                'canceled_at' => now(),
-            ]);
-            // 3️⃣ Prepare Notification Data
-            $currencySymbols = [
-                'usd' => '$',
-                'gbp' => '£',
-                'eur' => '€',
-            ];
-            $currencySymbol = $currencySymbols[strtolower($subscription->currency)] ?? strtoupper($subscription->currency);
-
-            $typeReadable = match ($subscription->type) {
-                'day'    => 'Daily',
-                'month'  => 'Monthly',
-                'week'   => 'Weekly',
-                'friday' => 'Friday',
-                default  => ucfirst($subscription->type),
-            };
-
-            $userName = \Illuminate\Support\Str::title($subscription->user->name ?? 'User');
-            $amount = $subscription->price;
-            DB::commit();
-
-            // 4️⃣ Notifications after commit
-            DB::afterCommit(function () use ($subscription, $userName, $typeReadable, $currencySymbol, $amount) {
-                $admin = User::where('role', 'admin')->first();
-                // 🧍 USER Notification
-                $userTitle = "🚫 {$typeReadable} Donation Canceled";
-                $userMessage = "Your {$typeReadable} donation of {$currencySymbol}{$amount} has been canceled successfully.";
-                $adminTitle = "❌ {$typeReadable} Donation Canceled";
-                $adminMessage = "{$userName} has canceled their {$typeReadable} donation of {$currencySymbol}{$amount}.";
-
-                $subscription->user?->notify(new UserActionNotification(
-                    $userTitle,
-                    $userMessage,
-                    'user'
-                ));
-                $admin->notify(new UserActionNotification(
-                    $adminTitle,
-                    $adminMessage,
-                    'admin'
-                ));
-            });
+         
             return redirect()->back()->with('success', 'Subscription canceled successfully');
         } catch (\Stripe\Exception\CardException $e) {
             DB::rollBack();

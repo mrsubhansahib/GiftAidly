@@ -68,7 +68,7 @@ mount(function ($reference_id) {
                                             class="btn btn-sm btn-primary">
                                             View
                                         </a> --}}
-                                            @if ($subscription['status'] === 'active')
+                                            @if ($subscription['status'] === 'active' && $subscription['canceled_at'] > now())
                                                 <button
                                                     onclick="confirmCancel('{{ route('cancel.donation', $subscription->id) }}')"
                                                     class="btn btn-sm btn-danger">
