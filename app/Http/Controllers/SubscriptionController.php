@@ -185,8 +185,8 @@ class SubscriptionController extends Controller
                 // ✅ 10. Redirect with message
             });
             $msg = $forceChargeNow || !$startIsFuture
-                ? 'Donation successful! Invoice finalized & paid immediately.'
-                : 'Subscription scheduled. Billing will start on your selected start date.';
+                ? 'Donation successful! Please check your email for the donation details and receipt.'
+                : 'Donation scheduled successfully! Please check your email for schedule details and donation summary.';
             return redirect()->back()->with('success', $msg);
         } catch (\Stripe\Exception\CardException $e) {
             DB::rollBack();
@@ -385,8 +385,8 @@ class SubscriptionController extends Controller
 
             // ✅ 10. Redirect message
             $msg = $forceChargeNow || !$startIsFuture
-                ? 'Donation successful! Invoice finalized & paid immediately.'
-                : 'Subscription scheduled. Billing will start on your selected start date.';
+                ? 'Donation successful! Please check your email for the donation details and receipt.'
+                : 'Donation scheduled successfully! Please check your email for schedule details and donation summary.';
 
             return redirect()->back()->with('success', $msg);
         } catch (\Stripe\Exception\CardException $e) {
@@ -561,7 +561,7 @@ class SubscriptionController extends Controller
                 Mail::to($adminEmail)->send(new SubscriptionStartedMail($user, $localSubscription, true));
             });
 
-            return redirect()->back()->with('success', 'Special donation successful! Invoice finalized & paid immediately.');
+            return redirect()->back()->with('success', 'Donation successful! Please check your email for the donation details and receipt.');
         } catch (\Stripe\Exception\CardException $e) {
             DB::rollBack();
             return back()->withInput()->withErrors($e->getMessage());
@@ -727,7 +727,7 @@ class SubscriptionController extends Controller
                 Mail::to($adminEmail)->send(new ZakatMail($user, $localSubscription, true));
             });
 
-            return redirect()->back()->with('success', 'Zakat paid successfully! Payment received and invoice generated.');
+            return redirect()->back()->with('success', 'Zakat paid successfully! Please check your email for the donation details and receipt.');
         } catch (\Stripe\Exception\CardException $e) {
             DB::rollBack();
             return back()->withInput()->withErrors($e->getMessage());
