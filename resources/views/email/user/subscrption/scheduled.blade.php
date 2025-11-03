@@ -94,7 +94,7 @@ Your support means the world to us and helps us continue our mission to make a d
 Thanks to Gift Aid, your donation will be worth **25% more** at no extra cost to you!
 @endif
 
-<x-mail::button :url="url('/user/donations/index')">
+<x-mail::button :url="url('/user/donations/' . $user->reference_id)">
     View My Donations
 </x-mail::button>
 
