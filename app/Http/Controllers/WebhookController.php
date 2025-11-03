@@ -260,7 +260,7 @@ class WebhookController extends Controller
                 } else {
                     Log::info("✅ Subscription is still active: {$subscription->stripe_subscription_id}");
                 }
-                Log::info("✅ Transaction created with ID: {$trans->id}");
+                Log::info("✅Failed Transaction created with ID: {$trans->id}");
             }
         });
     }
