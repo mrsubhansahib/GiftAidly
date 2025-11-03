@@ -50,16 +50,17 @@ state([
                                             {{ number_format($transaction->invoice->subscription->price, 2) }}
                                         </td>
                                         <td>
-                                            @if ($transaction->status === 'paid' || $transaction->status === 'completed')
-                                                <span class="badge bg-success">Paid</span>
-                                            @elseif($transaction->status === 'failed')
-                                                <span class="badge bg-danger">Failed</span>
-                                            @elseif($transaction->status === 'pending')
-                                                <span class="badge bg-warning text-light">Pending</span>
-                                            @else
-                                                <span
-                                                    class="badge bg-secondary">{{ ucfirst($transaction->status ?? 'N/A') }}</span>
-                                            @endif
+                                            @php
+                                                $statusClass = match ($transaction['status']) {
+                                                    'paid' => 'bg-success',
+                                                    'failed' => 'bg-danger',
+                                                    default => 'bg-info',
+                                                };
+                                            @endphp
+
+                                            <span class="badge {{ $statusClass }}">
+                                                {{ ucfirst($transaction['status'] ?? 'N/A') }}
+                                            </span>
                                         </td>
                                         <td>{{ $transaction->paid_at ? \Carbon\Carbon::parse($transaction->paid_at)->format('Y-m-d') : '-' }}
                                         </td>

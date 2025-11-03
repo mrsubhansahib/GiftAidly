@@ -46,8 +46,17 @@ mount(function ($id) {
                 <tr>
                     <th>Status</th>
                     <td>
-                        <span class="badge {{ $subscription->status === 'active' ? 'bg-success' : 'bg-danger' }}">
-                            {{ ucfirst($subscription->status) }}
+                        @php
+                        $statusClass = match ($subscription['status']) {
+                        'active' => 'bg-success',
+                        'canceled' => 'bg-danger',
+                        'ended' => 'bg-secondary',
+                        default => 'bg-info',
+                        };
+                        @endphp
+
+                        <span class="badge {{ $statusClass }}">
+                            {{ ucfirst($subscription['status'] ?? 'N/A') }}
                         </span>
                     </td>
                 </tr>
@@ -86,9 +95,9 @@ mount(function ($id) {
                 </thead>
                 <tbody>
                     @foreach ($subscription->invoices as $invoice)
-                        <tr>
-                            <td>
-                                {{ $subscription->type === 'day'
+                    <tr>
+                        <td>
+                            {{ $subscription->type === 'day'
                                     ? 'Daily'
                                     : ($subscription->type === 'week'
                                         ? 'Weekly'
@@ -97,103 +106,111 @@ mount(function ($id) {
                                             : ($subscription->type
                                                 ? ucfirst($subscription->type)
                                                 : '-'))) }}
-                            </td>
-                            <td>
-                                {{ match (strtoupper($invoice->currency)) {
+                        </td>
+                        <td>
+                            {{ match (strtoupper($invoice->currency)) {
                                     'USD' => '$',
                                     'GBP' => '£',
                                     'EUR' => '€',
                                 } }}
-                                {{ number_format($invoice->amount_due, 2) }}
-                            </td>
-                            <td>
-                                <span class="badge {{ $invoice->paid_at ? 'bg-success' : 'bg-danger' }}">
-                                    {{ $invoice->paid_at ? 'Paid' : 'Failed' }}
-                                </span>
-                            </td>
-                            <td>{{ \Carbon\Carbon::parse($invoice->invoice_date)->format('Y-m-d') }}</td>
-                            <td>
-                                <button class="btn btn-sm btn-primary" data-bs-toggle="modal"
-                                    data-bs-target="#invoiceModal{{ $invoice->id }}">
-                                    View
-                                </button>
-                            </td>
-                        </tr>
+                            {{ number_format($invoice->amount_due, 2) }}
+                        </td>
+                        <td>
+                            @php
+                            $statusClass = match ($subscription['status']) {
+                            'paid' => 'bg-success',
+                            'failed' => 'bg-danger',
+                            default => 'bg-info',
+                            };
+                            @endphp
 
-                        <!-- Invoice Modal -->
-                        <div class="modal fade" id="invoiceModal{{ $invoice->id }}" tabindex="-1"
-                            aria-labelledby="invoiceModalLabel{{ $invoice->id }}" aria-hidden="true">
-                            <div class="modal-dialog modal-lg modal-dialog-centered">
-                                <div class="modal-content border-0 rounded-4 shadow-lg">
+                            <span class="badge {{ $statusClass }}">
+                                {{ ucfirst($subscription['status'] ?? 'N/A') }}
+                            </span>
+                        </td>
+                        <td>{{ \Carbon\Carbon::parse($invoice->invoice_date)->format('Y-m-d') }}</td>
+                        <td>
+                            <button class="btn btn-sm btn-primary" data-bs-toggle="modal"
+                                data-bs-target="#invoiceModal{{ $invoice->id }}">
+                                View
+                            </button>
+                        </td>
+                    </tr>
 
-                                    <!-- Minimal Header -->
-                                    <div class="modal-header border-0 pb-0">
-                                        <h4 class="modal-title text-dark fw-semibold"
-                                            id="invoiceModalLabel{{ $invoice->id }}">
-                                            Invoice #{{ substr($invoice->stripe_invoice_id ?? 'N/A', -8) }}
-                                        </h4>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    <!-- Invoice Modal -->
+                    <div class="modal fade" id="invoiceModal{{ $invoice->id }}" tabindex="-1"
+                        aria-labelledby="invoiceModalLabel{{ $invoice->id }}" aria-hidden="true">
+                        <div class="modal-dialog modal-lg modal-dialog-centered">
+                            <div class="modal-content border-0 rounded-4 shadow-lg">
+
+                                <!-- Minimal Header -->
+                                <div class="modal-header border-0 pb-0">
+                                    <h4 class="modal-title text-dark fw-semibold"
+                                        id="invoiceModalLabel{{ $invoice->id }}">
+                                        Invoice #{{ substr($invoice->stripe_invoice_id ?? 'N/A', -8) }}
+                                    </h4>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                </div>
+
+                                <!-- Modal Body -->
+                                <div class="modal-body px-4 pb-4">
+
+                                    <!-- Customer & Status Row -->
+                                    <div class="d-flex justify-content-between align-items-center mb-4">
+                                        <div>
+                                            <h6 class="text-muted mb-1">Customer</h6>
+                                            <p class="mb-0 fw-medium">
+                                                {{ $invoice->subscription->user->name ?? 'N/A' }}
+                                            </p>
+                                            <small class="text-muted">
+                                                {{ $invoice->subscription->user->email ?? '-' }}
+                                            </small>
+                                        </div>
+                                        <div class="text-end">
+                                            <span
+                                                class="badge {{ $invoice->paid_at ? 'bg-success bg-opacity-10 text-success border border-success' : 'bg-warning bg-opacity-10 text-warning border border-warning' }} px-3 py-2 rounded-3">
+                                                {{ $invoice->paid_at ? 'Paid' : 'Pending' }}
+                                            </span>
+                                        </div>
                                     </div>
 
-                                    <!-- Modal Body -->
-                                    <div class="modal-body px-4 pb-4">
-
-                                        <!-- Customer & Status Row -->
-                                        <div class="d-flex justify-content-between align-items-center mb-4">
-                                            <div>
-                                                <h6 class="text-muted mb-1">Customer</h6>
-                                                <p class="mb-0 fw-medium">
-                                                    {{ $invoice->subscription->user->name ?? 'N/A' }}
-                                                </p>
-                                                <small class="text-muted">
-                                                    {{ $invoice->subscription->user->email ?? '-' }}
-                                                </small>
-                                            </div>
-                                            <div class="text-end">
-                                                <span
-                                                    class="badge {{ $invoice->paid_at ? 'bg-success bg-opacity-10 text-success border border-success' : 'bg-warning bg-opacity-10 text-warning border border-warning' }} px-3 py-2 rounded-3">
-                                                    {{ $invoice->paid_at ? 'Paid' : 'Pending' }}
-                                                </span>
-                                            </div>
-                                        </div>
-
-                                        <!-- Amount Section (Single Center Column) -->
-                                        <div class="row mb-4">
-                                            <div class="col-12">
-                                                <div class="text-center p-4 bg-light rounded-3">
-                                                    <h6 class="text-muted mb-2">Amount</h6>
-                                                    <h3 class="text-dark fw-bold mb-0">
-                                                        {{ match (strtoupper($invoice->currency)) {
+                                    <!-- Amount Section (Single Center Column) -->
+                                    <div class="row mb-4">
+                                        <div class="col-12">
+                                            <div class="text-center p-4 bg-light rounded-3">
+                                                <h6 class="text-muted mb-2">Amount</h6>
+                                                <h3 class="text-dark fw-bold mb-0">
+                                                    {{ match (strtoupper($invoice->currency)) {
                                                             'USD' => '$',
                                                             'GBP' => '£',
                                                             'EUR' => '€',
                                                         } }}
-                                                        {{ number_format($invoice->amount_due ?? 0, 2) }}
-                                                    </h3>
-                                                </div>
+                                                    {{ number_format($invoice->amount_due ?? 0, 2) }}
+                                                </h3>
                                             </div>
                                         </div>
-
-                                        <!-- Details Section -->
-                                        <div class="border-top pt-4">
-                                            <div class="row g-4">
-                                                @if ($invoice->paid_at)
-                                                    <div class="col-sm-6">
-                                                        <label class="form-label text-muted mb-2 fw-semibold">Paid
-                                                            At</label>
-                                                        <input type="text"
-                                                            class="form-control bg-light border-0 fs-6 py-2"
-                                                            value="{{ \Carbon\Carbon::parse($invoice->paid_at)->format('M d, Y') }}"
-                                                            readonly>
-                                                    </div>
-                                                @endif
-                                            </div>
-                                        </div>
-
                                     </div>
+
+                                    <!-- Details Section -->
+                                    <div class="border-top pt-4">
+                                        <div class="row g-4">
+                                            @if ($invoice->paid_at)
+                                            <div class="col-sm-6">
+                                                <label class="form-label text-muted mb-2 fw-semibold">Paid
+                                                    At</label>
+                                                <input type="text"
+                                                    class="form-control bg-light border-0 fs-6 py-2"
+                                                    value="{{ \Carbon\Carbon::parse($invoice->paid_at)->format('M d, Y') }}"
+                                                    readonly>
+                                            </div>
+                                            @endif
+                                        </div>
+                                    </div>
+
                                 </div>
                             </div>
                         </div>
+                    </div>
                     @endforeach
                 </tbody>
             </table>
