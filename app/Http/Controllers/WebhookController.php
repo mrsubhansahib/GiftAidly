@@ -116,7 +116,6 @@ class WebhookController extends Controller
 
                 if ($isEarlyCancel) {
                     $status = 'canceled';
-                    
                 }
 
                 $subscription->update([
@@ -255,8 +254,7 @@ class WebhookController extends Controller
         // Log::info("Invoice Subscription Succeeded : {$invoice->lines->data[0]->parent->subscription_item_details->subscription}");
 
         DB::transaction(function () use ($inv, $invoice) {
-
-
+            $subscription = Subscription::where('stripe_subscription_id', $invoice->lines->data[0]->parent->subscription_item_details->subscription)->first();
             $localInvoice = Invoice::where('stripe_invoice_id', $inv->invoice)->first();
             if ($inv->payment->payment_intent) {
                 $trans = Transaction::updateOrCreate(
@@ -267,9 +265,15 @@ class WebhookController extends Controller
                         'paid_at'    => now(),
                     ]
                 );
+                if ($subscription->end_date && !$subscription->end_date->isFuture()) {
+                    \Stripe\Stripe::setApiKey(env('STRIPE_SECRET'));
+                    $stripeSub = \Stripe\Subscription::retrieve($subscription->stripe_subscription_id);
+                    $stripeSub->cancel();
+                    Log::info("✅ Subscription canceled due to last invoice payment: {$subscription->stripe_subscription_id}");
+                }else{
+                    Log::info("✅ Subscription is still active: {$subscription->stripe_subscription_id}");
+                }
                 Log::info("✅ Transaction created with ID: {$trans->id}");
-                // Mail::to(env('ADMIN_EMAIL'))
-                //     ->send(new TransactionPaidMail($localInvoice->subscription->user, $trans, true));
             }
         });
     }
@@ -312,6 +316,12 @@ class WebhookController extends Controller
                 Log::info("✅ Transaction created with ID: {$trans->id}");
                 // Mail::to(env('ADMIN_EMAIL'))
                 //     ->send(new TransactionFailedMail($localInvoice->subscription->user, $trans, true));
+            }
+            if ($subscription->end_date && $subscription->end_date->isFuture()) {
+                $subscription->update([
+                    'status' => 'canceled',
+                    'canceled_at' => now(),
+                ]);
             }
         });
     }
