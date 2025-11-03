@@ -19,8 +19,6 @@ Route::middleware(['auth'])->group(function () {
     Route::get('admin/dashboard', [RoutingController::class, 'adminDashboard'])->name('admin.dashboard');
     Route::get('admin/donor/{id}', fn($id) => view('admin.donors.detail', ['id' => $id]))->name('admin.donor.detail');
     Route::get('admin/donation/{id}', fn($id) => view('admin.donations.detail', ['id' => $id]))->name('admin.donations.detail');
-
-    // Route::get('user/donation/{id}', fn($id) => view('user.donations.detail', ['id' => $id]))->name('user.donations.detail');
 });
 
 // 📬 routes (no auth)
