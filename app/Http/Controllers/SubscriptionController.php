@@ -147,7 +147,7 @@ class SubscriptionController extends Controller
             $localSubscription = $user->subscriptions()->create([
                 'stripe_subscription_id' => $subscription->id,
                 'stripe_price_id'        => $price->id,
-                'status'                 => $subscription->status,
+                'status'                 => 'active',
                 'price'                  => $request->amount,
                 'currency'               => $request->currency,
                 'type'                   => $request->type,
@@ -320,7 +320,7 @@ class SubscriptionController extends Controller
             $localSubscription = $user->subscriptions()->create([
                 'stripe_subscription_id' => $subscription->id,
                 'stripe_price_id'        => $price->id,
-                'status'                 => $subscription->status,
+                'status'                 => 'active',
                 'price'                  => $request->amount,
                 'currency'               => $request->currency,
                 'type'                   => 'friday',

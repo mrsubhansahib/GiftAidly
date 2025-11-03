@@ -48,9 +48,7 @@ mount(function ($reference_id) {
                                                 $statusClass = match ($subscription['status']) {
                                                     'active' => 'bg-success',
                                                     'canceled' => 'bg-danger',
-                                                    'pending' => 'bg-warning',
                                                     'ended' => 'bg-secondary',
-                                                    'trialing' => 'bg-primary',
                                                     default => 'bg-info',
                                                 };
                                             @endphp
@@ -64,10 +62,7 @@ mount(function ($reference_id) {
                                         </td>
                                         <td>{{ \Carbon\Carbon::parse($subscription['end_date'])->format('Y-m-d') }}</td>
                                         <td class="text-center align-middle">
-                                            {{-- <a href="{{ route('user.donations.detail', $subscription->id) }}"
-                                            class="btn btn-sm btn-primary">
-                                            View
-                                        </a> --}}
+                          
                                             @if ($subscription['status'] === 'active' && $subscription['canceled_at'] > now())
                                                 <button
                                                     onclick="confirmCancel('{{ route('cancel.donation', $subscription->id) }}')"

@@ -116,6 +116,7 @@ class WebhookController extends Controller
 
                 if ($isEarlyCancel) {
                     $status = 'canceled';
+                    
                 }
 
                 $subscription->update([
