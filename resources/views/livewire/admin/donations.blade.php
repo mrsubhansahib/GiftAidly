@@ -32,20 +32,19 @@ state([
                                     <td>{{ $subscription->user->name ?? '-' }}</td>
                                     <td>{{ $subscription->user->email ?? '-' }}</td>
                                     <td>
-                                        @if ($subscription->status === 'active')
-                                        <span class="badge bg-success">Active</span>
-                                        @elseif($subscription->status === 'canceled')
-                                        <span class="badge bg-danger">Canceled</span>
-                                        @elseif($subscription->status === 'pending')
-                                        <span class="badge bg-warning">Pending</span>
-                                        @elseif($subscription->status === 'ended')
-                                        <span class="badge bg-secondary">Ended</span>
-                                        @elseif($subscription->status === 'trialing')
-                                        <span class="badge bg-primary">Trialing</span>
-                                        @else
-                                        <span class="badge bg-info">{{ ucfirst($subscription->status ?? 'N/A') }}</span>
-                                        @endif
-                                    </td>
+                                            @php
+                                                $statusClass = match ($subscription['status']) {
+                                                    'active' => 'bg-success',
+                                                    'canceled' => 'bg-danger',
+                                                    'ended' => 'bg-secondary',
+                                                    default => 'bg-info',
+                                                };
+                                            @endphp
+
+                                            <span class="badge {{ $statusClass }}">
+                                                {{ ucfirst($subscription['status'] ?? 'N/A') }}
+                                            </span>
+                                        </td>
                                     <td>
                                         @php
                                         $symbols = [
