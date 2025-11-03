@@ -105,10 +105,9 @@ state([
                                                         <div class="text-end">
                                                             <span
                                                                 class="badge 
-                            @if ($transaction->status === 'paid' || $transaction->status === 'completed') bg-success bg-opacity-10 text-success border border-success
-                            @elseif($transaction->statFus === 'failed') bg-danger bg-opacity-10 text-danger border border-danger
-                            @elseif($transaction->status === 'pending') bg-warning bg-opacity-10 text-warning border border-warning
-                            @else bg-secondary bg-opacity-10 text-secondary border border-secondary @endif
+                            @if ($transaction->status === 'paid') bg-success bg-opacity-10 text-success border border-success
+                            @elseif($transaction->status === 'failed') bg-danger bg-opacity-10 text-danger border border-danger
+                            @else bg-info bg-opacity-10 text-secondary border border-secondary @endif
                             px-3 py-2 rounded-3">
                                                                 {{ ucfirst($transaction->status ?? 'N/A') }}
                                                             </span>
