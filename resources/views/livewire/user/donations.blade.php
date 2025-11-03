@@ -9,7 +9,9 @@ state([
 
 
 mount(function ($reference_id) {
-    $this->user = User::where('reference_id', $reference_id)->first();
+    $this->user = User::with(['subscriptions' => fn($q) => $q->latest('created_at')])
+        ->where('reference_id', $reference_id)
+        ->first();
 });
 ?>
 <div class="container-fluid">
