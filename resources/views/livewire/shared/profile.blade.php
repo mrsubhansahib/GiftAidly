@@ -138,8 +138,14 @@ $updateProfile = function () {
 
                     <div class="text-end mt-4">
                         <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
-                        <button type="button" wire:click="updateProfile" class="btn btn-primary">
-                            <i class="bx bx-save"></i> Save
+                        <button type="button" wire:click="updateProfile" wire:loading.attr="disabled"
+                            wire:target="updateProfile" class="btn btn-primary">
+                            <span wire:loading.remove wire:target="updateProfile">
+                                <i class="bx bx-save"></i> Save
+                            </span>
+                            <span wire:loading wire:target="updateProfile">
+                                <i class="bx bx-loader bx-spin"></i> Save
+                            </span>
                         </button>
                     </div>
                 </div>
