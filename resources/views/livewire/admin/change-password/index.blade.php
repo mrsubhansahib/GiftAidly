@@ -42,10 +42,8 @@ $changePassword = function () {
     $this->reset(['old_password', 'new_password', 'confirm_password']);
 
     // Success message flash
-    session()->flash('success', 'Password has been changed successfully!');
-
-    // Redirect to dashboard
-    return redirect()->route('root');
+    session()->flash('success', 'Password changed successfully!');
+    $this->dispatch('toast', type: 'success', message: 'Password changed successfully!');
 };
 
 // Live check function for password confirmation
@@ -76,13 +74,15 @@ $updated = function ($property) {
             right: 15px;
             transform: translateY(-50%);
             cursor: pointer;
-            color: #6c757d; /* Muted icon color */
+            color: #6c757d;
+            /* Muted icon color */
             transition: color 0.2s ease-in-out;
             z-index: 100;
         }
 
         .password-toggle-icon:hover {
-            color: #343a40; /* Darker color on hover */
+            color: #343a40;
+            /* Darker color on hover */
         }
 
         /* Add padding to the input to prevent text from overlapping the icon */
@@ -116,9 +116,13 @@ $updated = function ($property) {
                                 <div class="col-12 mb-4">
                                     <label for="old_password" class="form-label">Old Password</label>
                                     <div class="password-input-container">
-                                        <input type="password" wire:model="old_password" class="form-control form-control-lg form-control-password" id="old_password" placeholder="Enter your current password">
-                                        <span class="password-toggle-icon" onclick="togglePassword('old_password', this)">
-                                            <iconify-icon icon="mdi:eye-outline" width="24" height="24"></iconify-icon>
+                                        <input type="password" wire:model="old_password"
+                                            class="form-control form-control-lg form-control-password" id="old_password"
+                                            placeholder="Enter your current password">
+                                        <span class="password-toggle-icon"
+                                            onclick="togglePassword('old_password', this)">
+                                            <iconify-icon icon="mdi:eye-outline" width="24"
+                                                height="24"></iconify-icon>
                                         </span>
                                     </div>
                                     @error('old_password')
@@ -130,9 +134,13 @@ $updated = function ($property) {
                                 <div class="col-md-6 mb-4">
                                     <label for="new_password" class="form-label">New Password</label>
                                     <div class="password-input-container">
-                                        <input type="password" wire:model.live="new_password" class="form-control form-control-lg form-control-password" id="new_password" placeholder="Enter new password">
-                                        <span class="password-toggle-icon" onclick="togglePassword('new_password', this)">
-                                            <iconify-icon icon="mdi:eye-outline" width="24" height="24"></iconify-icon>
+                                        <input type="password" wire:model.live="new_password"
+                                            class="form-control form-control-lg form-control-password" id="new_password"
+                                            placeholder="Enter new password">
+                                        <span class="password-toggle-icon"
+                                            onclick="togglePassword('new_password', this)">
+                                            <iconify-icon icon="mdi:eye-outline" width="24"
+                                                height="24"></iconify-icon>
                                         </span>
                                     </div>
                                     @error('new_password')
@@ -144,12 +152,16 @@ $updated = function ($property) {
                                 <div class="col-md-6 mb-4">
                                     <label for="confirm_password" class="form-label">Confirm Password</label>
                                     <div class="password-input-container">
-                                        <input type="password" wire:model.live="confirm_password" class="form-control form-control-lg form-control-password" id="confirm_password" placeholder="Confirm new password">
-                                        <span class="password-toggle-icon" onclick="togglePassword('confirm_password', this)">
-                                            <iconify-icon icon="mdi:eye-outline" width="24" height="24"></iconify-icon>
+                                        <input type="password" wire:model.live="confirm_password"
+                                            class="form-control form-control-lg form-control-password"
+                                            id="confirm_password" placeholder="Confirm new password">
+                                        <span class="password-toggle-icon"
+                                            onclick="togglePassword('confirm_password', this)">
+                                            <iconify-icon icon="mdi:eye-outline" width="24"
+                                                height="24"></iconify-icon>
                                         </span>
                                     </div>
-                                     @if ($confirm_password && $new_password)
+                                    @if ($confirm_password && $new_password)
                                         @if ($confirm_password === $new_password)
                                             <small class="text-success mt-1 d-block">✅ Passwords match</small>
                                         @else
@@ -169,7 +181,8 @@ $updated = function ($property) {
                                         Update Password
                                     </div>
                                     <div wire:loading wire:target="changePassword">
-                                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                        <span class="spinner-border spinner-border-sm" role="status"
+                                            aria-hidden="true"></span>
                                         Updating...
                                     </div>
                                 </button>
