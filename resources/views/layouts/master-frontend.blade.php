@@ -1167,50 +1167,55 @@
     </script>
     {{-- Jquery Script --}}
     <script>
-        $(document).ready(function() {
-            @if(!$userCurrency)
-            $('#currency-monthly').val('GBP');
-            @endif
-            let rates = {}; // cache conversion rates
-            // ✅ Fetch rates once on page load (Frankfurter API - no key required)
-            $.get('https://api.frankfurter.app/latest', {
-                from: 'GBP',
-                to: 'USD,EUR'
-            }, function(data) {
-                if (data && data.rates) {
-                    // Example: { USD: 1.26, EUR: 1.15 }
-                    rates = data.rates;
-                    updateAmount(); // update if something is already selected
-                } else {
-                    console.error('Currency API error');
-                }
-            }).fail(function() {
-                console.error('Failed to fetch currency rates');
-            });
+        $(function() {
+            let rates, fetched = false;
+            const fetchRates = cb => {
+                if (fetched) return cb();
+                $.get('https://api.frankfurter.app/latest', {
+                        from: 'GBP',
+                        to: 'USD,EUR'
+                    })
+                    .done(data => {
+                        if (data?.rates) {
+                            rates = data.rates;
+                            fetched = true;
+                            cb();
+                        }
+                    })
+                    .fail(() => console.error('Currency API failed'));
+            };
 
-            function updateAmount() {
-                const selectedSpecial = $('#pay-special').find(':selected');
-                const basePrice = parseFloat(selectedSpecial.data('price')) || 0;
-                const targetCurrency = $('#currency-monthly').val();
-                if (!basePrice || !targetCurrency) {
-                    $('#pay-amount').val('');
-                    return;
+            const initSpecial = () => {
+                if (!$('#special').hasClass('active')) return;
+
+                @if (!$userCurrency)
+                    $('#currency-monthly').val('GBP');
+                @endif
+
+                const updateAmount = () => {
+                    const s = $('#pay-special').find(':selected'),
+                        p = parseFloat(s.data('price')) || 0,
+                        c = $('#currency-monthly').val(),
+                        r = rates?.[c];
+                    if (!p || !c) return $('#pay-amount').val('');
+                    $('#pay-amount').val(c === 'GBP' ? p.toFixed(2) : (p * r).toFixed(2));
+                };
+
+                if (!$('#pay-special').data('bound')) {
+                    $('#pay-special, #currency-monthly')
+                        .on('change', updateAmount)
+                        .data('bound', true);
                 }
-                if (targetCurrency === 'GBP') {
-                    $('#pay-amount').val(basePrice.toFixed(2));
-                    return;
-                }
-                const rate = rates[targetCurrency];
-                if (rate) {
-                    const converted = (basePrice * rate).toFixed(2);
-                    $('#pay-amount').val(converted);
-                } else {
-                    $('#pay-amount').val('');
-                }
-            }
-            // 🔄 Recalculate on change
-            $('#pay-special').on('change', updateAmount);
-            $('#currency-monthly').on('change', updateAmount);
+
+                fetchRates(updateAmount);
+            };
+
+            if ($('#special').hasClass('active')) initSpecial();
+
+            $('.tab-btn').on('click', function() {
+                if (this.outerHTML.includes("'special'"))
+                    setTimeout(initSpecial, 200);
+            });
         });
     </script>
 </body>
