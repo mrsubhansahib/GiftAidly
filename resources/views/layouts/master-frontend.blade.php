@@ -913,13 +913,14 @@
                     emailError.textContent = '';
                 }
 
-                // ✅ Amount check
-                if (!amount.value || parseFloat(amount.value) < 1) {
-                    amountError.textContent = 'Please enter a valid amount.';
+                // ✅ Floating amount allowed (any decimal > 0)
+                if (!amount.value || parseFloat(amount.value) <= 0) {
+                    amountError.textContent = 'Please enter a valid amount (greater than 0).';
                     valid = false;
                 } else {
                     amountError.textContent = '';
                 }
+
 
                 // ✅ Date range check
                 if (!startEl.value || !endEl.value) {
@@ -1188,8 +1189,8 @@
             const initSpecial = () => {
                 if (!$('#special').hasClass('active')) return;
 
-                @if (!$userCurrency)
-                    $('#currency-monthly').val('GBP');
+                @if(!$userCurrency)
+                $('#currency-monthly').val('GBP');
                 @endif
 
                 const updateAmount = () => {

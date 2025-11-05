@@ -85,7 +85,7 @@
                         <div class="form-group">
                             <label for="amount-daily">Amount</label>
                             <input type="number" name="amount" id="amount-daily" value="{{ old('amount') }}"
-                                class="text-input" min="1" />
+                                class="text-input"  min="01" step="any"/>
                             <span id="error-amount-daily"
                                 style="color: red; font-size: 13px; display: block; margin-top: 3px;"></span>
                         </div>
@@ -199,7 +199,7 @@
                         <div class="form-group">
                             <label for="amount-friday">Amount</label>
                             <input type="number" name="amount" id="amount-friday" class="text-input"
-                                min="1" />
+                             min="01" step="any" />
                             <span id="error-amount-friday"
                                 style="color: red; font-size: 13px; display: block; margin-top: 3px;"></span>
                         </div>
@@ -310,7 +310,7 @@
                         <div class="form-group">
                             <label for="pay-amount">Amount</label>
                             <input type="number" name="amount" placeholder="100.00" readonly id="pay-amount"
-                                class="text-input" />
+                                class="text-input" min="01" step="any"/>
                             <span id="error-amount-special"
                                 style="color: red; font-size: 13px; display: block; margin-top: 3px;"></span>
                         </div>
