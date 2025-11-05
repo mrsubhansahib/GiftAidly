@@ -14,6 +14,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/style.css">
     <link rel="shortcut icon" href="/images/favicon.png">
     <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ asset('css/loader.css') }}">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Make a Difference | GiftAidly</title>
     <style>
@@ -543,13 +544,18 @@
 
 <body>
     {{-- Main Content --}}
+    
+    @include('layouts.partials.loader')
     <main>
         @yield('content')
     </main>
 
 
+    <!-- jQuery and Flatpickr JS -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    {{-- Loader script --}}
+    <script src="{{ asset('js/loader.js') }}"></script>
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/index.js"></script>
@@ -1164,6 +1170,19 @@
                     }
                 }
             });
+        });
+
+        // 🔄 Preserve active tab between redirects
+        document.addEventListener("DOMContentLoaded", () => {
+            const forms = document.querySelectorAll("form");
+            const active = "{{ session('active_tab') }}";
+            if (active) openTab({
+                currentTarget: document.querySelector(`.tab-btn[onclick*='${active}']`)
+            }, active);
+            forms.forEach(f => f.addEventListener("submit", () => {
+                f.querySelector("input[name='active_tab']").value =
+                    document.querySelector(".tab-panel.active")?.id || '';
+            }));
         });
     </script>
     {{-- Jquery Script --}}

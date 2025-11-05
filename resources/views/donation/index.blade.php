@@ -132,9 +132,9 @@
 
                             <div style="flex: 1; min-width: 200px; display: flex; flex-direction: column;">
                                 <input type="text" name="address" id="address-daily" class="text-input"
-                                    style="display: none; width: 100%;"
-                                    value="{{ old('gift_aid') === 'yes' ? '' : 'display: none;' }}"
-                                    placeholder="Enter your address" />
+                                style="{{ old('gift_aid') === 'yes' ? 'display: block; width: 100%;' : 'display: none; width: 100%;' }}"
+                                value="{{ old('address') }}"
+                                placeholder="Enter your address" />
                                 <span id="error-address-daily"
                                     style="color: red; font-size: 13px; display: block; margin-top: 3px;"></span>
                             </div>
@@ -142,6 +142,7 @@
                     </div>
 
                     <button type="submit" class="donate-btn">Donate Now</button>
+                    <input type="hidden" name="active_tab" value="">
                 </form>
             </div>
         </div>
@@ -199,7 +200,7 @@
                         <div class="form-group">
                             <label for="amount-friday">Amount</label>
                             <input type="number" name="amount" id="amount-friday" class="text-input"
-                             min="01" step="any" />
+                             min="01" step="any" value="{{ old('amount') }}"/>
                             <span id="error-amount-friday"
                                 style="color: red; font-size: 13px; display: block; margin-top: 3px;"></span>
                         </div>
@@ -250,6 +251,7 @@
                     </div>
 
                     <button type="submit" class="donate-btn">Friday Donation</button>
+                    <input type="hidden" name="active_tab" value="">
                 </form>
             </div>
         </div>
@@ -347,8 +349,9 @@
 
                             <div style="flex: 1; min-width: 200px; display: flex; flex-direction: column;">
                                 <input type="text" name="address" id="address-monthly" class="text-input"
-                                    style="display: none; width: 100%;" placeholder="Enter your address"
-                                     value="{{ old('gift_aid') === 'yes' ? '' : 'display: none;' }}" />
+                                    style="{{ old('gift_aid') === 'yes' ? 'display: block; width: 100%;' : 'display: none; width: 100%;' }}"
+                                    value="{{ old('address') }}"
+                                    placeholder="Enter your address" />
                                 <span id="error-address-special"
                                     style="color: red; font-size: 13px; display: block; margin-top: 3px;"></span>
                             </div>
@@ -356,6 +359,7 @@
                     </div>
 
                     <button type="submit" class="donate-btn">Donate Now</button>
+                    <input type="hidden" name="active_tab" value="">
                 </form>
             </div>
         </div>
