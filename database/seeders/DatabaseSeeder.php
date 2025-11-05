@@ -23,7 +23,7 @@ class DatabaseSeeder extends Seeder
 
         User::factory()->create([
             'name' => 'GiftAidly Admin',
-            'email' => 'admin@gmail.com',
+            'email' => env('ADMIN_EMAIL', 'admin@gmail.com'),
             'email_verified_at' => now(),
             'role' => 'admin',
             'password' => Hash::make('password'),

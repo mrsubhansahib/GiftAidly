@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Oct 13, 2025 at 07:51 PM
+-- Generation Time: Nov 04, 2025 at 05:58 PM
 -- Server version: 8.0.30
 -- PHP Version: 8.3.14
 
@@ -131,15 +131,15 @@ CREATE TABLE `migrations` (
 --
 
 INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES
-(1, '0001_01_01_000000_create_users_table', 1),
-(2, '0001_01_01_000001_create_cache_table', 1),
-(3, '0001_01_01_000002_create_jobs_table', 1),
-(4, '2025_09_04_112238_create_product_catalogs_table', 1),
-(5, '2025_09_04_112417_create_subscriptions_table', 1),
-(6, '2025_09_04_112904_create_invoices_table', 1),
-(7, '2025_09_04_113149_create_transactions_table', 1),
-(8, '2025_09_30_131542_create_special_donations_table', 1),
-(9, '2025_10_03_003845_create_notifications_table', 1);
+(82, '0001_01_01_000000_create_users_table', 1),
+(83, '0001_01_01_000001_create_cache_table', 1),
+(84, '0001_01_01_000002_create_jobs_table', 1),
+(85, '2025_09_04_112238_create_product_catalogs_table', 1),
+(86, '2025_09_04_112417_create_subscriptions_table', 1),
+(87, '2025_09_04_112904_create_invoices_table', 1),
+(88, '2025_09_04_113149_create_transactions_table', 1),
+(89, '2025_09_30_131542_create_special_donations_table', 1),
+(90, '2025_10_03_003845_create_notifications_table', 1);
 
 -- --------------------------------------------------------
 
@@ -262,8 +262,9 @@ CREATE TABLE `transactions` (
 CREATE TABLE `users` (
   `id` bigint UNSIGNED NOT NULL,
   `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `reference_id` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `email` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `password` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `password` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `role` enum('admin','donor') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'donor',
   `stripe_customer_id` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `title` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
@@ -281,8 +282,8 @@ CREATE TABLE `users` (
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`id`, `name`, `email`, `password`, `role`, `stripe_customer_id`, `title`, `city`, `country`, `address`, `zip_code`, `email_verified_at`, `remember_token`, `created_at`, `updated_at`) VALUES
-(1, 'GiftAidly Admin', 'admin@gmail.com', '$2y$12$8dYegrdZux97ReXRffau1ejUkQDIdJeyy2kDzxxWb/kWKoql9VS2K', 'admin', NULL, NULL, NULL, NULL, NULL, NULL, '2025-10-13 14:50:34', 'vjZ5IbMs65', '2025-10-13 14:50:35', '2025-10-13 14:50:35');
+INSERT INTO `users` (`id`, `name`, `reference_id`, `email`, `password`, `role`, `stripe_customer_id`, `title`, `city`, `country`, `address`, `zip_code`, `email_verified_at`, `remember_token`, `created_at`, `updated_at`) VALUES
+(1, 'GiftAidly Admin', 'ref-uvUkyTSQcdDC', 'softwaretesting@thumbsupdigital.com', '$2y$12$qvROtKd3ds8N4kCJHPGh9Osf7ZQQBY.329BnZkmHL7OGgPabW98RK', 'admin', NULL, NULL, NULL, NULL, NULL, NULL, '2025-11-04 12:57:55', 'px2KeFNXiH', '2025-11-04 12:57:56', '2025-11-04 12:57:56');
 
 --
 -- Indexes for dumped tables
@@ -389,6 +390,7 @@ ALTER TABLE `transactions`
 --
 ALTER TABLE `users`
   ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `users_reference_id_unique` (`reference_id`),
   ADD UNIQUE KEY `users_email_unique` (`email`);
 
 --
@@ -417,7 +419,7 @@ ALTER TABLE `jobs`
 -- AUTO_INCREMENT for table `migrations`
 --
 ALTER TABLE `migrations`
-  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=91;
 
 --
 -- AUTO_INCREMENT for table `product_catalogs`

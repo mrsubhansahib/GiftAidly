@@ -537,6 +537,10 @@
             opacity: 0.4 !important;
             pointer-events: none !important;
         }
+
+        body.authentication-bg {
+            background: linear-gradient(135deg, #f9c001 0%, #1d43ab 100%);
+        }
     </style>
     @livewireStyles
 
@@ -544,7 +548,7 @@
 
 <body>
     {{-- Main Content --}}
-    
+
     @include('layouts.partials.loader')
     <main>
         @yield('content')
@@ -1208,8 +1212,8 @@
             const initSpecial = () => {
                 if (!$('#special').hasClass('active')) return;
 
-                @if(!$userCurrency)
-                $('#currency-monthly').val('GBP');
+                @if (!$userCurrency)
+                    $('#currency-monthly').val('GBP');
                 @endif
 
                 const updateAmount = () => {
