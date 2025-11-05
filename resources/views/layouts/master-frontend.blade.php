@@ -14,6 +14,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/style.css">
     <link rel="shortcut icon" href="/images/favicon.png">
     <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ asset('css/loader.css') }}">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Make a Difference | GiftAidly</title>
     <style>
@@ -543,13 +544,18 @@
 
 <body>
     {{-- Main Content --}}
+    
+    @include('layouts.partials.loader')
     <main>
         @yield('content')
     </main>
 
 
+    <!-- jQuery and Flatpickr JS -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    {{-- Loader script --}}
+    <script src="{{ asset('js/loader.js') }}"></script>
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/index.js"></script>
