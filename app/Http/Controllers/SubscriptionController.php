@@ -187,10 +187,10 @@ class SubscriptionController extends Controller
             $msg = $forceChargeNow || !$startIsFuture
                 ? 'Donation successful! Please check your email for the donation details and receipt.'
                 : 'Donation scheduled successfully! Please check your email for schedule details and donation summary.';
-            return redirect()->back()->with('success', $msg);
+            return redirect()->back()->with('success', $msg)->with('active_tab', 'daily-weekly-monthly');;
         } catch (\Stripe\Exception\CardException $e) {
             DB::rollBack();
-            return back()->withInput()->withErrors($e->getMessage());
+            return back()->withInput()->withErrors($e->getMessage())->with('active_tab', 'daily-weekly-monthly');;
         } catch (\Exception $e) {
             DB::rollBack();
 
@@ -201,7 +201,7 @@ class SubscriptionController extends Controller
                 $errorMessage = "Please use the same currency as your existing active subscription {$existingCurrency}).";
             }
 
-            return back()->withInput()->withErrors($errorMessage);
+            return back()->withInput()->withErrors($errorMessage)->with('active_tab', 'daily-weekly-monthly');;
         }
     }
     public function donateFriday(Request $request)
@@ -388,10 +388,10 @@ class SubscriptionController extends Controller
                 ? 'Donation successful! Please check your email for the donation details and receipt.'
                 : 'Donation scheduled successfully! Please check your email for schedule details and donation summary.';
 
-            return redirect()->back()->with('success', $msg);
+            return redirect()->back()->with('success', $msg)->with('active_tab', 'friday');;
         } catch (\Stripe\Exception\CardException $e) {
             DB::rollBack();
-            return back()->withInput()->withErrors($e->getMessage());
+            return back()->withInput()->withErrors($e->getMessage())->with('active_tab', 'friday');;
         } catch (\Exception $e) {
             DB::rollBack();
 
@@ -412,7 +412,7 @@ class SubscriptionController extends Controller
                 $errorMessage = "Please use the same currency as your existing active subscription ({$symbol} {$existingCurrency}).";
             }
 
-            return back()->withInput()->withErrors($errorMessage);
+            return back()->withInput()->withErrors($errorMessage)->with('active_tab', 'friday');;
         }
     }
     public function donateSpecial(Request $request)
@@ -561,13 +561,13 @@ class SubscriptionController extends Controller
                 Mail::to($adminEmail)->send(new SubscriptionStartedMail($user, $localSubscription, true));
             });
 
-            return redirect()->back()->with('success', 'Donation successful! Please check your email for the donation details and receipt.');
+            return redirect()->back()->with('success', 'Donation successful! Please check your email for the donation details and receipt.')->with('active_tab', 'special');;
         } catch (\Stripe\Exception\CardException $e) {
             DB::rollBack();
-            return back()->withInput()->withErrors($e->getMessage());
+            return back()->withInput()->withErrors($e->getMessage())->with('active_tab', 'special');;
         } catch (\Exception $e) {
             DB::rollBack();
-            return back()->withInput()->withErrors($e->getMessage());
+            return back()->withInput()->withErrors($e->getMessage())->with('active_tab', 'special');;
         }
     }
     public function cancelSubscription($id)

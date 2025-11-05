@@ -1165,6 +1165,19 @@
                 }
             });
         });
+
+        // 🔄 Preserve active tab between redirects
+        document.addEventListener("DOMContentLoaded", () => {
+            const forms = document.querySelectorAll("form");
+            const active = "{{ session('active_tab') }}";
+            if (active) openTab({
+                currentTarget: document.querySelector(`.tab-btn[onclick*='${active}']`)
+            }, active);
+            forms.forEach(f => f.addEventListener("submit", () => {
+                f.querySelector("input[name='active_tab']").value =
+                    document.querySelector(".tab-panel.active")?.id || '';
+            }));
+        });
     </script>
     {{-- Jquery Script --}}
     <script>
