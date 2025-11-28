@@ -3,8 +3,7 @@
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\RoutingController;
 use App\Http\Controllers\SubscriptionController;
-use App\Http\Controllers\WebhookController;
-use App\Http\Controllers\zakahController;
+use App\Http\Controllers\ZakatController;
 use Illuminate\Support\Facades\Route;
 
 require __DIR__ . '/auth.php';
@@ -33,8 +32,9 @@ Route::post('donate/friday', [SubscriptionController::class, 'donateFriday'])->n
 Route::post('donate/special', [SubscriptionController::class, 'donateSpecial'])->name('donation.special');
 
 // 💰 Zakat routes
-Route::get('/receive-zakat', [zakahController::class, 'handle']);
-Route::post('/donate-zakat', [SubscriptionController::class, 'donateZakat'])->name('zakat.process');
+Route::get('/receive-zakat/currency={currency}/amount={zakat}', [ZakatController::class, 'index'])->name('zakat.form');
+Route::post('/donate-zakat', [ZakatController::class, 'donateZakat'])->name('zakat.process');
+Route::get('/zakat/redirect', [ZakatController::class, 'redirect'])->name('zakat.redirect');
 
 // Reference ID route
 Route::get('user/donations/{reference_id}', fn($reference_id) => view('user.donations.index', ['reference_id' => $reference_id]))->name('user.donations');
