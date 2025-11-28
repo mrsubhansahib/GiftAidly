@@ -70,7 +70,7 @@ class WebhookController extends Controller
                     $this->onInvoicePaymentPaid($event->data->object);
                     break;
                 case 'payment_intent.succeeded':
-                    $this->onPaymentIntentSucceeded($event->data->object);
+                    $this->handleZakatPayment($event->data->object);
                     break;
 
                 case 'charge.refunded':
@@ -270,11 +270,53 @@ class WebhookController extends Controller
     }
     /* ---------- PAYMENT EVENTS ---------- */
 
-    private function onPaymentIntentSucceeded($pi)
+    private function handleZakatPayment($pi)
     {
-        if (!empty($pi->invoice)) return; // already handled
-        // Handle one-time donations here if needed
+        Log::info("Handling Zakat Payment Intent: {$pi->metadata->type}");
+        if (($pi->metadata->type ?? null) !== 'zakat') return;
+
+        DB::transaction(function () use ($pi) {
+
+            $email = $pi->metadata->email;
+            $user = User::where('email', $email)->first();
+
+            // Create local subscription entry (one-time)
+            $subscription = Subscription::create([
+                'user_id' => $user->id,
+                'stripe_subscription_id' => 'zakat-' . $pi->id,
+                'stripe_price_id' => 'n/a',
+                'status' => 'completed',
+                'price' => $pi->metadata->amount,
+                'currency' => $pi->metadata->currency,
+                'type' => 'Zakat',
+                'gift_aid' => $pi->metadata->gift_aid,
+                'start_date' => now(),
+                'end_date' => now(),
+                'canceled_at' => now(),
+            ]);
+
+            // Create invoice
+            $invoice = Invoice::create([
+                'subscription_id' => $subscription->id,
+                'stripe_invoice_id' => $pi->id,
+                'amount_due' => $pi->metadata->amount,
+                'currency' => $pi->metadata->currency,
+                'invoice_date' => now(),
+                'paid_at' => now(),
+            ]);
+
+            // Create transaction
+            Transaction::create([
+                'invoice_id' => $invoice->id,
+                'stripe_transaction_id' => $pi->charges->data[0]->id,
+                'status' => 'paid',
+                'paid_at' => now(),
+            ]);
+
+            // Notifications...
+        });
     }
+
 
     private function onChargeRefunded($charge)
     {
