@@ -18,6 +18,8 @@ class zakahController extends Controller
         return view('zakah.form', [
             'currency' => $currency,
             'zakat' => $zakat,
+            // ider sy null beja ha currency ko 
+            'userCurrency' => null,
         ]);
     }
 }

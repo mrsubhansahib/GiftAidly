@@ -1211,10 +1211,15 @@
 
             const initSpecial = () => {
                 if (!$('#special').hasClass('active')) return;
-
-                @if (!$userCurrency)
+                // ya ha jo pahly condition thi ya msla kr ri thi isko change ker k nechy vala code replace kia ha ab page render hora ha 
+                //  @if(!$userCurrency)
+                // $('#currency-monthly').val('GBP');
+                // @endif
+                // new code
+                const userCurrency = @json($userCurrency ?? null);
+                if (!userCurrency) {
                     $('#currency-monthly').val('GBP');
-                @endif
+                }
 
                 const updateAmount = () => {
                     const s = $('#pay-special').find(':selected'),
