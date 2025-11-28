@@ -367,3 +367,64 @@
     </div>
 </div>
 @endsection
+
+@section('scripts')
+{{-- Jquery Script --}}
+    <script>
+        $(function() {
+            let rates, fetched = false;
+            let specialInitialized = false; 
+            const fetchRates = cb => {
+                if (fetched) return cb();
+                $.get('https://api.frankfurter.app/latest', {
+                        from: 'GBP',
+                        to: 'USD,EUR'
+                    })
+                    .done(data => {
+                        if (data?.rates) {
+                            rates = data.rates;
+                            fetched = true;
+                            cb();
+                        }
+                    })
+                    .fail(() => console.error('Currency API failed'));
+            };
+
+            const initSpecial = () => {
+                if (specialInitialized) return;
+                specialInitialized = true; // 🔥 Only run once
+                const userCurrency = @json($userCurrency ?? null);
+                if (!userCurrency) {
+                    $('#currency-monthly').val('GBP');
+                }
+
+                const updateAmount = () => {
+                    const s = $('#pay-special').find(':selected'),
+                        p = parseFloat(s.data('price')) || 0,
+                        c = $('#currency-monthly').val(),
+                        r = rates?.[c];
+                    if (!p || !c) return $('#pay-amount').val('');
+                    $('#pay-amount').val(c === 'GBP' ? p.toFixed(2) : (p * r).toFixed(2));
+                };
+
+                if (!$('#pay-special').data('bound')) {
+                    $('#pay-special, #currency-monthly')
+                        .on('change', updateAmount)
+                        .data('bound', true);
+                }
+
+                fetchRates(updateAmount);
+            };
+
+            if ($('#special').hasClass('active')) initSpecial();
+
+            $('.tab-btn').on('click', function() {
+                if (this.outerHTML.includes("'special'")) {
+                    setTimeout(() => {
+                        if (!specialInitialized) initSpecial();
+                    }, 200);
+                }
+            });
+        });
+    </script>
+@endsection
