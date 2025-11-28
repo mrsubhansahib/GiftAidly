@@ -1,6 +1,6 @@
 @extends('layouts.base', ['subtitle' => 'Page Not Found - 404'])
 
-@section('body-attribuet')
+@section('body-attribute')
 class="authentication-bg"
 @endsection
 

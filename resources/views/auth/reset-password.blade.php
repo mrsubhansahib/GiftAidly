@@ -1,6 +1,6 @@
 @extends('layouts.base', ['subtitle' => 'Reset Password'])
 
-@section('body-attribuet')
+@section('body-attribute')
     class="authentication-bg"
 @endsection
 

@@ -1,6 +1,6 @@
 @extends('layouts.base', ['subtitle' => 'Lock Screen'])
 
-@section('body-attribuet')
+@section('body-attribute')
     class="authentication-bg"
 @endsection
 

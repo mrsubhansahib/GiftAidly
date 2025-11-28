@@ -1,6 +1,6 @@
 @extends('layouts.base', ['subtitle' => 'Sign In'])
 
-@section('body-attribuet')
+@section('body-attribute')
     class="authentication-bg"
 @endsection
 
