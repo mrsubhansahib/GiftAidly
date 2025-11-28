@@ -1,9 +1,6 @@
-@extends('layouts.base', ['subtitle' => 'Zakat Payment'])
+@extends('layouts.master-frontend', ['subtitle' => 'Zakat Payment'])
 
-@section('body-attribuet')
-    class="authentication-bg"
-@endsection
-
+    
 @section('content')
     <div class="container py-5">
         <div class="row justify-content-center">

@@ -40,6 +40,8 @@ class ZakatController extends Controller
             'currency' => $currency,
             'zakat' => $zakat,
             'clientSecret' => $paymentIntent->client_secret,
+            // ider sy null beja ha currency ko 
+            'userCurrency' => null,
         ]);
     }
     public function donateZakat(Request $request)
@@ -201,12 +203,12 @@ class ZakatController extends Controller
 
         // Fetch PaymentIntent from Stripe
         $paymentIntent = \Stripe\PaymentIntent::retrieve($paymentIntentId);
-        
+
         // Check status
         if ($paymentIntent->status === 'succeeded') {
             return redirect()->route('root')->with('success', 'Zakat paid successfully.');
         }
-        
+
         return redirect()->route('root')->with('error', 'Payment was not completed.');
     }
 }
