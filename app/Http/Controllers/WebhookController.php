@@ -70,7 +70,8 @@ class WebhookController extends Controller
                     $this->onInvoicePaymentPaid($event->data->object);
                     break;
                 case 'payment_intent.succeeded':
-                    $this->handleZakatPayment($event->data->object);
+                    $pi = $payload['data']['object'];
+                    $this->handleZakatPayment($pi);
                     break;
 
                 case 'charge.refunded':
@@ -272,50 +273,88 @@ class WebhookController extends Controller
 
     private function handleZakatPayment($pi)
     {
-        Log::info("Handling Zakat Payment Intent: {$pi->metadata->type}");
-        if (($pi->metadata->type ?? null) !== 'zakat') return;
+        Log::info("Webhook: Processing Zakat PaymentIntent {$pi->id}");
 
         DB::transaction(function () use ($pi) {
 
-            $email = $pi->metadata->email;
-            $user = User::where('email', $email)->first();
+            // -------------------------------------------
+            // 1️⃣ GET STRIPE CUSTOMER → LOCAL USER
+            // -------------------------------------------
+            $customerId = $pi->customer ?? null;
 
-            // Create local subscription entry (one-time)
-            $subscription = Subscription::create([
-                'user_id' => $user->id,
-                'stripe_subscription_id' => 'zakat-' . $pi->id,
-                'stripe_price_id' => 'n/a',
-                'status' => 'completed',
-                'price' => $pi->metadata->amount,
-                'currency' => $pi->metadata->currency,
-                'type' => 'Zakat',
-                'gift_aid' => $pi->metadata->gift_aid,
-                'start_date' => now(),
-                'end_date' => now(),
-                'canceled_at' => now(),
+            if (!$customerId) {
+                Log::error("PaymentIntent {$pi->id} has NO CUSTOMER. Cannot attach to user.");
+                return;
+            }
+
+            $user = User::where('stripe_customer_id', $customerId)->first();
+
+            if (!$user) {
+                Log::error("NO LOCAL USER FOUND for Stripe customer {$customerId}");
+                return;
+            }
+
+            // -------------------------------------------
+            // 2️⃣ GET AMOUNT / CURRENCY
+            // -------------------------------------------
+            $amount = ($pi->amount_received ?? $pi->amount ?? 0) / 100;
+            $currency = strtolower($pi->currency ?? 'gbp');
+
+            // -------------------------------------------
+            // 3️⃣ DETERMINE TYPE (fallbacks)
+            // -------------------------------------------
+            $type = $pi->metadata->type
+                ?? $pi->description
+                ?? 'zakat';
+
+            // Fallback gift aid
+            $giftAid = $pi->metadata->gift_aid ?? 'no';
+
+            // -------------------------------------------
+            // 4️⃣ CREATE LOCAL SUBSCRIPTION (ONE-TIME MARKER)
+            // -------------------------------------------
+            $subscription = $user->subscriptions()->create([
+                'stripe_subscription_id' => 'one-time-' . $pi->id,
+                'stripe_price_id'        => $pi->metadata->price_id ?? 'n/a',
+                'status'                 => 'ended',
+                'price'                  => $amount,
+                'currency'               => $currency,
+                'type'                   => $type,
+                'gift_aid'               => 'no',
+                'start_date'             => now(),
+                'end_date'               => now(),
+                'canceled_at'            => now(),
             ]);
 
-            // Create invoice
+            // -------------------------------------------
+            // 5️⃣ CREATE INVOICE
+            // -------------------------------------------
             $invoice = Invoice::create([
-                'subscription_id' => $subscription->id,
+                'subscription_id'   => $subscription->id,
                 'stripe_invoice_id' => $pi->id,
-                'amount_due' => $pi->metadata->amount,
-                'currency' => $pi->metadata->currency,
-                'invoice_date' => now(),
-                'paid_at' => now(),
+                'amount_due'        => $amount,
+                'currency'          => $currency,
+                'invoice_date'      => now(),
+                'paid_at'           => now(),
             ]);
 
-            // Create transaction
+            // -------------------------------------------
+            // 6️⃣ CREATE TRANSACTION
+            // -------------------------------------------
+            $chargeId = $pi->latest_charge;
+
             Transaction::create([
-                'invoice_id' => $invoice->id,
-                'stripe_transaction_id' => $pi->charges->data[0]->id,
-                'status' => 'paid',
-                'paid_at' => now(),
+                'invoice_id'            => $invoice->id,
+                'stripe_transaction_id' => $chargeId,
+                'paid_at'               => now(),
+                'status'                => 'paid',
             ]);
 
-            // Notifications...
+            Log::info("Webhook: One-time donation saved for user {$user->email}");
         });
     }
+
+
 
 
     private function onChargeRefunded($charge)
