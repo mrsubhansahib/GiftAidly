@@ -21,27 +21,16 @@ use Illuminate\Support\Str;
 
 class ZakatController extends Controller
 {
-    public function index($currency, $zakat)
+    public function index($currency, $amount)
     {
         $currency = match ($currency) {
             '£' => 'gbp',
             '$' => 'usd',
             '€' => 'eur',
         };
-        Stripe::setApiKey(env('STRIPE_SECRET'));
-
-        $paymentIntent = \Stripe\PaymentIntent::create([
-            'amount' => intval($zakat * 100),
-            'currency' => strtolower($currency),
-            'automatic_payment_methods' => ['enabled' => true],
-        ]);
-
-        return view('zakah.form', [
+        return view('donation.zakat', [
             'currency' => $currency,
-            'zakat' => $zakat,
-            'clientSecret' => $paymentIntent->client_secret,
-            // ider sy null beja ha currency ko 
-            'userCurrency' => null,
+            'amount' => $amount
         ]);
     }
     public function donateZakat(Request $request)
@@ -209,6 +198,6 @@ class ZakatController extends Controller
             return redirect()->route('root')->with('success', 'Zakat paid successfully.');
         }
 
-        return redirect()->route('root')->with('error', 'Payment was not completed.');
+        return redirect()->route('root')->with('error', 'Payment was completed.');
     }
 }

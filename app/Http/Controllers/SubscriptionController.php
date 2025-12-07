@@ -513,7 +513,7 @@ class SubscriptionController extends Controller
                 'canceled_at'            => now()->addSeconds(2),
             ]);
 
-            // ✅ 9. Create local invoice
+            // ✅ 9. Create local invoice 
             $invoice = Invoice::create([
                 'subscription_id'   => $localSubscription->id,
                 'stripe_invoice_id' => $paymentIntent->id,
