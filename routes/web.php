@@ -4,6 +4,7 @@ use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\RoutingController;
 use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\ZakatController;
+use App\Livewire\Zakat;
 use Illuminate\Support\Facades\Route;
 
 require __DIR__ . '/auth.php';
@@ -32,7 +33,7 @@ Route::post('donate/friday', [SubscriptionController::class, 'donateFriday'])->n
 Route::post('donate/special', [SubscriptionController::class, 'donateSpecial'])->name('donation.special');
 
 // 💰 Zakat routes
-Route::get('/receive-zakat/currency={currency}/amount={zakat}', [ZakatController::class, 'index'])->name('zakat.form');
+Route::get('/receive-zakat/currency={currency}/amount={amount}', [ZakatController::class, 'index'])->name('zakat.form');
 Route::post('/donate-zakat', [ZakatController::class, 'donateZakat'])->name('zakat.process');
 Route::get('/zakat/redirect', [ZakatController::class, 'redirect'])->name('zakat.redirect');
 
