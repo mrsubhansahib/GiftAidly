@@ -15,7 +15,7 @@ class Zakat extends Component
 
     protected $rules = [
         'name'  => 'required|string|max:255',
-        'email'    => 'required|string|email:rfc|email:dns',
+        'email'    => 'email|required|string|email:rfc|email:dns',
     ];
 
     public function mount($currency, $amount)

@@ -269,97 +269,41 @@
                         </p>
                     </div>
 
-                    <form id="form-monthly" action="{{ route('donation.special') }}" method="POST">
-                        @csrf
-                        <div class="form-grid">
-                            @php
-                                use App\Models\SpecialDonation;
-                                $specials = SpecialDonation::all();
-                            @endphp
-
-                            <!-- ✅ Full Name -->
-                            <div class="form-group" style="grid-column: 1 / -1;">
-                                <label for="name-monthly">Full Name</label>
-                                <input type="text" name="name" value="{{ old('name') }}" id="name-monthly"
-                                    class="text-input" placeholder="Enter your full name" required />
-                                <span id="error-name-monthly"
-                                    style="color: red; font-size: 13px; display: block; margin-top: 3px;"></span>
-                            </div>
-
-                            <!-- ✅ Email -->
-                            <div class="form-group" style="grid-column: 1 / -1;">
-                                <label for="email-monthly">Email Address</label>
-                                <input type="email" name="email" value="{{ old('email') }}" id="email-monthly"
-                                    class="text-input" placeholder="Enter your email" required />
-                                <span id="error-email-monthly"
-                                    style="color: red; font-size: 13px; display: block; margin-top: 3px;"></span>
-                            </div>
-
-                            <div class="form-group">
-                                <label for="currency-monthly">Currency</label>
-                                <select name="currency" id="currency-monthly" class="select-input" required>
-                                    @foreach ($currencies as $code => $symbol)
-                                        <option value="{{ strtoupper($code) }}" @selected($userCurrency === $code)
-                                            @disabled($userCurrency && $userCurrency !== $code)
-                                            title="{{ $userCurrency && $userCurrency !== $code ? 'You cannot select this currency because your previous donations were in ' . strtoupper($userCurrency) . '.' : '' }}">
-                                            {{ $symbol }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
-
-                            <div class="form-group">
-                                <label for="pay-amount">Amount</label>
-                                <input type="number" name="amount" placeholder="100.00" readonly id="pay-amount"
-                                    class="text-input" min="01" step="any" />
-                                <span id="error-amount-special"
-                                    style="color: red; font-size: 13px; display: block; margin-top: 3px;"></span>
-                            </div>
-
-                            <div class="form-group">
-                                <label for="pay-special">Pay Special</label>
-                                <select name="special" id="pay-special" class="select-input">
-                                    <option value="">-- Select Special --</option>
-                                    @foreach ($specials as $special)
-                                        <option value="{{ $special->id }}" data-price="{{ $special->price }}">
-                                            {{ $special->name }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                                <span id="error-product-special"
-                                    style="color: red; font-size: 13px; display: block; margin-top: 3px;"></span>
-                            </div>
-
-                            <!-- Stripe Card Element -->
-                            <div class="form-group" style="grid-column: 1 / -1;">
-                                <label for="card-element-monthly">Card Details</label>
-                                <div id="card-element-monthly" class="text-input"></div>
-                                <div id="card-errors-monthly" role="alert" style="color: red; margin-top: 5px;"></div>
-                            </div>
-
-                            <div class="form-group"
-                                style="grid-column: 1 / -1; display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
-                                <label for="gift-aid-monthly"
-                                    style="display: flex; align-items: center; gap: 6px; white-space: nowrap; margin-top: 6px;">
-                                    Gift Aid
-                                    <input type="checkbox" name="gift_aid" id="gift-aid-monthly"
-                                        data-target="address-monthly"
-                                        value="{{ old('gift_aid') === 'yes' ? '' : 'display: none;' }}" />
-                                </label>
-
-                                <div style="flex: 1; min-width: 200px; display: flex; flex-direction: column;">
-                                    <input type="text" name="address" id="address-monthly" class="text-input"
-                                        style="{{ old('gift_aid') === 'yes' ? 'display: block; width: 100%;' : 'display: none; width: 100%;' }}"
-                                        value="{{ old('address') }}" placeholder="Enter your address" />
-                                    <span id="error-address-special"
-                                        style="color: red; font-size: 13px; display: block; margin-top: 3px;"></span>
-                                </div>
+                    @livewire('special-donation')
+                    <div class="form-grid">
+                        <!-- Stripe Card Element -->
+                        <div class="form-group card-input" hidden wire:ignore style="grid-column: 1 / -1;">
+                            <label for="card-element-special-donations">Card Details</label>
+                            <div id="card-element-special-donations" class="text-input"></div>
+                            <div id="card-errors-special-donations" role="alert" style="color: red; margin-top: 5px;">
                             </div>
                         </div>
 
-                        <button type="submit" class="donate-btn">Donate Now</button>
-                        <input type="hidden" name="active_tab" value="">
-                    </form>
+                        <div class="form-group"
+                            style="grid-column: 1 / -1; display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+                            <label for="gift-aid-monthly"
+                                style="display: flex; align-items: center; gap: 6px; white-space: nowrap; margin-top: 6px;">
+                                Gift Aid
+                                <input type="checkbox" name="gift_aid" id="gift-aid-monthly"
+                                    data-target="address-monthly"
+                                    value="{{ old('gift_aid') === 'yes' ? '' : 'display: none;' }}" />
+                            </label>
+
+                            <div style="flex: 1; min-width: 200px; display: flex; flex-direction: column;">
+                                <input type="text" name="address" id="address-monthly" class="text-input"
+                                    style="{{ old('gift_aid') === 'yes' ? 'display: block; width: 100%;' : 'display: none; width: 100%;' }}"
+                                    value="{{ old('address') }}" placeholder="Enter your address" />
+                                <span id="error-address-special"
+                                    style="color: red; font-size: 13px; display: block; margin-top: 3px;"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <button id="specialDonationSubmitBtn" class="btn btn-primary w-100 mt-3" disabled>
+                        <span id="btnLoaderSpecial">Pay Now</span>
+                        <span id="btnTextSpecial" class="spinner-border spinner-border-sm d-none"></span>
+                    </button>
+                    <input type="hidden" name="active_tab" value="">
+
                 </div>
             </div>
 
@@ -369,6 +313,47 @@
 
 @section('scripts')
     <script src="https://js.stripe.com/v3/"></script>
+    <script>
+        window.addEventListener("special-stripe-init", function(event) {
+            document.querySelector(".card-input").removeAttribute("hidden");
+
+            const clientSecret = event.detail.clientSecretSpecial;
+
+            const stripe = Stripe("{{ env('STRIPE_KEY') }}");
+
+            const elements = stripe.elements({
+                clientSecret
+            });
+
+            const paymentElement = elements.create("payment");
+
+            paymentElement.mount("#card-element-special-donations");
+
+            document.getElementById("specialDonationSubmitBtn").disabled = false;
+
+            document.getElementById("specialDonationSubmitBtn").onclick = async function(e) {
+                e.preventDefault();
+
+                document.getElementById("btnLoaderSpecial").classList.remove("d-none");
+                document.getElementById("btnTextSpecial").innerHTML = "Processing...";
+
+                const {
+                    error
+                } = await stripe.confirmPayment({
+                    elements,
+                    confirmParams: {
+                        return_url: "{{ route('zakat.redirect') }}"
+                    }
+                });
+
+                if (error) {
+                    document.getElementById("card-errors-special-donations").innerText = error.message;
+                    document.getElementById("btnLoaderSpecial").classList.add("d-none");
+                    document.getElementById("btnTextSpecial").innerHTML = "Pay Now";
+                }
+            };
+        });
+    </script>
     <script>
         // ------------------------------
         // ✅ Tab Switching
