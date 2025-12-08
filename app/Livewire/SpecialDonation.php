@@ -12,21 +12,21 @@ use App\Models\User;
 
 class SpecialDonation extends Component
 {
-    public $name, $email, $currency = 'gbp', $amount, $special;
+    public $name, $email, $currency = 'GBP', $amount, $special,$gift_aid = false,$address;
     public $clientSecret = null;
 
     protected $rules = [
         'name' => 'required|string|min:3|max:255',
         'email' => 'required|email|string|email:rfc|email:dns',
         'special' => 'required|exists:special_donations,id',
-        'currency' => 'required|in:gbp,usd,eur',
+        'currency' => 'required|in:GBP,USD,EUR',
         'amount' => 'required|numeric|min:1',
     ];
 
     public function updated($field)
     {
         if ($this->validateOnly($field)) {
-            if ($this->name && $this->email && $this->special && $this->amount && !$this->clientSecret) {
+            if ($this->name && $this->email && $this->special  && $this->amount && !$this->clientSecret) {
                 $this->createIntent();
             }
         }
@@ -34,8 +34,9 @@ class SpecialDonation extends Component
 
     public function createIntent()
     {
+        
         $this->validate();
-
+        
         Stripe::setApiKey(env('STRIPE_SECRET'));
 
         // 🧩 1. Create or find user
@@ -51,20 +52,20 @@ class SpecialDonation extends Component
         } else {
             $customer = Customer::retrieve($user->stripe_customer_id);
         }
-
+        $donationDesc = ModelsSpecialDonation::find($this->special);
         // 🧩 3. Create PaymentIntent (one-time)
         $intent = PaymentIntent::create([
             'amount' => intval($this->amount * 100),
             'currency' => $this->currency,
             'customer' => $customer->id,
             'automatic_payment_methods' => ['enabled' => true],
-            'description' => 'Special Donation',
+            'description' => "Special ({$donationDesc->name}) ",
         ]);
 
         $this->clientSecret = $intent->client_secret;
 
         // dispatch event to JS
-        $this->dispatch('special-stripe-init', clientSecretSpecial: $this->clientSecret);
+        $this->dispatch('special-donation-stripe-init', clientSecretSpecial: $this->clientSecret);
     }
 
     public function render()

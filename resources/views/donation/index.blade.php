@@ -27,6 +27,12 @@
         </div>
 
         <div class="tab-content">
+            @php
+                $userCurrency = auth()->check()
+                    ? auth()->user()->subscriptions()->pluck('currency')->unique()->first()
+                    : null;
+                $currencies = ['gbp' => '£', 'usd' => '$', 'eur' => '€'];
+            @endphp
             <!-- daily/weekly/mothly -->
             <div id="daily-weekly-monthly" class="tab-panel active ">
                 <div class="donation-card">
@@ -43,12 +49,7 @@
                     <form id="form-daily" action="{{ route('donation.daily_weekly_monthly') }}" method="POST">
                         @csrf
                         <div class="form-grid">
-                            @php
-                                $userCurrency = auth()->check()
-                                    ? auth()->user()->subscriptions()->pluck('currency')->unique()->first()
-                                    : null;
-                                $currencies = ['gbp' => '£', 'usd' => '$', 'eur' => '€'];
-                            @endphp
+
 
 
                             <!-- ✅ Name Field -->
@@ -273,30 +274,13 @@
                     <div class="form-grid">
                         <!-- Stripe Card Element -->
                         <div class="form-group card-input" hidden wire:ignore style="grid-column: 1 / -1;">
-                            <label for="card-element-special-donations">Card Details</label>
+                            <label for="card-element-special-donations">Card Details <span style="color:red">*</span></label>
                             <div id="card-element-special-donations" class="text-input"></div>
                             <div id="card-errors-special-donations" role="alert" style="color: red; margin-top: 5px;">
                             </div>
                         </div>
 
-                        <div class="form-group"
-                            style="grid-column: 1 / -1; display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
-                            <label for="gift-aid-monthly"
-                                style="display: flex; align-items: center; gap: 6px; white-space: nowrap; margin-top: 6px;">
-                                Gift Aid
-                                <input type="checkbox" name="gift_aid" id="gift-aid-monthly"
-                                    data-target="address-monthly"
-                                    value="{{ old('gift_aid') === 'yes' ? '' : 'display: none;' }}" />
-                            </label>
-
-                            <div style="flex: 1; min-width: 200px; display: flex; flex-direction: column;">
-                                <input type="text" name="address" id="address-monthly" class="text-input"
-                                    style="{{ old('gift_aid') === 'yes' ? 'display: block; width: 100%;' : 'display: none; width: 100%;' }}"
-                                    value="{{ old('address') }}" placeholder="Enter your address" />
-                                <span id="error-address-special"
-                                    style="color: red; font-size: 13px; display: block; margin-top: 3px;"></span>
-                            </div>
-                        </div>
+                       
                     </div>
                     <button id="specialDonationSubmitBtn" class="btn btn-primary w-100 mt-3" disabled>
                         <span id="btnLoaderSpecial">Pay Now</span>
@@ -314,7 +298,7 @@
 @section('scripts')
     <script src="https://js.stripe.com/v3/"></script>
     <script>
-        window.addEventListener("special-stripe-init", function(event) {
+        window.addEventListener("special-donation-stripe-init", function(event) {
             document.querySelector(".card-input").removeAttribute("hidden");
 
             const clientSecret = event.detail.clientSecretSpecial;
@@ -741,81 +725,6 @@
         }
 
         // ------------------------------
-        // ✅ Special Donations Form Validation
-        // ------------------------------
-        document.addEventListener("DOMContentLoaded", function() {
-            const form = document.getElementById("form-monthly");
-            if (!form) return;
-
-            const nameInput = form.querySelector('#name-monthly');
-            const emailInput = form.querySelector('#email-monthly');
-            const amountInput = form.querySelector('#pay-amount');
-            const specialSelect = form.querySelector('#pay-special');
-            const giftAidCheckbox = form.querySelector('#gift-aid-monthly');
-            const addressInput = form.querySelector('#address-monthly');
-
-            const nameError = form.querySelector('#error-name-monthly');
-            const emailError = form.querySelector('#error-email-monthly');
-            const amountError = form.querySelector('#error-amount-special');
-            const productError = form.querySelector('#error-product-special');
-            const addressError = form.querySelector('#error-address-special');
-
-            form.addEventListener("submit", function(e) {
-                e.preventDefault();
-                let valid = true;
-
-                // ✅ Name
-                if (!nameInput.value.trim()) {
-                    nameError.textContent = 'Please enter your full name.';
-                    valid = false;
-                } else if (nameInput.value.trim().length < 3) {
-                    nameError.textContent = 'Name must be at least 3 characters long.';
-                    valid = false;
-                } else {
-                    nameError.textContent = '';
-                }
-
-                // ✅ Email
-                const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                if (!emailInput.value.trim()) {
-                    emailError.textContent = 'Please enter your email address.';
-                    valid = false;
-                } else if (!emailPattern.test(emailInput.value.trim())) {
-                    emailError.textContent = 'Please enter a valid email format.';
-                    valid = false;
-                } else {
-                    emailError.textContent = '';
-                }
-
-                // ✅ Special product selection
-                if (!specialSelect.value) {
-                    productError.textContent = 'Please select a special donation option.';
-                    valid = false;
-                } else {
-                    productError.textContent = '';
-                }
-
-                // ✅ Amount
-                if (!amountInput.value || parseFloat(amountInput.value) < 1) {
-                    amountError.textContent = 'Please enter a valid amount.';
-                    valid = false;
-                } else {
-                    amountError.textContent = '';
-                }
-
-                // ✅ Gift Aid
-                if (giftAidCheckbox.checked && addressInput.value.trim() === '') {
-                    addressError.textContent = 'Please enter your address for Gift Aid.';
-                    valid = false;
-                } else {
-                    addressError.textContent = '';
-                }
-
-                if (!valid) e.preventDefault();
-            });
-        });
-
-        // ------------------------------
         // ✅ INIT Flatpickr
         // ------------------------------
         document.addEventListener("DOMContentLoaded", function() {
@@ -978,61 +887,5 @@
         });
     </script>
     {{-- Jquery Script --}}
-    <script>
-        $(function() {
-            let rates, fetched = false;
-            let specialInitialized = false;
-            const fetchRates = cb => {
-                if (fetched) return cb();
-                $.get('https://api.frankfurter.app/latest', {
-                        from: 'GBP',
-                        to: 'USD,EUR'
-                    })
-                    .done(data => {
-                        if (data?.rates) {
-                            rates = data.rates;
-                            fetched = true;
-                            cb();
-                        }
-                    })
-                    .fail(() => console.error('Currency API failed'));
-            };
-
-            const initSpecial = () => {
-                if (specialInitialized) return;
-                specialInitialized = true; // 🔥 Only run once
-                const userCurrency = @json($userCurrency ?? null);
-                if (!userCurrency) {
-                    $('#currency-monthly').val('GBP');
-                }
-
-                const updateAmount = () => {
-                    const s = $('#pay-special').find(':selected'),
-                        p = parseFloat(s.data('price')) || 0,
-                        c = $('#currency-monthly').val(),
-                        r = rates?.[c];
-                    if (!p || !c) return $('#pay-amount').val('');
-                    $('#pay-amount').val(c === 'GBP' ? p.toFixed(2) : (p * r).toFixed(2));
-                };
-
-                if (!$('#pay-special').data('bound')) {
-                    $('#pay-special, #currency-monthly')
-                        .on('change', updateAmount)
-                        .data('bound', true);
-                }
-
-                fetchRates(updateAmount);
-            };
-
-            if ($('#special').hasClass('active')) initSpecial();
-
-            $('.tab-btn').on('click', function() {
-                if (this.outerHTML.includes("'special'")) {
-                    setTimeout(() => {
-                        if (!specialInitialized) initSpecial();
-                    }, 200);
-                }
-            });
-        });
-    </script>
+   
 @endsection
