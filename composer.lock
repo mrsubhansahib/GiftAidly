@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "c142981a70d3bc822ba177d84689ba76",
+    "content-hash": "de19f6725c60fd81963952103f13611e",
     "packages": [
         {
             "name": "brick/math",
@@ -1056,16 +1056,16 @@
         },
         {
             "name": "laravel/cashier",
-            "version": "v16.0.5",
+            "version": "v16.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/cashier-stripe.git",
-                "reference": "9a43e809bd0729c98398672eb872f8cc2c42e2de"
+                "reference": "6d526c79ea0b0e664299e5a122811034fe75ece9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/cashier-stripe/zipball/9a43e809bd0729c98398672eb872f8cc2c42e2de",
-                "reference": "9a43e809bd0729c98398672eb872f8cc2c42e2de",
+                "url": "https://api.github.com/repos/laravel/cashier-stripe/zipball/6d526c79ea0b0e664299e5a122811034fe75ece9",
+                "reference": "6d526c79ea0b0e664299e5a122811034fe75ece9",
                 "shasum": ""
             },
             "require": {
@@ -1091,11 +1091,8 @@
             },
             "require-dev": {
                 "dompdf/dompdf": "^2.0|^3.0",
-                "mockery/mockery": "^1.0",
-                "orchestra/testbench": "^8.18|^9.0|^10.0",
-                "orchestra/workbench": "^8.0|^9.0|^10.0",
+                "orchestra/testbench": "^8.36|^9.15|^10.8",
                 "phpstan/phpstan": "^1.10",
-                "phpunit/phpunit": "^10.4|^11.5",
                 "spatie/laravel-ray": "^1.40"
             },
             "suggest": {
@@ -1143,7 +1140,7 @@
                 "issues": "https://github.com/laravel/cashier/issues",
                 "source": "https://github.com/laravel/cashier"
             },
-            "time": "2025-11-12T16:57:52+00:00"
+            "time": "2025-12-03T00:26:48+00:00"
         },
         {
             "name": "laravel/framework",
@@ -8647,12 +8644,12 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": [],
+    "stability-flags": {},
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
         "php": "^8.2"
     },
-    "platform-dev": [],
+    "platform-dev": {},
     "plugin-api-version": "2.6.0"
 }

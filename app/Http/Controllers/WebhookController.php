@@ -70,8 +70,7 @@ class WebhookController extends Controller
                     $this->onInvoicePaymentPaid($event->data->object);
                     break;
                 case 'payment_intent.succeeded':
-                    $pi = $payload['data']['object'];
-                    $this->handleZakatPayment($pi);
+                    $this->handleZakatPayment($event->data->object);
                     break;
 
                 case 'charge.refunded':
@@ -300,6 +299,7 @@ class WebhookController extends Controller
             $amount = ($pi->amount_received ?? $pi->amount ?? 0) / 100;
             $currency = strtolower($pi->currency ?? 'gbp');
 
+
             // -------------------------------------------
             // 3️⃣ DETERMINE TYPE (fallbacks)
             // -------------------------------------------
@@ -320,7 +320,7 @@ class WebhookController extends Controller
                 'price'                  => $amount,
                 'currency'               => $currency,
                 'type'                   => $type,
-                'gift_aid'               => 'no',
+                'gift_aid'               => $giftAid,
                 'start_date'             => now(),
                 'end_date'               => now(),
                 'canceled_at'            => now(),
