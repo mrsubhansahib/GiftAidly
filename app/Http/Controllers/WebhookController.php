@@ -315,7 +315,7 @@ class WebhookController extends Controller
             // -------------------------------------------
             $subscription = $user->subscriptions()->create([
                 'stripe_subscription_id' => 'one-time-' . $pi->id,
-                'stripe_price_id'        => $pi->metadata->price_id ?? 'n/a',
+                'stripe_price_id'        => $pi->latest_charge ?? 'N/A',
                 'status'                 => 'ended',
                 'price'                  => $amount,
                 'currency'               => $currency,

@@ -34,7 +34,6 @@ Route::post('donate/special', [SubscriptionController::class, 'donateSpecial'])-
 
 // 💰 Zakat routes
 Route::get('/receive-zakat/currency={currency}/amount={amount}', [ZakatController::class, 'index'])->name('zakat.form');
-Route::post('/donate-zakat', [ZakatController::class, 'donateZakat'])->name('zakat.process');
 Route::get('/zakat/redirect', [ZakatController::class, 'redirect'])->name('zakat.redirect');
 
 // Reference ID route
