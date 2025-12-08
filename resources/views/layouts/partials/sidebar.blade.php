@@ -18,7 +18,11 @@
 
             <li class="menu-title">Menu...</li>
 
-            @if (auth()->check() && Auth::user()->role === 'admin')
+            @php
+                $isAdmin = auth()->check() && optional(Auth::user())->role === 'admin';
+                $hasReferenceId = !empty($reference_id);
+            @endphp
+            @if ($isAdmin)
                 <li class="nav-item">
                     <a class="nav-link" href="{{ route('any', 'index') }}">
                         <span class="nav-icon">
@@ -65,8 +69,7 @@
                         <span class="nav-text"> Special Donations </span>
                     </a>
                 </li>
-            @else
-                {{-- Donations --}}
+            @elseif ($hasReferenceId)
                 <li class="nav-item">
                     <a class="nav-link" href="{{ route('user.donations', ['reference_id' => $reference_id]) }}">
                         <span class="nav-icon">
