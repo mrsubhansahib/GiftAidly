@@ -15,7 +15,7 @@
 
                         {{-- Stripe Card Section (STATIC - Never rerendered by Livewire) --}}
                         <div class="mt-4 card-input" hidden wire:ignore >
-                            <label class="form-label">Card Details *</label>
+                            <label class="form-label">Card Details <span style="color:red">*</span></label>
                             <div id="payment-element" class="form-control p-2"></div>
                             <small id="card-errors" class="text-danger mt-2 d-block"></small>
                         </div>
