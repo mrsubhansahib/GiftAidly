@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use Stripe\Stripe;
+use Illuminate\Support\Str;
 use Stripe\Webhook as StripeWebhook;
 use Stripe\Subscription as StripeSubscription;
 use App\Models\User;
@@ -16,8 +17,10 @@ use App\Models\Subscription;
 use App\Models\Invoice;
 use App\Models\Transaction;
 use App\Mail\SubscriptionCanceledMail;
+use App\Mail\SubscriptionStartedMail;
 use App\Mail\TransactionPaidMail;
 use App\Mail\TransactionFailedMail;
+use App\Mail\ZakatMail;
 use App\Notifications\UserActionNotification;
 use Stripe\Charge;
 use Stripe\Invoice as StripeInvoice;
@@ -287,7 +290,6 @@ class WebhookController extends Controller
             }
 
             $user = User::where('stripe_customer_id', $customerId)->first();
-
             if (!$user) {
                 Log::error("NO LOCAL USER FOUND for Stripe customer {$customerId}");
                 return;
@@ -303,8 +305,7 @@ class WebhookController extends Controller
             // -------------------------------------------
             // 3️⃣ DETERMINE TYPE (fallbacks)
             // -------------------------------------------
-            $type = $pi->metadata->type
-                ?? $pi->description
+            $type =  $pi->description
                 ?? 'zakat';
 
             // Fallback gift aid
@@ -351,6 +352,55 @@ class WebhookController extends Controller
             ]);
 
             Log::info("Webhook: One-time donation saved for user {$user->email}");
+            
+            // mail and notify
+            
+            DB::afterCommit(function () use ($user, $subscription, $type, $amount, $currency) {
+                
+                $adminEmail = env('ADMIN_EMAIL');
+                $admin = User::where('role', 'admin')->first();
+
+                $currencySymbols = ['usd' => '$', 'gbp' => '£', 'eur' => '€'];
+                $currencySymbol = $currencySymbols[strtolower($currency)] ?? strtoupper($currency);
+                $userName = Str::title($user->name);
+
+                // Normalise type (zakat vs special)
+                $normalizedType = strtolower(trim($type));
+                $isZakat = $normalizedType === 'zakat';
+
+                if ($isZakat) {
+                    // 🕌 Zakat donation
+                    $typeReadable = 'Zakat Donation';
+
+                    // Notifications (optional, agar chaho to comment bhi kar sakte ho)
+                    $userTitle   = "💝 {$typeReadable} Successful";
+                    $userMessage = "You donated {$currencySymbol}{$amount} as Zakat.";
+                    $adminTitle  = "💰 New {$typeReadable} Received";
+                    $adminMessage = "{$userName} donated {$currencySymbol}{$amount} as Zakat.";
+
+                    $user->notify(new UserActionNotification($userTitle, $userMessage, 'user'));
+                    $admin?->notify(new UserActionNotification($adminTitle, $adminMessage, 'admin'));
+
+                    // 📧Zakat Mail
+                    Mail::to($user->email)->send(new ZakatMail($user, $subscription));
+                    Mail::to($adminEmail)->send(new ZakatMail($user, $subscription, true));
+                } else {
+                    //  Special donation (ya jo bhi tum type set kar rahe ho)
+                    $typeReadable = 'Special Donation';
+
+                    $userTitle   = "💝 {$typeReadable} Successful";
+                    $userMessage = "You donated {$currencySymbol}{$amount} towards {$subscription->type}.";
+                    $adminTitle  = "💰 New {$typeReadable} Received";
+                    $adminMessage = "{$userName} donated {$currencySymbol}{$amount} towards {$subscription->type}.";
+
+                    $user->notify(new UserActionNotification($userTitle, $userMessage, 'user'));
+                    $admin?->notify(new UserActionNotification($adminTitle, $adminMessage, 'admin'));
+
+                    // Special Donation Mail (yahan wohi class use kar raha hoon jo tum example mein use kar rahe thay)
+                    Mail::to($user->email)->send(new SubscriptionStartedMail($user, $subscription));
+                    Mail::to($adminEmail)->send(new SubscriptionStartedMail($user, $subscription, true));
+                }
+            });
         });
     }
 
